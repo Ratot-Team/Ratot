@@ -112,7 +112,9 @@ client.on('message', message=>{
                 }
             break;
             case 'abraçar':
-                if(!args[1])
+                console.log(args[1]);
+                console.log(args[1].charAt(1));
+                if(!args[1]|| args[1].charAt(1)!='@')
                     return message.reply('Menciona quem queres abraçar, por exemplo "$abraçar @Rat.exe Bot#1386"');
                 message.channel.send('Abraçei o ' + args[1] + ' a pedido do <@!' + message.author.id + '>');
                 break;
