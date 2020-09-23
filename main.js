@@ -112,9 +112,12 @@ client.on('message', message=>{
                 }
             break;
             case 'abraçar':
-                if(!args[1])
-                    return message.reply('Menciona quem queres abraçar, por exemplo "$abraçar @Rat.exe Bot#1386"');
-                message.channel.send('Abraçei o ' + args[1] + ' a pedido do <@!' + message.author.id + '>');
+                if(!args[1]|| args[1].charAt(1)!='@')
+                    return message.reply('Menciona quem queres abraçar, por exemplo "$abraçar <@!756290869900083272>"');
+                if(args[1]=='<@!756290869900083272>')
+                    message.channel.send('Abraçei-me a mim mesmo a pedido do <@!' + message.author.id + '>');
+                else
+                    message.channel.send('Abraçei o ' + args[1] + ' a pedido do <@!' + message.author.id + '>');
                 break;
             case 'bot':
                 if(args[1]!='ping')
