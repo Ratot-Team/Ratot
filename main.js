@@ -11,8 +11,8 @@ const prefix = '$';
 var lastPing, pingCounter;
 
 client.once('ready', ()=> {
-    console.log('Rat.exe Bot está online!');
-    client.user.setActivity('$help', {type:'PLAYING'}).catch(console.error);
+    console.log('Ace Bot is online!');
+    client.user.setActivity('$help', {type:'LISTENING'}).catch(console.error);
 });
 
 client.on('message', message=>{
@@ -29,52 +29,52 @@ client.on('message', message=>{
                         pingCounter++;
                         if(pingCounter>=5)
                         {
-                            message.channel.send("FODASSE").then(m =>{
+                            message.channel.send("...").then(m =>{
                                 var latency = m.createdTimestamp - message.createdTimestamp;
                                 var botPing = client.ws.ping;
-                                m.edit('PONG CARALHO! O meu ping é ' + botPing + 'ms e o teu é ' + latency + 'ms seu merdas!');
+                                m.edit('Oh... Sorry... Right! My ping is ' + botPing + 'ms and yours is more or less ' + latency + 'ms');
                             });
                             lastPing = message.author.id;
                         }
                         else
-                            message.reply('Pong!');
+                            message.reply('Pong');
                     }
                 else
                     {
                         lastPing = message.author.id;
                         pingCounter = 1;
-                        message.reply('Pong!');
+                        message.reply('Pong');
                     };
                 break;
             case 'delete':
-                if(args[1]!='messages') message.reply('Será que querias dizer "$delete messages"?');
+                if(args[1]!='messages') message.reply('Did you mean "$delete messages"?');
                 else
                     {
-                        if(!args[2] || !Number.isInteger(parseInt(args[2]))) message.reply('Escreve o número de mensagens que queres eliminar, por exemplo "$delete messages 2"');
+                        if(!args[2] || !Number.isInteger(parseInt(args[2]))) message.reply('Type the number of messages you want to delete, for example "$delete messages 2"');
                         else 
                         {
                             if(message.member.hasPermission('ADMINISTRATOR'))
                                 {
                                     if(args[2]>99)
-                                        return message.reply('Só podes eliminar 99 mensagens!');
+                                        return message.reply('You can only delete 99 messages!');
                                     if(args[2]<0)
-                                        return message.reply('Achas que podes elminar mensagens negativas? Pff humanos...');
+                                        return message.reply('Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...');
                                     var n = args[2];
                                     n++;
                                     message.channel.bulkDelete(n);
                                     if(args[2]==1)
-                                         message.reply(args[2] + ' mensagem foi eliminada!').then(message=>{
+                                         message.reply(args[2] + ' message has been deleted!').then(message=>{
                                              message.delete({timeout:3000})
                                         })
                                         .catch(console.error);
                                     else
-                                        message.reply(args[2] + ' mensagens foram eliminas!').then(message=>{
+                                        message.reply(args[2] + ' messages have been deleted!').then(message=>{
                                              message.delete({timeout:3000})
                                         })
                                         .catch(console.error);
                                 }
                             else
-                                message.reply('Apenas administradores podem eliminar mensagens!');
+                                message.reply('Only admins can delete messages!');
                         }
                     }
                 break;
@@ -83,11 +83,11 @@ client.on('message', message=>{
                 {
                     const helpEmbed = new Discord.MessageEmbed()
                     .setColor('#339933')
-                    .setTitle('Menu de Ajuda Rat.exe Bot')
+                    .setTitle('Ace Bot Help Menu')
                     .addFields(
-                        {name: 'Lista de comandos', value: '$help commands'},
+                        {name: 'Commands List', value: '$help commands'},
                         {name: '\u200B', value: '\u200B'},
-                        {name: 'Vê o meu código no GitHub!' , value: 'https://github.com/IIIRataxIII/Rat.exe-Bot'}
+                        {name: 'See my code on GitHub!' , value: 'https://github.com/IIIRataxIII/Ace-Bot'}
                     );
                     message.channel.send(helpEmbed);
                 }
@@ -97,49 +97,49 @@ client.on('message', message=>{
                         case 'commands':
                             const helpCommandsEmbed = new Discord.MessageEmbed()
                             .setColor('#339933')
-                            .setTitle('Lista de Comandos')
+                            .setTitle('Commands List')
                             .addFields(
-                                {name: '$ping', value: 'O bot respode com pong e se repetires várias vezes ele diz-te o ping dele e o teu, mas ele não gosta muito que repitam várias vezes...'},
-                                {name: '$delete messages <number>', value: 'O bot elimina um certo número de mensagens, apenas admins podem usar este comando.'},
-                                {name: '$abraçar <@alguem>', value: 'O bot dá um abraço a alguém que tu menciones'},
-                                {name: '$bot ping', value: 'Diz o valor do ping do bot'},
-                                {name: '$meu ping', value: 'Diz o valor do teu ping'}
+                                {name: '$ping', value: 'The bot responds with \"pong\", but to know your ping you really have to insist a little bit'},
+                                {name: '$delete messages <number>', value: 'The bot deletes a certain number of messages, only admins can use this command.'},
+                                {name: '$hug <@someone>', value: 'The bot gives a hug to someone you mention'},
+                                {name: '$bot ping', value: 'Says the ping value of the bot'},
+                                {name: '$my ping', value: 'Say the value of your ping (kind of... is a little bit complicated xD)'}
                             );
                             message.channel.send(helpCommandsEmbed);
                             break;
                         default:
-                            message.reply('Sorry não conheço esse comando, mas se quiseres escreve "$help commands" para veres o que posso fazer.');
+                            message.reply('Sorry I don\'t recognize that command, but if you want type \"'+ prefix +'help commands\" to see what I can do.');
                             break;
                     }
                 }
             break;
-            case 'abraçar':
+            case 'hug':
                 if(!args[1]|| args[1].charAt(1)!='@')
-                    return message.reply('Menciona quem queres abraçar, por exemplo "$abraçar <@!756290869900083272>"');
+                    return message.reply('Mention who you want to hug, for example "$hug <@!756290869900083272>"');
                 if(args[1]=='<@!756290869900083272>')
-                    message.channel.send('Abraçei-me a mim mesmo a pedido do <@!' + message.author.id + '>');
+                    message.channel.send('I hugged myself at the request of <@!' + message.author.id + '>');
                 else
-                    message.channel.send('Abraçei o ' + args[1] + ' a pedido do <@!' + message.author.id + '>');
+                    message.channel.send('I hugged ' + args[1] + ' at the request of <@!' + message.author.id + '>');
                 break;
             case 'bot':
                 if(args[1]!='ping')
-                    return message.reply('Será que querias dizer "$bot ping"?');
-                message.channel.send("A testar a conexão...").then(m =>{
+                    return message.reply('Did you mean "$bot ping"?');
+                message.channel.send("Testing connection...").then(m =>{
                     var botPing = client.ws.ping;
-                    m.edit(`O meu ping é: ${botPing}ms`);
+                    m.edit(`My ping is: ${botPing}ms`);
                 });
                 break;
-            case 'meu':
+            case 'my':
                 if(args[1]!='ping')
-                    return message.reply('Será que querias dizer "$meu ping"?');
-                message.channel.send("A testar a tua conexão...").then(m =>{
+                    return message.reply('Did you mean "$my ping"?');
+                message.channel.send("Testing your connection...").then(m =>{
                     var latency = m.createdTimestamp - message.createdTimestamp;
-                    m.edit(`O teu ping é: ${latency}ms`);
+                    m.edit(`Your ping is more or less: ${latency}ms`);
                 });
                 break;
             default:
                 if(isCommand)
-                    message.reply('Sorry não conheço esse comando, mas se quiseres escreve "$help commands" para veres o que posso fazer.');
+                    message.reply('Sorry I don\'t recognize that command, but if you want type \"'+ prefix +'help commands\" to see what I can do.');
                 break;
         }
     }
