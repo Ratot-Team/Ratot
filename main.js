@@ -1,8 +1,10 @@
+require('dotenv').config()
+
 const Discord = require('discord.js');
 
 const client = new Discord.Client();
 
-const token = 'Insere aqui o token do bot';
+const token = process.env.ACE_BOT_DEV_TOKEN;
 
 const prefix = '$';
 
