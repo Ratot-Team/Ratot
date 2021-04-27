@@ -8,11 +8,17 @@ const client = new Discord.Client();
 
 const token = process.env.ACE_BOT_DEV_TOKEN;
 
-const prefix = '$';
+var isDevMode, currentBotDiscordId;
 
+const prefix = '$';
 
 client.once('ready', ()=> {
     console.log('Ace Bot is online!');
+    isDevMode = token==process.env.ACE_BOT_DEV_TOKEN;
+    if(isDevMode)
+        currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID
+    else
+        currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID
     client.user.setActivity('$help', {type:'LISTENING'}).catch(console.error);
 });
 
@@ -34,7 +40,7 @@ client.on('message', message=>{
                 commands.help(args, Discord, message, prefix);
             break;
             case 'hug':
-                commands.hug(args, message, prefix);
+                commands.hug(args, message, prefix, currentBotDiscordId);
                 break;
             case 'bot':
                 commands.bot(args, message, prefix, client);

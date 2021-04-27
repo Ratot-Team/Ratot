@@ -80,8 +80,8 @@ module.exports = {
                             .setTitle('Commands List')
                             .addFields(
                                 {name: prefix + 'ping', value: 'The bot responds with \"pong\", but to know your ping you really have to insist a little bit'},
-                                {name: prefix + 'delete messages <number>', value: 'The bot deletes a certain number of messages, only admins can use this command.'},
-                                {name: prefix + 'hug <@someone>', value: 'The bot gives a hug to someone you mention'},
+                                {name: prefix + 'delete messages <number>', value: 'The bot deletes a certain number of messages. Only admins can use this command.'},
+                                {name: prefix + 'hug <@someone>', value: 'The bot gives a hug to someone you mention. You can mention yourself don\'t be shy!'},
                                 {name: prefix + 'bot ping', value: 'Says the ping value of the bot'},
                                 {name: prefix + 'my ping', value: 'Say the value of your ping (kind of... is a little bit complicated xD)'}
                             );
@@ -93,11 +93,13 @@ module.exports = {
                     }
                 }
     },
-    hug: function(args, message, prefix){
+    hug: function(args, message, prefix, currentBotDiscordId){
         if(!args[1]|| args[1].charAt(1)!='@')
-                    return message.reply('Mention who you want to hug, for example \"' + prefix + 'hug <@!756290869900083272>\"');
-                if(args[1]=='<@!756290869900083272>')
+                    return message.reply('Mention who you want to hug, for example \"' + prefix + 'hug <@!' + currentBotDiscordId + '>\"');
+                if(args[1]=='<@!' + currentBotDiscordId + '>')
                     message.channel.send('I hugged myself at the request of <@!' + message.author.id + '>');
+                else if(args[1]=='<@!' + message.author.id + '>')
+                    message.reply('I hugged you!');
                 else
                     message.channel.send('I hugged ' + args[1] + ' at the request of <@!' + message.author.id + '>');
     },
