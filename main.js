@@ -6,7 +6,7 @@ const Discord = require('discord.js'); //Import the Discord.js library
 
 const client = new Discord.Client(); //Create a new Discord client
 
-const token = process.env.ACE_BOT_DEV_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
+const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
 var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
