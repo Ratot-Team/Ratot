@@ -3,10 +3,10 @@ var lastPing, pingCounter; //For ping and pong reasons xD
 //pingCounter - Saves how many times the same person called the ping command
 module.exports = {
     ping(message, client) {
-        if (lastPing == message.author.id) { //If is the same person that called the ping command before
+        if (lastPing === message.author.id) { //If is the same person that called the ping command before
             pingCounter++;
             if (pingCounter >= 5) { //If the same person has called the ping command 5 or more times in a row
-                message.channel.send("...").then(m => { //Send a "..." message and then
+                message.channel.send("...").then((m) => { //Send a "..." message and then
                     var latency = m.createdTimestamp - message.createdTimestamp; //Calculate ao many ms the user has (I think it doesn't work very well)
                     var botPing = client.ws.ping; //Saves the bot ping
                     //Edit the "..." message with the one with the calculated pings
@@ -14,13 +14,14 @@ module.exports = {
                 });
                 lastPing = message.author.id; //Saves who called the ping command
                 pingCounter = 1; //Reset the ping counter
-            } else
+            } else {
                 message.reply("Pong");
+            }
         } else {
             lastPing = message.author.id;
             pingCounter = 1;
             message.reply("Pong");
-        };
+        }
     },
     delete(args, message) {
         if (args[1] != "messages") //args[1] is the second word from the command
