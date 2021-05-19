@@ -32,19 +32,19 @@ module.exports = {
             } else {
                 if (message.member.hasPermission("ADMINISTRATOR")) { //Only proceed to the deletion of the messages if the user is an admin
                     //args[2] is the number of messages the user wants to delete
-                    if (args[2] > 99) {
+                    if (parseInt(args[2]) > 99) {
                         return message.reply("You can only delete 99 messages!");
                     }
-                    if (args[2] < 0) {
+                    if (parseInt(args[2]) < 0) {
                         return message.reply("Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...");
                     }
-                    if (args[2] == 0) {
+                    if (parseInt(args[2]) === 0) {
                         return message.reply("Nothing deleted! Because you know... 0 is nothing human...");
                     }
                     let n = args[2];
                     n++;
                     message.channel.bulkDelete(n); //Delte the number of messages requested by the user
-                    if (args[2] == 1) {
+                    if (parseInt(args[2]) === 1) {
                         message.reply(args[2] + " message has been deleted!").then((message) => {
                             message.delete({ timeout: 5000 }); //Delete the success message after 5 seconds
                         }).catch(console.error);
