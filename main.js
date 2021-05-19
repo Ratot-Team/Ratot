@@ -35,7 +35,7 @@ client.on("message", (message) => { //When the bot identifies a message
                 commands.ping(message, client);
                 break;
             case "delete":
-                commands.delete(args, message);
+                commands.delete(args, message, prefix);
                 break;
             case "help":
                 commands.help(args, Discord, message, prefix);

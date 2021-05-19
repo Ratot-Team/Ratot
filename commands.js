@@ -23,34 +23,39 @@ module.exports = {
             message.reply("Pong");
         }
     },
-    delete(args, message) {
-        if (args[1] != "messages") //args[1] is the second word from the command
+    delete(args, message, prefix) {
+        if (args[1] !== "messages") { //args[1] is the second word from the command
             message.reply("Did you mean \"" + prefix + "delete messages\"?"); //Send a warning message to the user
-        else {
-            if (!args[2] || !Number.isInteger(parseInt(args[2]))) //Verify if the third "word" from the command is a number
+        } else {
+            if (!args[2] || !Number.isInteger(parseInt(args[2]))) { //Verify if the third "word" from the command is a number
                 message.reply("Type the number of messages you want to delete, for example \"" + prefix + "delete messages 2\""); //Send a warning message to the user
-            else {
+            } else {
                 if (message.member.hasPermission("ADMINISTRATOR")) { //Only proceed to the deletion of the messages if the user is an admin
                     //args[2] is the number of messages the user wants to delete
-                    if (args[2] > 99)
+                    if (args[2] > 99) {
                         return message.reply("You can only delete 99 messages!");
-                    if (args[2] < 0)
+                    }
+                    if (args[2] < 0) {
                         return message.reply("Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...");
-                    if (args[2] == 0)
+                    }
+                    if (args[2] == 0) {
                         return message.reply("Nothing deleted! Because you know... 0 is nothing human...");
+                    }
                     let n = args[2];
                     n++;
                     message.channel.bulkDelete(n); //Delte the number of messages requested by the user
-                    if (args[2] == 1)
-                        message.reply(args[2] + " message has been deleted!").then(message => {
-                            message.delete({ timeout: 5000 }) //Delete the success message after 5 seconds
+                    if (args[2] == 1) {
+                        message.reply(args[2] + " message has been deleted!").then((message) => {
+                            message.delete({ timeout: 5000 }); //Delete the success message after 5 seconds
                         }).catch(console.error);
-                    else
-                        message.reply(args[2] + " messages have been deleted!").then(message => {
-                            message.delete({ timeout: 3000 })
+                    } else {
+                        message.reply(args[2] + " messages has been deleted!").then((message) => {
+                            message.delete({ timeout: 3000 });
                         }).catch(console.error);
-                } else
+                    }
+                } else {
                     message.reply("Only admins can delete messages!");
+                }
             }
         }
     },
