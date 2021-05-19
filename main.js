@@ -30,32 +30,36 @@ client.on("message", message => { //When the bot identifies a message
     args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
     if (isCommand) //I think this is quite obvious too
     {
-        switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
-            case "ping":
-                commands.ping(message, client);
-                break;
-            case "delete":
-                commands.delete(args, message);
-                break;
-            case "help":
-                commands.help(args, Discord, message, prefix);
-                break;
-            case "hug":
-                commands.hug(args, message, prefix, currentBotDiscordId);
-                break;
-            case "bot":
-                commands.bot(args, message, prefix, client);
-                break;
-            case "my":
-                commands.my(args, message, prefix);
-                break;
-            default: //If is none of the previous commands
-                if (isCommand) {
-                    message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
-                }
-                break;
-        }
+        switchCommands(args, message);
     }
 });
+
+function switchCommands(args, message) {
+    switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
+        case "ping":
+            commands.ping(message, client);
+            break;
+        case "delete":
+            commands.delete(args, message);
+            break;
+        case "help":
+            commands.help(args, Discord, message, prefix);
+            break;
+        case "hug":
+            commands.hug(args, message, prefix, currentBotDiscordId);
+            break;
+        case "bot":
+            commands.bot(args, message, prefix, client);
+            break;
+        case "my":
+            commands.my(args, message, prefix);
+            break;
+        default: //If is none of the previous commands
+            if (isCommand) {
+                message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+            }
+            break;
+    }
+}
 
 client.login(token); //Starts the bot
