@@ -1,146 +1,59 @@
-const Discord = require('discord.js');
+require('dotenv').config() //Import the .env library
 
-const client = new Discord.Client();
+var commands = require('./commands') //Import the file were all the logic for each command is
 
-const token = 'Insere aqui o token do bot';
+const Discord = require('discord.js'); //Import the Discord.js library
 
-const prefix = '$';
+const client = new Discord.Client(); //Create a new Discord client
 
-var lastPing, pingCounter;
+const token = process.env.ACE_BOT_DEV_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
-client.once('ready', ()=> {
-    console.log('Rat.exe Bot está online!');
-    client.user.setActivity('$help', {type:'PLAYING'}).catch(console.error);
+var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+//currentBotDiscordId - Keeps the discord id from the bot
+
+const prefix = '$'; //Keeps the prefix that the bot is listening. Is static for now...
+
+client.once('ready', () => { //When the bot is ready and online execute this block of code
+    console.log('Ace Bot is online!'); //I think this is quite obvious
+    isDevMode = (token == process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
+    if (isDevMode) //If we are using the dev bot
+        currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID //The currentBotDiscordId is the dev bot ID
+    else
+        currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID //The currentBotDiscordId is the real bot ID
+    client.user.setActivity('$help', { type: 'LISTENING' }).catch(console.error); //Set an activity to the bot saying that he is listening to $help
 });
 
-client.on('message', message=>{
-    
-    let args = message.content;
-    var isCommand = args.charAt(0) == '$';
-    args= args.substring(prefix.length).split(" ");
-    if(isCommand)
+client.on('message', message => { //When the bot identifies a message 
+    let args = message.content; //Keeps the message content
+    var isCommand = args.charAt(0) == prefix; //If the prefix is the one that the bot uses it is a command
+    args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
+    if (isCommand) //I think this is quite obvious too
     {
-        switch(args[0]){
+        switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
             case 'ping':
-                if (lastPing == message.author.id)
-                    {
-                        pingCounter++;
-                        if(pingCounter>=5)
-                        {
-                            message.channel.send("FODASSE").then(m =>{
-                                var latency = m.createdTimestamp - message.createdTimestamp;
-                                var botPing = client.ws.ping;
-                                m.edit('PONG CARALHO! O meu ping é ' + botPing + 'ms e o teu é ' + latency + 'ms seu merdas!');
-                            });
-                            lastPing = message.author.id;
-                        }
-                        else
-                            message.reply('Pong!');
-                    }
-                else
-                    {
-                        lastPing = message.author.id;
-                        pingCounter = 1;
-                        message.reply('Pong!');
-                    };
+                commands.ping(message, client);
                 break;
             case 'delete':
-                if(args[1]!='messages') message.reply('Será que querias dizer "$delete messages"?');
-                else
-                    {
-                        if(!args[2] || !Number.isInteger(parseInt(args[2]))) message.reply('Escreve o número de mensagens que queres eliminar, por exemplo "$delete messages 2"');
-                        else 
-                        {
-                            if(message.member.hasPermission('ADMINISTRATOR'))
-                                {
-                                    if(args[2]>99)
-                                        return message.reply('Só podes eliminar 99 mensagens!');
-                                    if(args[2]<0)
-                                        return message.reply('Achas que podes elminar mensagens negativas? Pff humanos...');
-                                    var n = args[2];
-                                    n++;
-                                    message.channel.bulkDelete(n);
-                                    if(args[2]==1)
-                                         message.reply(args[2] + ' mensagem foi eliminada!').then(message=>{
-                                             message.delete({timeout:3000})
-                                        })
-                                        .catch(console.error);
-                                    else
-                                        message.reply(args[2] + ' mensagens foram eliminas!').then(message=>{
-                                             message.delete({timeout:3000})
-                                        })
-                                        .catch(console.error);
-                                }
-                            else
-                                message.reply('Apenas administradores podem eliminar mensagens!');
-                        }
-                    }
+                commands.delete(args, message);
                 break;
             case 'help':
-                if(!args[1])
-                {
-                    const helpEmbed = new Discord.MessageEmbed()
-                    .setColor('#339933')
-                    .setTitle('Menu de Ajuda Rat.exe Bot')
-                    .addFields(
-                        {name: 'Lista de comandos', value: '$help commands'},
-                        {name: '\u200B', value: '\u200B'},
-                        {name: 'Vê o meu código no GitHub!' , value: 'https://github.com/IIIRataxIII/Rat.exe-Bot'}
-                    );
-                    message.channel.send(helpEmbed);
-                }
-                else
-                {
-                    switch(args[1]){
-                        case 'commands':
-                            const helpCommandsEmbed = new Discord.MessageEmbed()
-                            .setColor('#339933')
-                            .setTitle('Lista de Comandos')
-                            .addFields(
-                                {name: '$ping', value: 'O bot respode com pong e se repetires várias vezes ele diz-te o ping dele e o teu, mas ele não gosta muito que repitam várias vezes...'},
-                                {name: '$delete messages <number>', value: 'O bot elimina um certo número de mensagens, apenas admins podem usar este comando.'},
-                                {name: '$abraçar <@alguem>', value: 'O bot dá um abraço a alguém que tu menciones'},
-                                {name: '$bot ping', value: 'Diz o valor do ping do bot'},
-                                {name: '$meu ping', value: 'Diz o valor do teu ping'}
-                            );
-                            message.channel.send(helpCommandsEmbed);
-                            break;
-                        default:
-                            message.reply('Sorry não conheço esse comando, mas se quiseres escreve "$help commands" para veres o que posso fazer.');
-                            break;
-                    }
-                }
-            break;
-            case 'abraçar':
-                if(!args[1]|| args[1].charAt(1)!='@')
-                    return message.reply('Menciona quem queres abraçar, por exemplo "$abraçar <@!756290869900083272>"');
-                if(args[1]=='<@!756290869900083272>')
-                    message.channel.send('Abraçei-me a mim mesmo a pedido do <@!' + message.author.id + '>');
-                else
-                    message.channel.send('Abraçei o ' + args[1] + ' a pedido do <@!' + message.author.id + '>');
+                commands.help(args, Discord, message, prefix);
+                break;
+            case 'hug':
+                commands.hug(args, message, prefix, currentBotDiscordId);
                 break;
             case 'bot':
-                if(args[1]!='ping')
-                    return message.reply('Será que querias dizer "$bot ping"?');
-                message.channel.send("A testar a conexão...").then(m =>{
-                    var botPing = client.ws.ping;
-                    m.edit(`O meu ping é: ${botPing}ms`);
-                });
+                commands.bot(args, message, prefix, client);
                 break;
-            case 'meu':
-                if(args[1]!='ping')
-                    return message.reply('Será que querias dizer "$meu ping"?');
-                message.channel.send("A testar a tua conexão...").then(m =>{
-                    var latency = m.createdTimestamp - message.createdTimestamp;
-                    m.edit(`O teu ping é: ${latency}ms`);
-                });
+            case 'my':
+                commands.my(args, message, prefix);
                 break;
-            default:
-                if(isCommand)
-                    message.reply('Sorry não conheço esse comando, mas se quiseres escreve "$help commands" para veres o que posso fazer.');
+            default: //If is none of the previous commands
+                if (isCommand)
+                    message.reply('Sorry I don\'t recognize that command, but if you want type \"' + prefix + 'help commands\" to see what I can do.');
                 break;
         }
     }
 })
 
-client.login(token);
+client.login(token); //Starts the bot
