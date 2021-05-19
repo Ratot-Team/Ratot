@@ -2,7 +2,7 @@ var lastPing, pingCounter; //For ping and pong reasons xD
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
 module.exports = {
-    ping: function(message, client) {
+    ping(message, client) {
         if (lastPing == message.author.id) { //If is the same person that called the ping command before
             pingCounter++;
             if (pingCounter >= 5) { //If the same person has called the ping command 5 or more times in a row
@@ -22,7 +22,7 @@ module.exports = {
             message.reply("Pong");
         };
     },
-    delete: function(args, message) {
+    delete(args, message) {
         if (args[1] != "messages") //args[1] is the second word from the command
             message.reply("Did you mean \"" + prefix + "delete messages\"?"); //Send a warning message to the user
         else {
@@ -53,7 +53,7 @@ module.exports = {
             }
         }
     },
-    help: function(args, Discord, message, prefix) {
+    help(args, Discord, message, prefix) {
         if (!args[1]) {
             const helpEmbed = new Discord.MessageEmbed()
                 .setColor("#339933")
@@ -99,7 +99,7 @@ module.exports = {
             }
         }
     },
-    hug: function(args, message, prefix, currentBotDiscordId) {
+    hug(args, message, prefix, currentBotDiscordId) {
         if (!args[1] || args[1].charAt(1) != "@") //If the second word of the command isn't a mention
             return message.reply("Mention who you want to hug, for example \"" + prefix + "hug <@!" + currentBotDiscordId + ">\"");
         if (args[1] == "<@!" + currentBotDiscordId + ">") //If the user mentioned the bot
@@ -109,7 +109,7 @@ module.exports = {
         else
             message.channel.send("I hugged " + args[1] + " at the request of <@!" + message.author.id + ">");
     },
-    bot: function(args, message, prefix, client) {
+    bot(args, message, prefix, client) {
         if (args[1] != "ping")
             return message.reply("Did you mean \"" + prefix + "bot ping\"?");
         message.channel.send("Testing connection...").then(m => { //Send a temporary message and then
@@ -117,7 +117,7 @@ module.exports = {
             m.edit("My ping is: " + botPing + "ms"); //Edit the temporary message with the one with the calculated ping
         });
     },
-    my: function(args, message, prefix) {
+    my(args, message, prefix) {
         if (args[1] != "ping")
             return message.reply("Did you mean \"" + prefix + "my ping\"?");
         message.channel.send("Testing your connection...").then(m => { //Send a temporary message and then
