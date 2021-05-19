@@ -106,29 +106,33 @@ module.exports = {
         }
     },
     hug(args, message, prefix, currentBotDiscordId) {
-        if (!args[1] || args[1].charAt(1) != "@") //If the second word of the command isn't a mention
+        if (!args[1] || args[1].charAt(1) !== "@") { //If the second word of the command isn't a mention
             return message.reply("Mention who you want to hug, for example \"" + prefix + "hug <@!" + currentBotDiscordId + ">\"");
-        if (args[1] == "<@!" + currentBotDiscordId + ">") //If the user mentioned the bot
+        }
+        if (args[1] === "<@!" + currentBotDiscordId + ">") { //If the user mentioned the bot
             message.channel.send("I hugged myself at the request of <@!" + message.author.id + ">");
-        else if (args[1] == "<@!" + message.author.id + ">") //If the user mentioned himself
+        } else if (args[1] === "<@!" + message.author.id + ">") { //If the user mentioned himself
             message.reply("I hugged you!");
-        else
+        } else {
             message.channel.send("I hugged " + args[1] + " at the request of <@!" + message.author.id + ">");
+        }
     },
     bot(args, message, prefix, client) {
-        if (args[1] != "ping")
+        if (args[1] !== "ping") {
             return message.reply("Did you mean \"" + prefix + "bot ping\"?");
-        message.channel.send("Testing connection...").then(m => { //Send a temporary message and then
+        }
+        message.channel.send("Testing connection...").then((m) => { //Send a temporary message and then
             var botPing = client.ws.ping; //Saves the bot ping
             m.edit("My ping is: " + botPing + "ms"); //Edit the temporary message with the one with the calculated ping
         });
     },
     my(args, message, prefix) {
-        if (args[1] != "ping")
+        if (args[1] !== "ping") {
             return message.reply("Did you mean \"" + prefix + "my ping\"?");
-        message.channel.send("Testing your connection...").then(m => { //Send a temporary message and then
+        }
+        message.channel.send("Testing your connection...").then((m) => { //Send a temporary message and then
             var latency = m.createdTimestamp - message.createdTimestamp; //Calculate ao many ms the user has (I think it doesn't work very well)
             m.edit("Your ping is more or less: " + latency + "ms"); //Edit the temporary message with the one with the calculated ping
         });
     }
-}
+};
