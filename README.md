@@ -2,7 +2,6 @@
 ![Codacy grade](https://img.shields.io/codacy/grade/ce4446ec729946ea81391e6c2b4a72b7?style=for-the-badge)
 ![GitHub repo size](https://img.shields.io/github/repo-size/IIIRataxIII/Ace-Bot?style=for-the-badge)
 
-
 # Ace Bot
 
 Ace Bot is a Discord bot made to help you administrate your server and have some fun.
