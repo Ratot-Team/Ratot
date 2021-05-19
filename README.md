@@ -1,0 +1,2 @@
+# Ace-Bot
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2b87ace45c634d529a23b6621fecf470)](https://app.codacy.com/gh/IIIRataxIII/Ace-Bot?utm_source=github.com&utm_medium=referral&utm_content=IIIRataxIII/Ace-Bot&utm_campaign=Badge_Grade_Settings)
