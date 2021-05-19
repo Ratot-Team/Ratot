@@ -24,42 +24,38 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
     client.user.setActivity("$help", { type: "LISTENING" }).catch(console.error); //Set an activity to the bot saying that he is listening to $help
 });
 
-client.on("message", message => { //When the bot identifies a message 
+client.on("message", (message) => { //When the bot identifies a message 
     let args = message.content; //Keeps the message content
     var isCommand = args.charAt(0) === prefix; //If the prefix is the one that the bot uses it is a command
     args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
     if (isCommand) //I think this is quite obvious too
     {
-        switchCommands(args, message);
+        switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
+            case "ping":
+                commands.ping(message, client);
+                break;
+            case "delete":
+                commands.delete(args, message);
+                break;
+            case "help":
+                commands.help(args, Discord, message, prefix);
+                break;
+            case "hug":
+                commands.hug(args, message, prefix, currentBotDiscordId);
+                break;
+            case "bot":
+                commands.bot(args, message, prefix, client);
+                break;
+            case "my":
+                commands.my(args, message, prefix);
+                break;
+            default: //If is none of the previous commands
+                if (isCommand) {
+                    message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+                }
+                break;
+        }
     }
 });
-
-function switchCommands(args, message) {
-    switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
-        case "ping":
-            commands.ping(message, client);
-            break;
-        case "delete":
-            commands.delete(args, message);
-            break;
-        case "help":
-            commands.help(args, Discord, message, prefix);
-            break;
-        case "hug":
-            commands.hug(args, message, prefix, currentBotDiscordId);
-            break;
-        case "bot":
-            commands.bot(args, message, prefix, client);
-            break;
-        case "my":
-            commands.my(args, message, prefix);
-            break;
-        default: //If is none of the previous commands
-            if (isCommand) {
-                message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
-            }
-            break;
-    }
-}
 
 client.login(token); //Starts the bot
