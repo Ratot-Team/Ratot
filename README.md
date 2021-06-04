@@ -1,6 +1,6 @@
 ![GPLv3 Licensed](https://img.shields.io/github/license/IIIRataxIII/Ace-Bot?style=for-the-badge)
-![Code Quality A on Codacy](https://img.shields.io/codacy/grade/ce4446ec729946ea81391e6c2b4a72b7?style=for-the-badge)
-![GitHub Repository Size](https://img.shields.io/github/repo-size/IIIRataxIII/Ace-Bot?style=for-the-badge)
+![Code quality grade on Codacy](https://img.shields.io/codacy/grade/ce4446ec729946ea81391e6c2b4a72b7?style=for-the-badge)
+![GitHub repository size](https://img.shields.io/github/repo-size/IIIRataxIII/Ace-Bot?style=for-the-badge)
 
 # Ace Bot
 
