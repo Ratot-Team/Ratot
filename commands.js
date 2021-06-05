@@ -1,6 +1,8 @@
 var lastPing, pingCounter; //For ping and pong reasons xD 
-//lastPing- saves the Id of the person that called the last ping command
-//pingCounter - Saves how many times the same person called the ping command
+var specialIntervalId = 0;
+var main = require("./main")
+    //lastPing- saves the Id of the person that called the last ping command
+    //pingCounter - Saves how many times the same person called the ping command
 module.exports = {
     ping(message, client) {
         if (lastPing === message.author.id) { //If is the same person that called the ping command before
@@ -134,5 +136,89 @@ module.exports = {
             var latency = m.createdTimestamp - message.createdTimestamp; //Calculate ao many ms the user has (I think it doesn't work very well)
             m.edit("Your ping is more or less: " + latency + "ms"); //Edit the temporary message with the one with the calculated ping
         });
+    },
+    specialCommand(args, message, prefix, client) {
+        if (args[1] !== "special") {
+            return message.reply("Did you mean \"" + prefix + "start special command\"?");
+        }
+        if (args[2] !== "command") {
+            return message.reply("Did you mean \"" + prefix + "start special command\"?");
+        }
+        if (message.member.hasPermission("ADMINISTRATOR")) {
+            if (specialIntervalId === 0) {
+                if (!args[3]) {
+                    return message.reply("You need to specify the playlist link. For example: \"" + prefix + "start special command https://www.youtube.com/playlist?list=PL634F2B56B8C346A2\"");
+                }
+                if (!args[4]) {
+                    return message.reply("You need to specify the hours, minutes and seconds of the playlist in the format <hh.mm.ss>. For example: \"" + prefix + "start special command <playlist link> **17.32.43**\"");
+                }
+                if (args[4].split(".").length !== 3) {
+                    return message.reply("You need to specify the hours, minutes and seconds of the playlist in the format <hh.mm.ss>. For example: \"" + prefix + "start special command <playlist link> **17.32.43**\"");
+                }
+                var times = args[4].split(".");
+                if (isNaN(times[0])) {
+                    return message.reply("The hours value need to be a number. For example: \"" + prefix + "start special command <playlist link> **17**.32.43\"");
+                }
+                if (isNaN(times[1])) {
+                    return message.reply("The minutes value need to be a number. For example: \"" + prefix + "start special command <playlist link> 17.**32**.43\"");
+                }
+                if (isNaN(times[2])) {
+                    return message.reply("The seconds value need to be a number. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
+                }
+                if (times[1] > 60) {
+                    return message.reply("The minutes value can't be more than 60. For example: \"" + prefix + "start special command <playlist link> 17.**32**.43\"");
+                }
+                if (times[2] > 60) {
+                    return message.reply("The seconds value can't be more than 60. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
+                }
+                if (times[0] < 0) {
+                    return message.reply("The hours value can't be less than 0. For example: \"" + prefix + "start special command <playlist link> **17**.32.43\"");
+                }
+                if (times[1] < 0) {
+                    return message.reply("The hours value can't be less than 0. For example: \"" + prefix + "start special command <playlist link> 17.**32**.43\"");
+                }
+                if (times[2] < 0) {
+                    return message.reply("The hours value can't be less than 0. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
+                }
+                if (!client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL)) {
+                    console.error("The voice channel does not exist!");
+                    return message.reply("Something went wrong. Contact the ace creator for more instructions.");
+                }
+                if (!client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL)) {
+                    console.error("The voice channel does not exist!");
+                    return message.reply("Something went wrong. Contact the ace creator for more instructions.");
+                }
+                var timeInMiliseconds = (times[0] * 3600000) + (times[1] * 60000) + (times[2] * 1000) + 60000
+                if (timeInMiliseconds <= 0) {
+                    return message.reply("The ammount of time can't be 00.00.00. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
+                }
+                specialIntervalId = setInterval(main.specialTimer, timeInMiliseconds, (args[3]));
+                main.specialTimer(args[3]);
+                message.reply("Special command started!");
+            } else {
+                message.reply("Special command is already running. If you need to ajust it stop it first with the command \"" + prefix + "stop special command\"");
+            }
+        } else {
+            message.reply("Command for special people only!");
+        }
+    },
+    stopSpecialCommand(args, message, prefix) {
+        if (args[1] !== "special") {
+            return message.reply("Did you mean \"" + prefix + "stop special command\"?");
+        }
+        if (args[2] !== "command") {
+            return message.reply("Did you mean \"" + prefix + "stop special command\"?");
+        }
+        if (message.member.hasPermission("ADMINISTRATOR")) {
+            if (specialIntervalId === 0) {
+                message.reply("Special command is not running.");
+            } else {
+                clearInterval(specialIntervalId);
+                specialIntervalId = 0;
+                message.reply("Special command stopped.");
+            }
+        } else {
+            message.reply("Command for special people only!");
+        }
     }
 };

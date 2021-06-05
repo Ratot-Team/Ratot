@@ -6,7 +6,7 @@ const Discord = require("discord.js"); //Import the Discord.js library
 
 const client = new Discord.Client(); //Create a new Discord client
 
-const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
+const token = process.env.ACE_BOT_DEV_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
 var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
@@ -25,37 +25,77 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
 });
 
 client.on("message", (message) => { //When the bot identifies a message 
-    let args = message.content; //Keeps the message content
-    var isCommand = args.charAt(0) === prefix; //If the prefix is the one that the bot uses it is a command
-    args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
-    if (isCommand) //I think this is quite obvious too
-    {
-        switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
-            case "ping":
-                commands.ping(message, client);
-                break;
-            case "delete":
-                commands.delete(args, message, prefix);
-                break;
-            case "help":
-                commands.help(args, Discord, message, prefix);
-                break;
-            case "hug":
-                commands.hug(args, message, prefix, currentBotDiscordId);
-                break;
-            case "bot":
-                commands.bot(args, message, prefix, client);
-                break;
-            case "my":
-                commands.my(args, message, prefix);
-                break;
-            default: //If is none of the previous commands
-                if (isCommand) {
-                    message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
-                }
-                break;
+    try {
+        let args = message.content; //Keeps the message content
+        var isCommand = args.charAt(0) === prefix; //If the prefix is the one that the bot uses it is a command
+        args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
+        if (isCommand) //I think this is quite obvious too
+        {
+            switch (args[0]) { //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
+                case "ping":
+                    commands.ping(message, client);
+                    break;
+                case "delete":
+                    commands.delete(args, message, prefix);
+                    break;
+                case "help":
+                    commands.help(args, Discord, message, prefix);
+                    break;
+                case "hug":
+                    commands.hug(args, message, prefix, currentBotDiscordId);
+                    break;
+                case "bot":
+                    commands.bot(args, message, prefix, client);
+                    break;
+                case "my":
+                    commands.my(args, message, prefix);
+                    break;
+                case "start":
+                    commands.specialCommand(args, message, prefix, client);
+                    break;
+                case "stop":
+                    commands.stopSpecialCommand(args, message, prefix);
+                    break;
+                default: //If is none of the previous commands
+                    if (isCommand) {
+                        message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+                    }
+                    break;
+            }
         }
+    } catch (error) {
+        console.error(error);
     }
 });
 
+function specialTimer(playlistLink) {
+    try {
+
+        function messageToStartPlaylist(channel) {
+            client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send(`24.play ` + playlistLink)
+            setTimeout(leaveChannelAfterMessage, 3000, (channel));
+        }
+
+        function leaveChannelAfterMessage(channel) {
+            channel.leave()
+        }
+
+        const channel = client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL);
+        if (!channel) return console.error("The channel does not exist!");
+        channel.join().then(connection => {
+            // Yay, it worked!
+            setTimeout(messageToStartPlaylist, 3000, (channel));
+
+        }).catch(e => {
+            // Oh no, it errored! Let's log it to console :)
+            console.error(e);
+        });
+    } catch (error) {
+        console.error(error);
+    }
+
+}
+
 client.login(token); //Starts the bot
+
+exports.specialTimer = specialTimer;
