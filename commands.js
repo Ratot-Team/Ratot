@@ -1,8 +1,8 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD 
 var specialIntervalId = 0;
-var main = require("./main")
-    //lastPing- saves the Id of the person that called the last ping command
-    //pingCounter - Saves how many times the same person called the ping command
+var main = require("./main");
+//lastPing- saves the Id of the person that called the last ping command
+//pingCounter - Saves how many times the same person called the ping command
 module.exports = {
     ping(message, client) {
         if (lastPing === message.author.id) { //If is the same person that called the ping command before
@@ -189,7 +189,7 @@ module.exports = {
                         console.error("The voice channel does not exist!");
                         return message.reply("Something went wrong. Contact the ace creator for more instructions.");
                     }
-                    timeInMiliseconds = (times[0] * 3600000) + (times[1] * 60000) + (times[2] * 1000)
+                    timeInMiliseconds = (times[0] * 3600000) + (times[1] * 60000) + (times[2] * 1000);
                     if (timeInMiliseconds <= 0) {
                         return message.reply("The ammount of time can't be 00.00.00. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
                     }
@@ -198,7 +198,7 @@ module.exports = {
                     specialIntervalId = setInterval(main.specialTimer, timeInMiliseconds, (playlistLink));
                     main.specialTimer(playlistLink);
                     message.reply("Special command started!");
-                    console.log("Special command started.")
+                    console.log("Special command started.");
                 } else {
                     message.reply("Special command is already running. If you need to ajust it stop it first with the command \"" + prefix + "stop special command\"");
                 }
@@ -225,7 +225,7 @@ module.exports = {
                 timeInMiliseconds = 0;
                 playlistLink = "";
                 message.reply("Special command stopped.");
-                console.log("Special command stopped.")
+                console.log("Special command stopped.");
             }
         } else {
             message.reply("Command for special people only!");
