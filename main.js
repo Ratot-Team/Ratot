@@ -6,7 +6,7 @@ const Discord = require("discord.js"); //Import the Discord.js library
 
 const client = new Discord.Client(); //Create a new Discord client
 
-const token = process.env.ACE_BOT_DEV_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
+const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
 var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
@@ -81,15 +81,15 @@ function specialTimer(playlistLink) {
         }
 
         const channel = client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL);
-        if (!channel) return console.error("The channel does not exist!");
-        channel.join().then(connection => {
-            // Yay, it worked!
-            setTimeout(messageToStartPlaylist, 3000, (channel));
 
+        if (!channel) return console.error("The channel does not exist!");
+
+        channel.join().then(connection => {
+            setTimeout(messageToStartPlaylist, 3000, (channel));
         }).catch(e => {
-            // Oh no, it errored! Let's log it to console :)
             console.error(e);
         });
+        console.log("Special Timer runned successfully.")
     } catch (error) {
         console.error(error);
     }
