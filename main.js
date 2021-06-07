@@ -8,7 +8,7 @@ const client = new Discord.Client(); //Create a new Discord client
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
-var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
 const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...
@@ -68,28 +68,30 @@ client.on("message", (message) => { //When the bot identifies a message
     }
 });
 
-function specialTimer(playlistLink) {
+function leaveChannelAfterMessage(channel) {
+    channel.leave();
+}
+
+function messageToStartPlaylist(channel) {
+    client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send("24.play " + playlistLink);
+    setTimeout(leaveChannelAfterMessage, 3000, (channel));
+}
+
+function specialTimer(link) {
     try {
-
-        function messageToStartPlaylist(channel) {
-            client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send(`24.play ` + playlistLink)
-            setTimeout(leaveChannelAfterMessage, 3000, (channel));
-        }
-
-        function leaveChannelAfterMessage(channel) {
-            channel.leave()
-        }
-
+        playlistLink = link;
         const channel = client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL);
-        if (!channel) return console.error("The channel does not exist!");
-        channel.join().then(connection => {
-            // Yay, it worked!
-            setTimeout(messageToStartPlaylist, 3000, (channel));
 
-        }).catch(e => {
-            // Oh no, it errored! Let's log it to console :)
+        if (!channel) {
+            return console.error("The channel does not exist!");
+        }
+
+        channel.join().then(() => {
+            setTimeout(messageToStartPlaylist, 3000, (channel));
+        }).catch((e) => {
             console.error(e);
         });
+        console.log("Special Timer runned successfully.");
     } catch (error) {
         console.error(error);
     }
