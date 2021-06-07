@@ -8,7 +8,7 @@ const client = new Discord.Client(); //Create a new Discord client
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
-var isDevMode, currentBotDiscordId; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
 const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...

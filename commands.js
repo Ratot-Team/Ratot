@@ -197,7 +197,6 @@ module.exports = {
                     playlistLink = args[3];
                     specialIntervalId = setInterval(main.specialTimer, timeInMiliseconds, (playlistLink));
                     main.specialTimer(playlistLink);
-                    console.log(playlistLink)
                     message.reply("Special command started!");
                     console.log("Special command started.");
                 } else {
