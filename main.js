@@ -68,28 +68,30 @@ client.on("message", (message) => { //When the bot identifies a message
     }
 });
 
-function specialTimer(playlistLink) {
+function leaveChannelAfterMessage(channel) {
+    channel.leave();
+}
+
+function messageToStartPlaylist(channel) {
+    client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send("24.play " + playlistLink);
+    setTimeout(leaveChannelAfterMessage, 3000, (channel));
+}
+
+function specialTimer(link) {
     try {
-
-        function messageToStartPlaylist(channel) {
-            client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send(`24.play ` + playlistLink)
-            setTimeout(leaveChannelAfterMessage, 3000, (channel));
-        }
-
-        function leaveChannelAfterMessage(channel) {
-            channel.leave()
-        }
-
+        playlistLink = link;
         const channel = client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL);
 
-        if (!channel) return console.error("The channel does not exist!");
+        if (!channel) {
+            return console.error("The channel does not exist!");
+        }
 
-        channel.join().then(connection => {
+        channel.join().then(() => {
             setTimeout(messageToStartPlaylist, 3000, (channel));
-        }).catch(e => {
+        }).catch((e) => {
             console.error(e);
         });
-        console.log("Special Timer runned successfully.")
+        console.log("Special Timer runned successfully.");
     } catch (error) {
         console.error(error);
     }
