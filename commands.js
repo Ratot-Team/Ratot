@@ -1,6 +1,8 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD 
 var specialIntervalId = 0;
 var main = require("./main");
+const { errorLogger, warnLogger, infoLogger } = require("./logger");
+
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
 module.exports = {

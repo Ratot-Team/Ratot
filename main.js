@@ -4,6 +4,8 @@ var commands = require("./commands"); //Import the file were all the logic for e
 
 const Discord = require("discord.js"); //Import the Discord.js library
 
+const { errorLogger, warnLogger, infoLogger } = require("./logger");
+
 const client = new Discord.Client(); //Create a new Discord client
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
@@ -14,7 +16,7 @@ var isDevMode, currentBotDiscordId, playlistLink; //isDevMode - Boolean that is 
 const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...
 
 client.once("ready", () => { //When the bot is ready and online execute this block of code
-    console.log("Ace Bot is online!"); //I think this is quite obvious
+    isDevMode ? console.log("Ace Bot Dev is online!") : console.log("Ace Bot is online!"); //If dev console logs "Ace Bot Dev is online" else "Ace Bot is online"
     isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
     if (isDevMode) { //If we are using the dev bot
         currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
