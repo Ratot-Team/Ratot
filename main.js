@@ -6,6 +6,15 @@ const Discord = require("discord.js"); //Import the Discord.js library
 
 const { errorLogger, warnLogger, infoLogger } = require("./logger");
 
+var fs = require("fs");
+
+fs.writeFile("pid.pid", process.pid.toString(), (err) => {
+    if (err){ 
+        return errorLogger.error(err);
+    }
+    infoLogger.info("Pid saved on pid.txt");
+});
+
 const client = new Discord.Client(); //Create a new Discord client
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
