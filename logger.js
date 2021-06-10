@@ -1,79 +1,57 @@
 const { format, createLogger, transports } = require("winston");
 const { timestamp, combine, printf } = format;
-require('winston-daily-rotate-file');
-const fs = require('fs');
+require("winston-daily-rotate-file");
+const fs = require("fs");
 
-var errorsTransport = new transports.DailyRotateFile({
-    name: 'error-file',
-    level: 'error',
-    datePattern: 'YYYY-MM-DD',
-    dirname: 'logs',
-    filename: 'errors-%DATE%.log',
-    json: false,
-    prepend: true
-});
+function buildTransportWithLevel(level) {
+    var transport = new transports.DailyRotateFile({
+        name: level + "-file",
+        level,
+        datePattern: "YYYY-MM-DD",
+        dirname: "logs",
+        filename: level + "s-%DATE%.log",
+        json: false,
+        prepend: true
+    });
+    return transport;
+}
 
-var warnsTransport = new transports.DailyRotateFile({
-    name: 'warn-file',
-    level: 'warn',
-    datePattern: 'YYYY-MM-DD',
-    dirname: 'logs',
-    filename: 'warns-%DATE%.log',
-    json: false,
-    prepend: true
-});
+var errorsTransport = buildTransportWithLevel("error");
 
-var infosTransport = new transports.DailyRotateFile({
-    name: 'info-file',
-    level: 'info',
-    datePattern: 'YYYY-MM-DD',
-    dirname: 'logs',
-    filename: 'infos-%DATE%.log',
-    json: false,
-    prepend: true
-});
+var warnsTransport = buildTransportWithLevel("warn");
+
+var infosTransport = buildTransportWithLevel("info");
 
 const logFormat = printf(({ level, message, timestamp, stack }) => {
-    return `${timestamp} ${level}: ${stack || message}`;
+    if (!stack) {
+        return `${timestamp} ${level}: ${message}`;
+    } else {
+        return `${timestamp} ${level}: ${message}\n${stack}`;
+    }
+
 });
 
-const errorLogger = createLogger({
-    format: combine(
-        format.colorize(),
-        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        format.errors({ stack: true }),
-        logFormat
-    ),
-    transports: [
-        new transports.Console({ level: 'error' }),
-        errorsTransport
-    ],
-});
+function loggerCreator(level) {
+    let tempLogger = createLogger({
+        format: combine(
+            format.colorize(),
+            timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+            format.errors({ stack: true }),
+            logFormat
+        ),
+        transports: [
+            new transports.Console({ level }),
+            level === "error" ? errorsTransport : level === "warn" ? warnsTransport : infosTransport
+        ],
+    });
+    return tempLogger;
+}
 
-const warnLogger = createLogger({
-    format: combine(
-        format.colorize(),
-        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        format.errors({ stack: true }),
-        logFormat
-    ),
-    transports: [
-        new transports.Console({ level: 'warn' }),
-        warnsTransport
-    ],
-});
+const errorLogger = loggerCreator("error");
 
-const infoLogger = createLogger({
-    format: combine(
-        format.colorize(),
-        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        format.errors({ stack: true }),
-        logFormat
-    ),
-    transports: [
-        infosTransport
-    ],
-});
+const warnLogger = loggerCreator("warn");
+
+const infoLogger = loggerCreator("info");
 
 function isFileEmpty(fileName, ignoreWhitespace = true) {
     return new Promise((resolve, reject) => {
@@ -82,73 +60,45 @@ function isFileEmpty(fileName, ignoreWhitespace = true) {
                 reject(err);
                 return;
             }
-            resolve((!ignoreWhitespace && data.length == 0) || (ignoreWhitespace && !!String(data).match(/^\s*$/)))
+            resolve((!ignoreWhitespace && data.length === 0) || (ignoreWhitespace && !!String(data).match(/^\s*$/)));
         });
-    })
+    });
 }
 
-errorsTransport.on('rotate', (oldFileName, newFileName) => {
+function doOnRotate(level, oldFileName) {
     try {
-        infoLogger.info("Error logger has been rotated.");
+        infoLogger.info(level + " logger has been rotated.");
         var file = oldFileName.substr(0, 5);
         file = __dirname + "\\" + oldFileName;
         isFileEmpty(file)
             .then((isEmpty) => {
                 if (isEmpty) {
                     fs.unlinkSync(file);
-                    infoLogger.info("Previous file deleted successfully.");
+                    infoLogger.info("Previous " + level + " log file deleted successfully.");
                 }
             })
             .catch((err) => {
-                errorLogger.error("The rotation of the error logger has errors: " + err);
+                errorLogger.error("The rotation of the " + level + " logger has errors: " + err);
             });
     } catch (error) {
-        errorLogger.error("The rotation of the error logger has errors: " + error);
+        errorLogger.error("The rotation of the " + level + " logger has errors: " + error);
     }
-})
+}
 
-warnsTransport.on('rotate', (oldFileName, newFileName) => {
-    try {
-        infoLogger.info("Warn logger has been rotated.");
-        var file = oldFileName.substr(0, 5);
-        file = __dirname + "\\" + oldFileName;
-        isFileEmpty(file)
-            .then((isEmpty) => {
-                if (isEmpty) {
-                    fs.unlinkSync(file);
-                    infoLogger.info("Previous file deleted successfully.");
-                }
-            })
-            .catch((err) => {
-                errorLogger.error("The rotation of the info logger has errors: " + err);
-            });
-    } catch (error) {
-        errorLogger.error("The rotation of the info logger has errors: " + error);
-    }
-})
+errorsTransport.on("rotate", (oldFileName) => {
+    doOnRotate("error", oldFileName);
+});
 
-infosTransport.on('rotate', (oldFileName, newFileName) => {
-    try {
-        infoLogger.info("Info logger has been rotated.");
-        var file = oldFileName.substr(0, 5);
-        file = __dirname + "\\" + oldFileName;
-        isFileEmpty(file)
-            .then((isEmpty) => {
-                if (isEmpty) {
-                    fs.unlinkSync(file);
-                    infoLogger.info("Previous file deleted successfully.");
-                }
-            })
-            .catch((err) => {
-                errorLogger.error("The rotation of the info logger has errors: " + err);
-            });
-    } catch (error) {
-        errorLogger.error("The rotation of the info logger has errors: " + error);
-    }
-})
+warnsTransport.on("rotate", (oldFileName) => {
+    doOnRotate("warn", oldFileName);
+});
+
+infosTransport.on("rotate", (oldFileName) => {
+    doOnRotate("info", oldFileName);
+});
 
 module.exports = {
     errorLogger,
     warnLogger,
     infoLogger
-}
+};

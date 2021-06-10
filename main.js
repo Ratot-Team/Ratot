@@ -6,10 +6,20 @@ const Discord = require("discord.js"); //Import the Discord.js library
 
 const { errorLogger, warnLogger, infoLogger } = require("./logger");
 
+console.log = function() {
+    return infoLogger.info.apply(infoLogger, arguments);
+};
+console.error = function() {
+    return errorLogger.info.apply(errorLogger, arguments);
+};
+console.warn = function() {
+    return warnLogger.info.apply(warnLogger, arguments);
+};
+
 var fs = require("fs");
 
 fs.writeFile("pid.pid", process.pid.toString(), (err) => {
-    if (err){ 
+    if (err) {
         return errorLogger.error(err);
     }
     infoLogger.info("Pid saved on pid.txt");
@@ -25,14 +35,22 @@ var isDevMode, currentBotDiscordId, playlistLink; //isDevMode - Boolean that is 
 const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...
 
 client.once("ready", () => { //When the bot is ready and online execute this block of code
-    isDevMode ? console.log("Ace Bot Dev is online!") : console.log("Ace Bot is online!"); //If dev console logs "Ace Bot Dev is online" else "Ace Bot is online"
-    isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
-    if (isDevMode) { //If we are using the dev bot
-        currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
-    } else {
-        currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
+    try {
+        isDevMode ? console.log("Ace Bot Dev is online!") : console.log("Ace Bot is online!"); //If dev console logs "Ace Bot Dev is online" else "Ace Bot is online"
+        isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
+        if (isDevMode) { //If we are using the dev bot
+            currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
+            infoLogger.info("Bot in dev mode.");
+        } else {
+            currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
+            infoLogger.info("Bot in production mode.");
+        }
+        client.user.setActivity("$help", { type: "LISTENING" }).catch(console.error); //Set an activity to the bot saying that he is listening to $help
+        infoLogger.info("Bot status set to \"Listening to $help\"");
+    } catch (error) {
+        errorLogger.error("Error on client.once method! Errors:", error);
     }
-    client.user.setActivity("$help", { type: "LISTENING" }).catch(console.error); //Set an activity to the bot saying that he is listening to $help
+
 });
 
 client.on("message", (message) => { //When the bot identifies a message 
@@ -75,17 +93,25 @@ client.on("message", (message) => { //When the bot identifies a message
             }
         }
     } catch (error) {
-        console.error(error);
+        errorLogger.error("Error on client.on(\"message\"). Errors:", error);
     }
 });
 
 function leaveChannelAfterMessage(channel) {
-    channel.leave();
+    try {
+        channel.leave();
+    } catch (error) {
+        errorLogger.error("Error on leaving channel on special timer. Errors:", error);
+    }
 }
 
 function messageToStartPlaylist(channel) {
-    client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send("24.play " + playlistLink);
-    setTimeout(leaveChannelAfterMessage, 3000, (channel));
+    try {
+        client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL).send("24.play " + playlistLink);
+        setTimeout(leaveChannelAfterMessage, 3000, (channel));
+    } catch (error) {
+        errorLogger.error("Error on sending message to start playlist on special timer. Errors:", error);
+    }
 }
 
 function specialTimer(link) {
@@ -94,17 +120,18 @@ function specialTimer(link) {
         const channel = client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL);
 
         if (!channel) {
-            return console.error("The channel does not exist!");
+            return warnLogger.warn("The channel chosed on special timer doesn't exist!");
         }
 
         channel.join().then(() => {
             setTimeout(messageToStartPlaylist, 3000, (channel));
         }).catch((e) => {
-            console.error(e);
+            errorLogger.error("Error on entering voice channel on special timer. Errors:", e);
         });
-        console.log("Special Timer runned successfully.");
+
+        infoLogger.info("Special Timer runned successfully.");
     } catch (error) {
-        console.error(error);
+        errorLogger.error("Error on special timer. Errors:", error);
     }
 
 }
