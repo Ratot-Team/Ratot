@@ -5,12 +5,16 @@ const Discord = require("discord.js"); //Import the Discord.js library
 const client = new Discord.Client(); //Create a new Discord client
 const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
 var fs = require("fs");
-var express = require('express')
-var bodyParser = require('body-parser')
-var app = express()
-var api = require('./api.js')
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
+var express = require('express');
+var bodyParser = require('body-parser');
+var app = express();
+var api = require('./api.js');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+var mongoose = require('mongoose');
+
+const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
+const dbUrl = process.env.DBURL;
 
 console.log = function() {
     return infoLogger.info.apply(infoLogger, arguments); //Overwrite system normal log function with the custom one
@@ -28,8 +32,6 @@ fs.writeFile("pid.pid", process.pid.toString(), (err) => {
     }
     infoLogger.info("Pid saved on pid.txt");
 });
-
-const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
 var isDevMode, currentBotDiscordId, playlistLink, botName; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
@@ -64,6 +66,14 @@ try {
 } catch (error) {
     errorLogger.error("Error on starting the API server! Errors:", error);
 }
+
+mongoose.connect(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
+    if (!err) {
+        infoLogger.info("Connected to MongoDB");
+    } else {
+        errorLogger.error("Connected to MongoDB. Errors:", err)
+    }
+})
 
 client.on("message", (message) => { //When the bot identifies a message 
     try {
