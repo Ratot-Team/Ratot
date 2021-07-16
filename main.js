@@ -1,22 +1,26 @@
 require("dotenv").config(); //Import the .env library
 
 var commands = require("./commands"); //Import the file were all the logic for each command is
-
 const Discord = require("discord.js"); //Import the Discord.js library
-
-const { errorLogger, warnLogger, infoLogger } = require("./logger");
+const client = new Discord.Client(); //Create a new Discord client
+const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
+var fs = require("fs");
+var express = require('express')
+var bodyParser = require('body-parser')
+var app = express()
+var api = require('./api.js')
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 console.log = function() {
-    return infoLogger.info.apply(infoLogger, arguments);
+    return infoLogger.info.apply(infoLogger, arguments); //Overwrite system normal log function with the custom one
 };
 console.error = function() {
-    return errorLogger.info.apply(errorLogger, arguments);
+    return errorLogger.info.apply(errorLogger, arguments); //Overwrite system error function with the custom one
 };
 console.warn = function() {
-    return warnLogger.info.apply(warnLogger, arguments);
+    return warnLogger.info.apply(warnLogger, arguments); //Overwrite system warn function with the custom one
 };
-
-var fs = require("fs");
 
 fs.writeFile("pid.pid", process.pid.toString(), (err) => {
     if (err) {
@@ -25,33 +29,41 @@ fs.writeFile("pid.pid", process.pid.toString(), (err) => {
     infoLogger.info("Pid saved on pid.txt");
 });
 
-const client = new Discord.Client(); //Create a new Discord client
-
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 
-var isDevMode, currentBotDiscordId, playlistLink; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink, botName; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
 const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...
 
 client.once("ready", () => { //When the bot is ready and online execute this block of code
     try {
-        isDevMode ? console.log("Ace Bot Dev is online!") : console.log("Ace Bot is online!"); //If dev console logs "Ace Bot Dev is online" else "Ace Bot is online"
         isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
         if (isDevMode) { //If we are using the dev bot
+            botName = "Ace (Beta)"
+            infoLogger.info(botName + " is online!")
             currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
             infoLogger.info("Bot in dev mode.");
         } else {
+            botName = "Ace"
+            infoLogger.info(botName + " is online!")
             currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
             infoLogger.info("Bot in production mode.");
         }
-        client.user.setActivity("$help", { type: "LISTENING" }).catch(console.error); //Set an activity to the bot saying that he is listening to $help
+        client.user.setActivity("$help", { type: "LISTENING" }).catch(errorLogger.error); //Set an activity to the bot saying that he is listening to $help
         infoLogger.info("Bot status set to \"Listening to $help\"");
     } catch (error) {
         errorLogger.error("Error on client.once method! Errors:", error);
     }
-
 });
+
+try {
+    var server = app.listen(process.env.PORT, () => {
+        infoLogger.info('API Server is connected and listening on port ' + server.address().port)
+    })
+} catch (error) {
+    errorLogger.error("Error on starting the API server! Errors:", error);
+}
 
 client.on("message", (message) => { //When the bot identifies a message 
     try {
@@ -68,7 +80,7 @@ client.on("message", (message) => { //When the bot identifies a message
                     commands.delete(args, message, prefix);
                     break;
                 case "help":
-                    commands.help(args, Discord, message, prefix);
+                    commands.help(args, Discord, message, prefix, botName);
                     break;
                 case "hug":
                     commands.hug(args, message, prefix, currentBotDiscordId);
@@ -80,7 +92,7 @@ client.on("message", (message) => { //When the bot identifies a message
                     commands.my(args, message, prefix);
                     break;
                 case "start":
-                    commands.specialCommand(args, message, prefix, client);
+                    commands.specialCommand(args, message, prefix, client, botName);
                     break;
                 case "stop":
                     commands.stopSpecialCommand(args, message, prefix);
@@ -95,6 +107,12 @@ client.on("message", (message) => { //When the bot identifies a message
     } catch (error) {
         errorLogger.error("Error on client.on(\"message\"). Errors:", error);
     }
+});
+
+app.use('/', api);
+
+app.get('*', function(req, res) {
+    res.sendFile(path.join(__dirname + "/public/404frontoffice.html"))
 });
 
 function leaveChannelAfterMessage(channel) {
