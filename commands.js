@@ -1,7 +1,7 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD 
 var specialIntervalId = 0;
 var main = require("./main");
-const { errorLogger } = require("./logger");
+const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -56,11 +56,11 @@ module.exports = {
                         if (parseInt(args[2], 10) === 1) {
                             message.reply(args[2] + " message has been deleted!").then((message) => {
                                 message.delete({ timeout: 5000 }); //Delete the success message after 5 seconds
-                            }).catch(console.error);
+                            }).catch(errorLogger.error);
                         } else {
                             message.reply(args[2] + " messages has been deleted!").then((message) => {
                                 message.delete({ timeout: 3000 });
-                            }).catch(console.error);
+                            }).catch(errorLogger.error);
                         }
                     } else {
                         message.reply("Only admins can delete messages!");
@@ -71,12 +71,12 @@ module.exports = {
             errorLogger.error("Error on delete command. Errors:", error);
         }
     },
-    help(args, Discord, message, prefix) {
+    help(args, Discord, message, prefix, botName) {
         try {
             if (!args[1]) {
                 const helpEmbed = new Discord.MessageEmbed()
                     .setColor("#339933")
-                    .setTitle("Ace Bot Help Menu")
+                    .setTitle(botName + " Help Menu")
                     .addFields({
                         name: "Commands List",
                         value: prefix + "help commands"
@@ -167,7 +167,7 @@ module.exports = {
             errorLogger.error("Error on my ping command. Errors:", error);
         }
     },
-    specialCommand(args, message, prefix, client) {
+    specialCommand(args, message, prefix, client, botName) {
         try {
             if (args[1] !== "special") {
                 return message.reply("Did you mean \"" + prefix + "start special command\"?");
@@ -213,12 +213,12 @@ module.exports = {
                             return message.reply("The hours value can't be less than 0. For example: \"" + prefix + "start special command <playlist link> 17.32.**43**\"");
                         }
                         if (!client.channels.cache.get(process.env.SPECIAL_VOICE_CHANNEL)) {
-                            console.error("The voice channel does not exist!");
-                            return message.reply("Something went wrong. Contact the ace creator for more instructions.");
+                            errorLogger.error("The voice channel does not exist!");
+                            return message.reply("Something went wrong. Contact the " + botName + " creator for more instructions.");
                         }
                         if (!client.channels.cache.get(process.env.SPECIAL_TEXT_CHANNEL)) {
-                            console.error("The voice channel does not exist!");
-                            return message.reply("Something went wrong. Contact the ace creator for more instructions.");
+                            errorLogger.error("The voice channel does not exist!");
+                            return message.reply("Something went wrong. Contact the " + botName + " creator for more instructions.");
                         }
                         timeInMiliseconds = (times[0] * 3600000) + (times[1] * 60000) + (times[2] * 1000);
                         if (timeInMiliseconds <= 0) {
@@ -230,7 +230,7 @@ module.exports = {
                             specialIntervalId = setInterval(main.specialTimer, timeInMiliseconds, (playlistLink));
                             main.specialTimer(playlistLink);
                             message.reply("Special command started!");
-                            console.log("Special command started.");
+                            infoLogger.log("Special command started.");
                         } catch (error) {
                             errorLogger.error("Error on initializing the special timer on the special command. Errors:", error);
                         }
@@ -264,7 +264,7 @@ module.exports = {
                     timeInMiliseconds = 0;
                     playlistLink = "";
                     message.reply("Special command stopped.");
-                    console.log("Special command stopped.");
+                    infoLogger.log("Special command stopped.");
                 }
             } else {
                 message.reply("Command for special people only!");
