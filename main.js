@@ -4,15 +4,15 @@ var commands = require("./commands"); //Import the file were all the logic for e
 const Discord = require("discord.js"); //Import the Discord.js library
 const client = new Discord.Client(); //Create a new Discord client
 const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
-const { Prefix } = require('./models/prefixSchema');
+const { Prefix } = require("./models/prefixSchema");
 var fs = require("fs");
-var express = require('express');
-var bodyParser = require('body-parser');
+var express = require("express");
+var bodyParser = require("body-parser");
 var app = express();
-var api = require('./api.js');
+var api = require("./api.js");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
@@ -41,13 +41,13 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
     try {
         isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
         if (isDevMode) { //If we are using the dev bot
-            botName = "Ace (Beta)"
-            infoLogger.info(botName + " is online!")
+            botName = "Ace (Beta)";
+            infoLogger.info(botName + " is online!");
             currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
             infoLogger.info("Bot in dev mode.");
         } else {
-            botName = "Ace"
-            infoLogger.info(botName + " is online!")
+            botName = "Ace";
+            infoLogger.info(botName + " is online!");
             currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
             infoLogger.info("Bot in production mode.");
         }
@@ -60,8 +60,8 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
 
 try {
     var server = app.listen(process.env.PORT, () => {
-        infoLogger.info('API Server is connected and listening on port ' + server.address().port)
-    })
+        infoLogger.info("API Server is connected and listening on port " + server.address().port);
+    });
 } catch (error) {
     errorLogger.error("Error on starting the API server! Errors:", error);
 }
@@ -70,7 +70,7 @@ mongoose.connect(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true }, (er
     if (!err) {
         infoLogger.info("Connected to MongoDB");
     } else {
-        errorLogger.error("Connected to MongoDB. Errors:", err)
+        errorLogger.error("Connected to MongoDB. Errors:", err);
     }
 })
 
@@ -135,7 +135,7 @@ client.on("message", async(message) => { //When the bot identifies a message
     }
 });
 
-client.on("guildCreate", async guild => {
+client.on("guildCreate", async(guild) => {
     try {
         var newPrefix = new Prefix({ prefix: "$", guildId: guild.id, updatedBy: "<@!" + currentBotDiscordId + ">" });
         await newPrefix.save();
@@ -145,7 +145,7 @@ client.on("guildCreate", async guild => {
     }
 })
 
-client.on("guildDelete", async guild => {
+client.on("guildDelete", async(guild) => {
     try {
         await Prefix.deleteMany({ guildId: guild.id });
         warnLogger.warn("Bot kicked from a guild: " + guild.name);
@@ -154,10 +154,10 @@ client.on("guildDelete", async guild => {
     }
 })
 
-app.use('/', api);
+app.use("/", api);
 
-app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname + "/public/404frontoffice.html"))
+app.get("*", function(req, res) {
+    //To Do Later
 });
 
 function leaveChannelAfterMessage(channel) {
