@@ -167,7 +167,7 @@ function leaveChannelAfterMessage(channel) {
     } catch (error) {
         errorLogger.error("Error on leaving channel on special timer. Errors:", error);
     }
-};
+}
 
 function messageToStartPlaylist(channel) {
     try {
@@ -176,7 +176,7 @@ function messageToStartPlaylist(channel) {
     } catch (error) {
         errorLogger.error("Error on sending message to start playlist on special timer. Errors:", error);
     }
-};
+}
 
 function specialTimer(link) {
     try {
@@ -198,7 +198,7 @@ function specialTimer(link) {
         errorLogger.error("Error on special timer. Errors:", error);
     }
 
-};
+}
 
 client.login(token); //Starts the bot
 
