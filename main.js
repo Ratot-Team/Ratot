@@ -72,7 +72,7 @@ mongoose.connect(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true }, (er
     } else {
         errorLogger.error("Connected to MongoDB. Errors:", err);
     }
-})
+});
 
 client.on("message", async(message) => { //When the bot identifies a message 
     try {
@@ -157,6 +157,7 @@ client.on("guildDelete", async(guild) => {
 app.use("/", api);
 
 app.get("*", function(req, res) {
+    infoLogger.info("Req: " + req + ", Res: " + res);
     //To Do Later
 });
 
