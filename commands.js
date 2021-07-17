@@ -116,6 +116,9 @@ module.exports = {
                         }, {
                             name: prefix + "my ping",
                             value: "Say the value of your ping (kind of... is a little bit complicated xD)"
+                        }, {
+                            name: prefix + "prefix $",
+                            value: "Change the prefix for the bot commands"
                         });
                     message.channel.send(helpCommandsEmbed);
                 } catch (error) {

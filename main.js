@@ -100,7 +100,7 @@ client.on("message", async(message) => { //When the bot identifies a message
                 case "help":
                 case "h":
                 case "hc":
-                    commands.help(args, Discord, message, prefix, botName);
+                    commands.help(args, Discord, message, prefix, botName, currentBotDiscordId);
                     break;
                 case "hug":
                     commands.hug(args, message, prefix, currentBotDiscordId);
