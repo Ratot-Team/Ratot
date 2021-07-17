@@ -5,6 +5,7 @@ const Discord = require("discord.js"); //Import the Discord.js library
 const client = new Discord.Client(); //Create a new Discord client
 const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
+const { BotConfigs } = require("./models/botConfigsSchema");
 var fs = require("fs");
 var express = require("express");
 var bodyParser = require("body-parser");
@@ -31,13 +32,13 @@ fs.writeFile("pid.pid", process.pid.toString(), (err) => {
     if (err) {
         return errorLogger.error(err);
     }
-    infoLogger.info("Pid saved on pid.txt");
+    infoLogger.info("Pid saved on pid.pid file");
 });
 
-var isDevMode, currentBotDiscordId, playlistLink, botName, prefix; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink, botName, prefix, serverOn; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
-client.once("ready", () => { //When the bot is ready and online execute this block of code
+client.once("ready", async() => { //When the bot is ready and online execute this block of code
     try {
         isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
         if (isDevMode) { //If we are using the dev bot
@@ -51,20 +52,26 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
             currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
             infoLogger.info("Bot in production mode.");
         }
-        client.user.setActivity("$help", { type: "LISTENING" }).catch(errorLogger.error); //Set an activity to the bot saying that he is listening to $help
-        infoLogger.info("Bot status set to \"Listening to $help\"");
+        let checkConfigs = await BotConfigs.find({ config: "Status" });
+        if (!checkConfigs.length || checkConfigs.length === 0) {
+            client.user.setActivity(checkConfigs[0].value, { type: checkConfigs[0].value2 }).catch(errorLogger.error);
+        } else {
+            client.user.setActivity("$help", { type: "LISTENING" }).catch(errorLogger.error); //Set an activity to the bot saying that he is listening to $help
+            infoLogger.info("Bot status set to \"" + checkConfigs[0].value2 + " " + checkConfigs[0].value + "\"");
+        }
     } catch (error) {
         errorLogger.error("Error on client.once method! Errors:", error);
     }
 });
 
-try {
-    var server = app.listen(process.env.PORT, () => {
-        infoLogger.info("API Server is connected and listening on port " + server.address().port);
-    });
-} catch (error) {
-    errorLogger.error("Error on starting the API server! Errors:", error);
-}
+
+var server = app.listen(process.env.PORT, () => {
+    serverOn = true;
+    infoLogger.info("API Server is connected and listening on port " + server.address().port);
+}).on("error", (error) => {
+    serverOn = false;
+    errorLogger.error("Error when trying to start express server! Error: ", error);
+});
 
 mongoose.connect(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true }, (err) => {
     if (!err) {
@@ -78,7 +85,7 @@ client.on("message", async(message) => { //When the bot identifies a message
     try {
         var prefixes = await Prefix.find({ guildId: message.guild.id });
         if (!prefixes.length || prefixes.length === 0) {
-            var newPrefix = new Prefix({ prefix: "$", guildId: message.guild.id, updatedBy: "<@!" + currentBotDiscordId + ">" });
+            var newPrefix = new Prefix({ prefix: "$", guildId: message.guild.id, updatedBy: currentBotDiscordId });
             newPrefix.save();
             prefix = "$";
         } else {
@@ -123,6 +130,9 @@ client.on("message", async(message) => { //When the bot identifies a message
                 case "p":
                     commands.changePrefix(args, message, prefix);
                     break;
+                case "change":
+                    commands.changeBotSettings(args, message, client, prefix, Discord);
+                    break;
                 default: //If is none of the previous commands
                     if (isCommand) {
                         message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
@@ -137,7 +147,7 @@ client.on("message", async(message) => { //When the bot identifies a message
 
 client.on("guildCreate", async(guild) => {
     try {
-        var newPrefix = new Prefix({ prefix: "$", guildId: guild.id, updatedBy: "<@!" + currentBotDiscordId + ">" });
+        var newPrefix = new Prefix({ prefix: "$", guildId: guild.id, updatedBy: currentBotDiscordId });
         await newPrefix.save();
         warnLogger.warn("Bot added to a new guild: " + guild.name);
     } catch (error) {
@@ -154,12 +164,14 @@ client.on("guildDelete", async(guild) => {
     }
 });
 
-app.use("/", api);
+if (serverOn) {
+    app.use("/", api);
 
-app.get("*", function(req, res) {
-    infoLogger.info("Req: " + req + ", Res: " + res);
-    //To Do Later
-});
+    app.get("*", function(req, res) {
+        infoLogger.info("Req: " + req + ", Res: " + res);
+        //To Do Later
+    });
+}
 
 function leaveChannelAfterMessage(channel) {
     try {
