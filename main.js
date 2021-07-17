@@ -4,14 +4,15 @@ var commands = require("./commands"); //Import the file were all the logic for e
 const Discord = require("discord.js"); //Import the Discord.js library
 const client = new Discord.Client(); //Create a new Discord client
 const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
+const { Prefix } = require("./models/prefixSchema");
 var fs = require("fs");
-var express = require('express');
-var bodyParser = require('body-parser');
+var express = require("express");
+var bodyParser = require("body-parser");
 var app = express();
-var api = require('./api.js');
+var api = require("./api.js");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-var mongoose = require('mongoose');
+var mongoose = require("mongoose");
 
 const token = process.env.ACE_BOT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
@@ -33,22 +34,20 @@ fs.writeFile("pid.pid", process.pid.toString(), (err) => {
     infoLogger.info("Pid saved on pid.txt");
 });
 
-var isDevMode, currentBotDiscordId, playlistLink, botName; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink, botName, prefix; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
-
-const prefix = "$"; //Keeps the prefix that the bot is listening. Is static for now...
 
 client.once("ready", () => { //When the bot is ready and online execute this block of code
     try {
         isDevMode = (token === process.env.ACE_BOT_DEV_TOKEN); // If token is from the dev bot then it isDevMode is true
         if (isDevMode) { //If we are using the dev bot
-            botName = "Ace (Beta)"
-            infoLogger.info(botName + " is online!")
+            botName = "Ace (Beta)";
+            infoLogger.info(botName + " is online!");
             currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
             infoLogger.info("Bot in dev mode.");
         } else {
-            botName = "Ace"
-            infoLogger.info(botName + " is online!")
+            botName = "Ace";
+            infoLogger.info(botName + " is online!");
             currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
             infoLogger.info("Bot in production mode.");
         }
@@ -61,8 +60,8 @@ client.once("ready", () => { //When the bot is ready and online execute this blo
 
 try {
     var server = app.listen(process.env.PORT, () => {
-        infoLogger.info('API Server is connected and listening on port ' + server.address().port)
-    })
+        infoLogger.info("API Server is connected and listening on port " + server.address().port);
+    });
 } catch (error) {
     errorLogger.error("Error on starting the API server! Errors:", error);
 }
@@ -71,14 +70,22 @@ mongoose.connect(dbUrl, { useUnifiedTopology: true, useNewUrlParser: true }, (er
     if (!err) {
         infoLogger.info("Connected to MongoDB");
     } else {
-        errorLogger.error("Connected to MongoDB. Errors:", err)
+        errorLogger.error("Connected to MongoDB. Errors:", err);
     }
-})
+});
 
-client.on("message", (message) => { //When the bot identifies a message 
+client.on("message", async(message) => { //When the bot identifies a message 
     try {
+        var prefixes = await Prefix.find({ guildId: message.guild.id });
+        if (!prefixes.length || prefixes.length === 0) {
+            var newPrefix = new Prefix({ prefix: "$", guildId: message.guild.id, updatedBy: "<@!" + currentBotDiscordId + ">" });
+            newPrefix.save();
+            prefix = "$";
+        } else {
+            prefix = prefixes[0].prefix;
+        }
         let args = message.content; //Keeps the message content
-        var isCommand = args.charAt(0) === prefix; //If the prefix is the one that the bot uses it is a command
+        var isCommand = args.substr(0, prefix.length) === prefix; //If the prefix is the one that the bot uses it is a command
         args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
         if (isCommand) //I think this is quite obvious too
         {
@@ -87,18 +94,23 @@ client.on("message", (message) => { //When the bot identifies a message
                     commands.ping(message, client);
                     break;
                 case "delete":
+                case "del":
                     commands.delete(args, message, prefix);
                     break;
                 case "help":
-                    commands.help(args, Discord, message, prefix, botName);
+                case "h":
+                case "hc":
+                    commands.help(args, Discord, message, prefix, botName, currentBotDiscordId);
                     break;
                 case "hug":
                     commands.hug(args, message, prefix, currentBotDiscordId);
                     break;
                 case "bot":
+                case "bp":
                     commands.bot(args, message, prefix, client);
                     break;
                 case "my":
+                case "mp":
                     commands.my(args, message, prefix);
                     break;
                 case "start":
@@ -106,6 +118,10 @@ client.on("message", (message) => { //When the bot identifies a message
                     break;
                 case "stop":
                     commands.stopSpecialCommand(args, message, prefix);
+                    break;
+                case "prefix":
+                case "p":
+                    commands.changePrefix(args, message, prefix);
                     break;
                 default: //If is none of the previous commands
                     if (isCommand) {
@@ -119,10 +135,30 @@ client.on("message", (message) => { //When the bot identifies a message
     }
 });
 
-app.use('/', api);
+client.on("guildCreate", async(guild) => {
+    try {
+        var newPrefix = new Prefix({ prefix: "$", guildId: guild.id, updatedBy: "<@!" + currentBotDiscordId + ">" });
+        await newPrefix.save();
+        warnLogger.warn("Bot added to a new guild: " + guild.name);
+    } catch (error) {
+        errorLogger.error("Error on client.on(\"guildCreate\"). Errors:", error);
+    }
+});
 
-app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname + "/public/404frontoffice.html"))
+client.on("guildDelete", async(guild) => {
+    try {
+        await Prefix.deleteMany({ guildId: guild.id });
+        warnLogger.warn("Bot kicked from a guild: " + guild.name);
+    } catch (error) {
+        errorLogger.error("Error on client.on(\"guildCreate\"). Errors:", error);
+    }
+});
+
+app.use("/", api);
+
+app.get("*", function(req, res) {
+    infoLogger.info("Req: " + req + ", Res: " + res);
+    //To Do Later
 });
 
 function leaveChannelAfterMessage(channel) {

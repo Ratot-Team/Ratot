@@ -1,7 +1,8 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD 
 var specialIntervalId = 0;
 var main = require("./main");
-const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
+const { errorLogger, infoLogger } = require("./logger"); //Import all the custom loggers
+const { Prefix } = require("./models/prefixSchema");
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -33,7 +34,10 @@ module.exports = {
     },
     delete(args, message, prefix) {
         try {
-            if (args[1] !== "messages") { //args[1] is the second word from the command
+            if (args[0] == "del") {
+                args[2] = args[1];
+            }
+            if (args[1] !== "messages" && args[0] !== "del") { //args[1] is the second word from the command
                 message.reply("Did you mean \"" + prefix + "delete messages\"?"); //Send a warning message to the user
             } else {
                 if (!args[2] || !Number.isInteger(parseInt(args[2], 10))) { //Verify if the third "word" from the command is a number
@@ -73,7 +77,7 @@ module.exports = {
     },
     help(args, Discord, message, prefix, botName) {
         try {
-            if (!args[1]) {
+            if (!args[1] && args[0] !== "hc") {
                 const helpEmbed = new Discord.MessageEmbed()
                     .setColor("#339933")
                     .setTitle(botName + " Help Menu")
@@ -90,33 +94,32 @@ module.exports = {
                 message.channel.send(helpEmbed); //Send that embed message
             } else {
                 try {
-                    switch (args[1]) {
-                        case "commands":
-                            const helpCommandsEmbed = new Discord.MessageEmbed()
-                                .setColor("#339933")
-                                .setTitle("Commands List")
-                                .addFields({
-                                    name: prefix + "ping",
-                                    value: "The bot responds with \"pong\", but to know your ping you really have to insist a little bit"
-                                }, {
-                                    name: prefix + "delete messages <number>",
-                                    value: "The bot deletes a certain number of messages. Only admins can use this command."
-                                }, {
-                                    name: prefix + "hug <@someone>",
-                                    value: "The bot gives a hug to someone you mention. You can mention yourself don\'t be shy!"
-                                }, {
-                                    name: prefix + "bot ping",
-                                    value: "Says the ping value of the bot"
-                                }, {
-                                    name: prefix + "my ping",
-                                    value: "Say the value of your ping (kind of... is a little bit complicated xD)"
-                                });
-                            message.channel.send(helpCommandsEmbed);
-                            break;
-                        default:
-                            message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
-                            break;
+                    if (args[1] !== "commands" && args[0] !== "hc") {
+                        return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
                     }
+                    const helpCommandsEmbed = new Discord.MessageEmbed()
+                        .setColor("#339933")
+                        .setTitle("Commands List")
+                        .addFields({
+                            name: prefix + "ping",
+                            value: "The bot responds with \"pong\", but to know your ping you really have to insist a little bit"
+                        }, {
+                            name: prefix + "delete messages <number>",
+                            value: "The bot deletes a certain number of messages. Only admins can use this command."
+                        }, {
+                            name: prefix + "hug <@someone>",
+                            value: "The bot gives a hug to someone you mention. You can mention yourself don\'t be shy!"
+                        }, {
+                            name: prefix + "bot ping",
+                            value: "Says the ping value of the bot"
+                        }, {
+                            name: prefix + "my ping",
+                            value: "Say the value of your ping (kind of... is a little bit complicated xD)"
+                        }, {
+                            name: prefix + "prefix $",
+                            value: "Change the prefix for the bot commands"
+                        });
+                    message.channel.send(helpCommandsEmbed);
                 } catch (error) {
                     errorLogger.error("Error on help list of commands command. Errors:", error);
                 }
@@ -143,7 +146,7 @@ module.exports = {
     },
     bot(args, message, prefix, client) {
         try {
-            if (args[1] !== "ping") {
+            if (args[1] !== "ping" && args[0] !== "bp") {
                 return message.reply("Did you mean \"" + prefix + "bot ping\"?");
             }
             message.channel.send("Testing connection...").then((m) => { //Send a temporary message and then
@@ -156,7 +159,7 @@ module.exports = {
     },
     my(args, message, prefix) {
         try {
-            if (args[1] !== "ping") {
+            if (args[1] !== "ping" && args[0] !== "mp") {
                 return message.reply("Did you mean \"" + prefix + "my ping\"?");
             }
             message.channel.send("Testing your connection...").then((m) => { //Send a temporary message and then
@@ -271,6 +274,25 @@ module.exports = {
             }
         } catch (error) {
             errorLogger.error("Error on stop special command. Errors:", error);
+        }
+    },
+    async changePrefix(args, message, prefix) {
+        try {
+            if (!args[1]) {
+                return message.reply("You need to specify the new prefix you want. Example: \"" + prefix + "prefix !\"");
+            }
+            var prefixes = await Prefix.find({ guildId: message.guild.id });
+            if (!prefixes.length || prefixes.length === 0) {
+                var newPrefix = new Prefix({ prefix: args[1], guildId: message.guild.id, updatedBy: message.author });
+                newPrefix.save();
+            } else {
+                prefixes[0].prefix = args[1];
+                prefixes[0].updatedBy = message.author;
+                await Prefix.findOneAndUpdate({ _id: prefixes[0]._id }, prefixes[0], { new: true, useFindAndModify: false });
+                return message.reply("Prefix changed to \"" + args[1] + "\"!");
+            }
+        } catch (error) {
+            errorLogger.error("Error on  command change prefix. Errors:", error);
         }
     }
 };
