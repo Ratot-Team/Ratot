@@ -4,7 +4,7 @@ var main = require("./main");
 const { errorLogger, infoLogger, warnLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
 const { BotConfigsLog } = require("./models/botConfigsLogSchema");
-const { BotConfigs } = require("./models/botConfigsSchema")
+const { BotConfigs } = require("./models/botConfigsSchema");
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -336,12 +336,12 @@ module.exports = {
             let auxString = prefix + args[0] + " " + args[1] + " " + args[2] + " ";
             let auxStatus = message.content.substr(auxString.length, message.content.length);
             let auxTypes = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
-            let auxTypeNumber = parseInt(args[2]) - 1;
+            let auxTypeNumber = parseInt(args[2], 10) - 1;
             await client.user.setActivity(auxStatus, { type: auxTypes[auxTypeNumber] }).catch(errorLogger.error);
             warnLogger.warn("Bot status changed by " + message.author.username + " to " + auxTypes[auxTypeNumber] + " " + auxStatus);
             let checkConfigs = await BotConfigs.find({ config: "Status" });
             if (!checkConfigs.length || checkConfigs.length === 0) {
-                let changedBotConfigs = await new BotConfigs({ config: "Status", value: auxStatus, value2: auxTypes[auxTypeNumber], value3: null, value3: null, lastModifiedBy: message.author.id });
+                let changedBotConfigs = await new BotConfigs({ config: "Status", value: auxStatus, value2: auxTypes[auxTypeNumber], value3: null, lastModifiedBy: message.author.id });
                 await changedBotConfigs.save();
             } else {
                 checkConfigs[0].value = auxStatus;
