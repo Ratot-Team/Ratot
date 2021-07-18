@@ -1,8 +1,10 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD 
 var specialIntervalId = 0;
 var main = require("./main");
-const { errorLogger, infoLogger } = require("./logger"); //Import all the custom loggers
+const { errorLogger, infoLogger, warnLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
+const { BotConfigsLog } = require("./models/botConfigsLogSchema");
+const { BotConfigs } = require("./models/botConfigsSchema");
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -38,7 +40,7 @@ module.exports = {
                 args[2] = args[1];
             }
             if (args[1] !== "messages" && args[0] !== "del") { //args[1] is the second word from the command
-                message.reply("Did you mean \"" + prefix + "delete messages\"?"); //Send a warning message to the user
+                return message.reply("Did you mean \"" + prefix + "delete messages\"?"); //Send a warning message to the user
             } else {
                 if (!args[2] || !Number.isInteger(parseInt(args[2], 10))) { //Verify if the third "word" from the command is a number
                     message.reply("Type the number of messages you want to delete, for example \"" + prefix + "delete messages 2\""); //Send a warning message to the user
@@ -283,16 +285,75 @@ module.exports = {
             }
             var prefixes = await Prefix.find({ guildId: message.guild.id });
             if (!prefixes.length || prefixes.length === 0) {
-                var newPrefix = new Prefix({ prefix: args[1], guildId: message.guild.id, updatedBy: message.author });
+                var newPrefix = new Prefix({ prefix: args[1], guildId: message.guild.id, updatedBy: message.author.id });
                 newPrefix.save();
             } else {
                 prefixes[0].prefix = args[1];
-                prefixes[0].updatedBy = message.author;
+                prefixes[0].updatedBy = message.author.id;
                 await Prefix.findOneAndUpdate({ _id: prefixes[0]._id }, prefixes[0], { new: true, useFindAndModify: false });
                 return message.reply("Prefix changed to \"" + args[1] + "\"!");
             }
         } catch (error) {
             errorLogger.error("Error on  command change prefix. Errors:", error);
         }
+    },
+    async changeBotSettings(args, message, client, prefix, Discord) {
+        if (message.author.id != process.env.ACE_BOT_CREATOR_DISCORD_ID) {
+            return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+        }
+        if (!args[1]) {
+            return message.reply("Did you mean \"" + prefix + "change status\"?"); //Send a warning message to the user
+        }
+        if (args[1] == "status") {
+            if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
+                const statusEmbed = new Discord.MessageEmbed()
+                    .setColor("#339933")
+                    .setTitle("You need to specified the type of status you want!")
+                    .addFields({
+                        name: "For example: \"" + prefix + "change status **3** <status>\"",
+                        value: "**The list of possible status is:**"
+                    }, {
+                        name: "1",
+                        value: "Playing"
+                    }, {
+                        name: "2",
+                        value: "Listening"
+                    }, {
+                        name: "3",
+                        value: "Watching"
+                    }, {
+                        name: "4",
+                        value: "Competing"
+                    });
+                return message.reply(statusEmbed); //Send a warning message to the user
+            }
+            if (!args[3]) {
+                return message.reply("You need to specified the new status you want! For example: \"" + prefix + "change status 3 **This will be the new status**\""); //Send a warning message to the user
+            }
+            if (args[3].length > 128) {
+                return message.reply("Status can't have more than 128 characters. You wrote a status with " + args[3].length + " characters.");
+            }
+            let auxString = prefix + args[0] + " " + args[1] + " " + args[2] + " ";
+            let auxStatus = message.content.substr(auxString.length, message.content.length);
+            let auxTypes = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
+            let auxTypeNumber = parseInt(args[2], 10) - 1;
+            await client.user.setActivity(auxStatus, { type: auxTypes[auxTypeNumber] }).catch(errorLogger.error);
+            warnLogger.warn("Bot status changed by " + message.author.username + " to " + auxTypes[auxTypeNumber] + " " + auxStatus);
+            let checkConfigs = await BotConfigs.find({ config: "Status" });
+            if (!checkConfigs.length || checkConfigs.length === 0) {
+                let changedBotConfigs = await new BotConfigs({ config: "Status", value: auxStatus, value2: auxTypes[auxTypeNumber], value3: null, lastModifiedBy: message.author.id });
+                await changedBotConfigs.save();
+            } else {
+                checkConfigs[0].value = auxStatus;
+                checkConfigs[0].value2 = auxTypes[auxTypeNumber];
+                checkConfigs[0].value3 = null;
+                checkConfigs[0].lastModifiedBy = message.author.id;
+                await BotConfigs.findOneAndUpdate({ _id: checkConfigs[0]._id }, checkConfigs[0], { new: true, useFindAndModify: false });
+            }
+            let changedBotConfigsLog = new BotConfigsLog({ changed: "Status", changedTo: auxStatus, changedTo2: auxTypes[auxTypeNumber], changedTo3: null, changedBy: message.author.username, changedById: message.author.id });
+            await changedBotConfigsLog.save();
+            return message.reply("Status successfully changed!");
+        }
+        return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
     }
 };
