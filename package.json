@@ -1,5 +1,5 @@
 {
-    "name": "captainbot",
+    "name": "acebot",
     "version": "0.4.0",
     "description": "",
     "main": "main.js",
@@ -10,14 +10,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/IIIRataxIII/Ace-Bot.git"
+        "url": "git+https://github.com/Ace-Bot-Team/Ace-Bot.git"
     },
-    "author": "IIIRataxIII",
-    "license": "ISC",
+    "author": "Ace-Bot-Team",
+    "license": "GPLv3",
     "bugs": {
-        "url": "https://github.com/IIIRataxIII/Ace-Bot/issues"
+        "url": "https://github.com/Ace-Bot-Team/Ace-Bot/issues"
     },
-    "homepage": "https://github.com/IIIRataxIII/Ace-Bot#readme",
+    "homepage": "https://github.com/Ace-Bot-Team/Ace-Bot#readme",
     "dependencies": {
         "discord.js": "^12.5.3",
         "dotenv": "^8.6.0",
