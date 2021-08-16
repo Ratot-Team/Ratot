@@ -1,26 +1,30 @@
 {
-    "name": "captainbot",
-    "version": "0.3.4",
+    "name": "acebot",
+    "version": "0.4.0",
     "description": "",
     "main": "main.js",
     "scripts": {
-        "start": "node main.js",
+        "start": "npm start",
         "test": "echo \"Error: no test specified\" && exit 1",
-        "node .": "node run main.js"
+        "stop": "node stop.js"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/IIIRataxIII/Ace-Bot.git"
+        "url": "git+https://github.com/Ace-Bot-Team/Ace-Bot.git"
     },
-    "author": "IIIRataxIII",
-    "license": "ISC",
+    "author": "Ace-Bot-Team",
+    "license": "GPLv3",
     "bugs": {
-        "url": "https://github.com/IIIRataxIII/Ace-Bot/issues"
+        "url": "https://github.com/Ace-Bot-Team/Ace-Bot/issues"
     },
-    "homepage": "https://github.com/IIIRataxIII/Ace-Bot#readme",
+    "homepage": "https://github.com/Ace-Bot-Team/Ace-Bot#readme",
     "dependencies": {
         "discord.js": "^12.5.3",
         "dotenv": "^8.6.0",
-        "nodemon": "^2.0.7"
+        "express": "^4.17.1",
+        "mongoose": "^5.13.2",
+        "nodemon": "^2.0.7",
+        "winston": "^3.3.3",
+        "winston-daily-rotate-file": "^4.5.5"
     }
 }
