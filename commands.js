@@ -91,7 +91,7 @@ module.exports = {
                         value: "\u200B"
                     }, {
                         name: "See my code on GitHub!",
-                        value: "https://github.com/IIIRataxIII/Ace-Bot"
+                        value: "https://github.com/Ace-Bot-Team/Ace-Bot"
                     }); //Create a personalized embed message
                 message.channel.send(helpEmbed); //Send that embed message
             } else {
