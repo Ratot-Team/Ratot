@@ -54,9 +54,10 @@ client.once("ready", async() => { //When the bot is ready and online execute thi
         }
         let checkConfigs = await BotConfigs.find({ config: "Status" });
         if (!checkConfigs.length || checkConfigs.length === 0) {
-            client.user.setActivity(checkConfigs[0].value, { type: checkConfigs[0].value2 }).catch(errorLogger.error);
-        } else {
             client.user.setActivity("$help", { type: "LISTENING" }).catch(errorLogger.error); //Set an activity to the bot saying that he is listening to $help
+            infoLogger.info("Bot status set to \"LISTENING $help\"");
+        } else {
+            client.user.setActivity(checkConfigs[0].value, { type: checkConfigs[0].value2 }).catch(errorLogger.error);
             infoLogger.info("Bot status set to \"" + checkConfigs[0].value2 + " " + checkConfigs[0].value + "\"");
         }
     } catch (error) {
