@@ -134,6 +134,14 @@ client.on("message", async(message) => { //When the bot identifies a message
                 case "change":
                     commands.changeBotSettings(args, message, client, prefix, Discord);
                     break;
+                case "add":
+                case "a":
+                    commands.addCommand(args, message, client, prefix, Discord, currentBotDiscordId);
+                    break;
+                case "remove":
+                case "r":
+                    commands.removeCommand(args, message, client, prefix, currentBotDiscordId);
+                    break;
                 default: //If is none of the previous commands
                     if (isCommand) {
                         message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
