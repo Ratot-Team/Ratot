@@ -5,6 +5,7 @@ const { errorLogger, infoLogger, warnLogger } = require("./logger"); //Import al
 const { Prefix } = require("./models/prefixSchema");
 const { BotConfigsLog } = require("./models/botConfigsLogSchema");
 const { BotConfigs } = require("./models/botConfigsSchema");
+const { BotAdmin } = require("./models/botAdminsSchema");
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -81,7 +82,7 @@ module.exports = {
         try {
             if (!args[1] && args[0] !== "hc") {
                 const helpEmbed = new Discord.MessageEmbed()
-                    .setColor("#339933")
+                    .setColor("#000000")
                     .setTitle(botName + " Help Menu")
                     .addFields({
                         name: "Commands List",
@@ -92,7 +93,11 @@ module.exports = {
                     }, {
                         name: "See my code on GitHub!",
                         value: "https://github.com/Ace-Bot-Team/Ace-Bot"
-                    }); //Create a personalized embed message
+                    })
+                    .setTimestamp()
+                    .setThumbnail('https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png')
+                    .setAuthor('Ace', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png')
+                    .setFooter('Copyright © 2020-2021 by Captain Ratax', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png'); //Create a personalized embed message
                 message.channel.send(helpEmbed); //Send that embed message
             } else {
                 try {
@@ -100,7 +105,7 @@ module.exports = {
                         return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
                     }
                     const helpCommandsEmbed = new Discord.MessageEmbed()
-                        .setColor("#339933")
+                        .setColor("#000000")
                         .setTitle("Commands List")
                         .addFields({
                             name: prefix + "ping",
@@ -118,9 +123,13 @@ module.exports = {
                             name: prefix + "my ping",
                             value: "Say the value of your ping (kind of... is a little bit complicated xD)"
                         }, {
-                            name: prefix + "prefix $",
+                            name: prefix + "prefix <prefix>",
                             value: "Change the prefix for the bot commands"
-                        });
+                        })
+                        .setTimestamp()
+                        .setThumbnail('https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png')
+                        .setAuthor('Ace', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png')
+                        .setFooter('Copyright © 2020-2021 by Captain Ratax', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png');
                     message.channel.send(helpCommandsEmbed);
                 } catch (error) {
                     errorLogger.error("Error on help list of commands command. Errors:", error);
@@ -298,61 +307,160 @@ module.exports = {
         }
     },
     async changeBotSettings(args, message, client, prefix, Discord) {
-        if (message.author.id != process.env.ACE_BOT_CREATOR_DISCORD_ID) {
+        try {
+            let checkAdmin = await BotAdmin.find({ userId: message.author.id });
+            let isBotAdmin;
+            if (!checkAdmin.length || checkAdmin.length === 0) {
+                isBotAdmin = message.author.id == process.env.ACE_BOT_CREATOR_DISCORD_ID;
+            } else {
+                isBotAdmin = true;
+            }
+            if (!isBotAdmin) {
+                return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+            }
+            if (!args[1]) {
+                return message.reply("Did you mean \"" + prefix + "change status\"?"); //Send a warning message to the user
+            }
+            if (args[1] == "status") {
+                if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
+                    const statusEmbed = new Discord.MessageEmbed()
+                        .setColor("#000000")
+                        .setTitle("You need to specified the type of status you want!")
+                        .addFields({
+                            name: "For example: \"" + prefix + "change status **3** <status>\"",
+                            value: "**The list of possible status is:**"
+                        }, {
+                            name: "1",
+                            value: "Playing"
+                        }, {
+                            name: "2",
+                            value: "Listening"
+                        }, {
+                            name: "3",
+                            value: "Watching"
+                        }, {
+                            name: "4",
+                            value: "Competing"
+                        });
+                    return message.reply(statusEmbed); //Send a warning message to the user
+                }
+                if (!args[3]) {
+                    return message.reply("You need to specified the new status you want! For example: \"" + prefix + "change status 3 **This will be the new status**\""); //Send a warning message to the user
+                }
+                if (args[3].length > 128) {
+                    return message.reply("Status can't have more than 128 characters. You wrote a status with " + args[3].length + " characters.");
+                }
+                let auxString = prefix + args[0] + " " + args[1] + " " + args[2] + " ";
+                let auxStatus = message.content.substr(auxString.length, message.content.length);
+                let auxTypes = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
+                let auxTypeNumber = parseInt(args[2], 10) - 1;
+                await client.user.setActivity(auxStatus, { type: auxTypes[auxTypeNumber] }).catch(errorLogger.error);
+                warnLogger.warn("Bot status changed by " + message.author.username + " to " + auxTypes[auxTypeNumber] + " " + auxStatus);
+                let checkConfigs = await BotConfigs.find({ config: "Status" });
+                if (!checkConfigs.length || checkConfigs.length === 0) {
+                    let changedBotConfigs = await new BotConfigs({ config: "Status", value: auxStatus, value2: auxTypes[auxTypeNumber], value3: null, lastModifiedBy: message.author.id });
+                    await changedBotConfigs.save();
+                } else {
+                    checkConfigs[0].value = auxStatus;
+                    checkConfigs[0].value2 = auxTypes[auxTypeNumber];
+                    checkConfigs[0].value3 = null;
+                    checkConfigs[0].lastModifiedBy = message.author.id;
+                    await BotConfigs.findOneAndUpdate({ _id: checkConfigs[0]._id }, checkConfigs[0], { new: true, useFindAndModify: false });
+                }
+                let changedBotConfigsLog = new BotConfigsLog({ changed: "Status", changedTo: auxStatus, changedTo2: auxTypes[auxTypeNumber], changedTo3: null, changedBy: message.author.username, changedById: message.author.id });
+                await changedBotConfigsLog.save();
+                return message.reply("Status successfully changed!");
+            }
+            return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+        } catch (error) {
+            errorLogger.error("Error on  command change bot settings. Errors:", error);
+        }
+    },
+    async addCommand(args, message, client, prefix, Discord, currentBotDiscordId) {
+        try {
+            let checkAdmin = await BotAdmin.find({ userId: message.author.id });
+            let isBotAdmin;
+            if (!checkAdmin.length || checkAdmin.length === 0) {
+                isBotAdmin = message.author.id == process.env.ACE_BOT_CREATOR_DISCORD_ID;
+            } else {
+                isBotAdmin = true;
+            }
+            if (!isBotAdmin) {
+                return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+            }
+            if (!args[1]) {
+                return message.reply("Did you mean \"" + prefix + "add admin\"?"); //Send a warning message to the user
+            }
+            if (args[1] == "admin") {
+                if (!args[2] || args[2].substr(0, 2) !== "<@" || args[2].charAt(args[2].length - 1) !== ">") {
+                    return message.reply("You need to mention who you want to add as admin. For example: \"" + prefix + "add admin <@" + currentBotDiscordId + ">\""); //Send a warning message to the user
+                }
+                let adminToAddId = args[2].substr(3, args[2].length - 4);
+                let verifyUser = await BotAdmin.find({ userId: adminToAddId });
+                if (!verifyUser.length || verifyUser.length === 0) {
+                    let adminToAddName = client.users.cache.find(user => user.id === adminToAddId).username;
+                    let newAdmin = new BotAdmin({ userId: adminToAddId, userName: adminToAddName, createdBy: message.author.username, createdById: message.author.id });
+                    newAdmin.save();
+                    message.channel.send("<@!" + adminToAddId + "> is now an administrator!");
+                    client.users.fetch(adminToAddId, false).then((user) => {
+                        const adminEmbed = new Discord.MessageEmbed()
+                            .setColor("#000000")
+                            .setTitle(" Now you are an administrator of the Ace Bot!")
+                            .setDescription('Here is some commands you can do now:')
+                            .addFields({
+                                name: "$change status <number of status> <status>",
+                                value: "Change the status message of the bot"
+                            }, {
+                                name: "$status numbers",
+                                value: "Show the list of status numbers to the change status command."
+                            }, {
+                                name: "$add admin <@someone>",
+                                value: "Add a new administrator to the bot **(don't do it without the creator permission!)**"
+                            }, {
+                                name: "$remove admin <@someone>",
+                                value: "Remove an administrator of the bot **(don't do it without the creator permission!)**"
+                            })
+                            .setTimestamp()
+                            .setAuthor('Ace Team', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png', 'https://github.com/Ace-Bot-Team')
+                            .setFooter('Copyright © 2020-2021 by Captain Ratax', 'https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png');
+                        user.send(adminEmbed);
+                    });
+                    return;
+                } else {
+                    return message.reply("That user is already my administrator");
+                }
+            }
+            return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
+        } catch (error) {
+            errorLogger.error("Error on  command add admin. Errors:", error);
+        }
+    },
+    async removeCommand(args, message, client, prefix, currentBotDiscordId) {
+        let checkAdmin = await BotAdmin.find({ userId: message.author.id });
+        let isBotAdmin;
+        if (!checkAdmin.length || checkAdmin.length === 0) {
+            isBotAdmin = message.author.id == process.env.ACE_BOT_CREATOR_DISCORD_ID;
+        } else {
+            isBotAdmin = true;
+        }
+        if (!isBotAdmin) {
             return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
         }
         if (!args[1]) {
-            return message.reply("Did you mean \"" + prefix + "change status\"?"); //Send a warning message to the user
+            return message.reply("Did you mean \"" + prefix + "remove admin\"?"); //Send a warning message to the user
         }
-        if (args[1] == "status") {
-            if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
-                const statusEmbed = new Discord.MessageEmbed()
-                    .setColor("#339933")
-                    .setTitle("You need to specified the type of status you want!")
-                    .addFields({
-                        name: "For example: \"" + prefix + "change status **3** <status>\"",
-                        value: "**The list of possible status is:**"
-                    }, {
-                        name: "1",
-                        value: "Playing"
-                    }, {
-                        name: "2",
-                        value: "Listening"
-                    }, {
-                        name: "3",
-                        value: "Watching"
-                    }, {
-                        name: "4",
-                        value: "Competing"
-                    });
-                return message.reply(statusEmbed); //Send a warning message to the user
+        if (args[1] == "admin") {
+            if (!args[2] || args[2].substr(0, 2) !== "<@" || args[2].charAt(args[2].length - 1) !== ">") {
+                return message.reply("You need to mention who you want to remove as administrator. For example: \"" + prefix + "remove admin <@" + currentBotDiscordId + ">\""); //Send a warning message to the user
             }
-            if (!args[3]) {
-                return message.reply("You need to specified the new status you want! For example: \"" + prefix + "change status 3 **This will be the new status**\""); //Send a warning message to the user
-            }
-            if (args[3].length > 128) {
-                return message.reply("Status can't have more than 128 characters. You wrote a status with " + args[3].length + " characters.");
-            }
-            let auxString = prefix + args[0] + " " + args[1] + " " + args[2] + " ";
-            let auxStatus = message.content.substr(auxString.length, message.content.length);
-            let auxTypes = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
-            let auxTypeNumber = parseInt(args[2], 10) - 1;
-            await client.user.setActivity(auxStatus, { type: auxTypes[auxTypeNumber] }).catch(errorLogger.error);
-            warnLogger.warn("Bot status changed by " + message.author.username + " to " + auxTypes[auxTypeNumber] + " " + auxStatus);
-            let checkConfigs = await BotConfigs.find({ config: "Status" });
-            if (!checkConfigs.length || checkConfigs.length === 0) {
-                let changedBotConfigs = await new BotConfigs({ config: "Status", value: auxStatus, value2: auxTypes[auxTypeNumber], value3: null, lastModifiedBy: message.author.id });
-                await changedBotConfigs.save();
+            let adminToRemoveId = args[2].substr(3, args[2].length - 4);
+            let verifyUser = await BotAdmin.find({ userId: adminToRemoveId });
+            if (!verifyUser.length || verifyUser.length === 0) {
+                return message.channel.send("<@!" + adminToRemoveId + "> isn't my administrator");
             } else {
-                checkConfigs[0].value = auxStatus;
-                checkConfigs[0].value2 = auxTypes[auxTypeNumber];
-                checkConfigs[0].value3 = null;
-                checkConfigs[0].lastModifiedBy = message.author.id;
-                await BotConfigs.findOneAndUpdate({ _id: checkConfigs[0]._id }, checkConfigs[0], { new: true, useFindAndModify: false });
+                await BotAdmin.deleteMany({ userId: adminToRemoveId });
+                return message.channel.send("<@!" + adminToRemoveId + "> is no longer my administrator now");
             }
-            let changedBotConfigsLog = new BotConfigsLog({ changed: "Status", changedTo: auxStatus, changedTo2: auxTypes[auxTypeNumber], changedTo3: null, changedBy: message.author.username, changedById: message.author.id });
-            await changedBotConfigsLog.save();
-            return message.reply("Status successfully changed!");
         }
         return message.reply("Sorry I don\'t recognize that command, but if you want type \"" + prefix + "help commands\" to see what I can do.");
     }
