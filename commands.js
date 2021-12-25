@@ -56,7 +56,7 @@ module.exports = {
     },
     delete(args, message, prefix) {
         try {
-            if (args[0] == "del") {
+            if (args[0] === "del") {
                 args[2] = args[1];
             }
             if (args[1] !== "messages" && args[0] !== "del") {
@@ -119,7 +119,7 @@ module.exports = {
                                         setTimeout(() => message.delete(), 3000);
                                     });
                             } catch (error) {
-                                errorLogger.error("Error on delete command. Errors:", err);
+                                errorLogger.error("Error on delete command. Errors:", error);
                                 message.channel.send(
                                     "Aconteceu algo de errado ao tentar executar esse comando..."
                                 );
@@ -377,7 +377,7 @@ module.exports = {
                         'help commands" to see what I can do.',
                 });
             }
-            if (args[0] == "cs") {
+            if (args[0] === "cs") {
                 args.splice(1, 0, "status");
             }
             if (!args[1]) {
@@ -385,7 +385,7 @@ module.exports = {
                     content: 'Did you mean "' + prefix + 'change status"?',
                 }); //Send a warning message to the user
             }
-            if (args[1] == "status") {
+            if (args[1] === "status") {
                 if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
                     const statusEmbed = new Discord.MessageEmbed()
                         .setColor("#000000")
@@ -439,7 +439,7 @@ module.exports = {
                     });
                 }
                 let auxString = "";
-                if (args[0] == "cs") {
+                if (args[0] === "cs") {
                     auxString = prefix + args[0] + " " + args[2] + " ";
                 } else {
                     auxString = prefix + args[0] + " " + args[1] + " " + args[2] + " ";
@@ -557,7 +557,7 @@ module.exports = {
                     content: 'Did you mean "' + prefix + 'add admin"?',
                 }); //Send a warning message to the user
             }
-            if (args[1] == "admin") {
+            if (args[1] === "admin") {
                 if (!args[2] ||
                     args[2].substr(0, 2) !== "<@" ||
                     args[2].charAt(args[2].length - 1) !== ">"
@@ -673,7 +673,7 @@ module.exports = {
                 content: 'Did you mean "' + prefix + 'remove admin"?',
             }); //Send a warning message to the user
         }
-        if (args[1] == "admin") {
+        if (args[1] === "admin") {
             if (!args[2] ||
                 args[2].substr(0, 2) !== "<@" ||
                 args[2].charAt(args[2].length - 1) !== ">"

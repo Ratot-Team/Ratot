@@ -25,16 +25,6 @@ var mongoose = require("mongoose");
 const token = process.env.ACE_BOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
 
-console.log = function() {
-    return infoLogger.info.apply(infoLogger, arguments); //Overwrite system normal log function with the custom one
-};
-console.error = function() {
-    return errorLogger.info.apply(errorLogger, arguments); //Overwrite system error function with the custom one
-};
-console.warn = function() {
-    return warnLogger.info.apply(warnLogger, arguments); //Overwrite system warn function with the custom one
-};
-
 var isDevMode, currentBotDiscordId, playlistLink, botName, prefix, serverOn; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
