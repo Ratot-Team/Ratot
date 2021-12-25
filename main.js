@@ -134,7 +134,7 @@ if (cluster.isWorker) {
             );
         });
 
-    client.on("message", async(message) => {
+    client.on("messageCreate", async(message) => {
         //When the bot identifies a message
         try {
             var prefixes = await Prefix.find({
