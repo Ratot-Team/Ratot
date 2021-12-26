@@ -54,7 +54,7 @@ module.exports = {
             );
         }
     },
-    delete(args, message, prefix) {
+    delete(args, message, prefix, Permissions) {
         try {
             if (args[0] === "del") {
                 args[2] = args[1];
@@ -73,7 +73,12 @@ module.exports = {
                             'delete messages 2"',
                     }); //Send a warning message to the user
                 } else {
-                    if (message.member.permissions.has("ADMINISTRATOR")) {
+                    if (
+                        message.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES) ||
+                        message.member
+                        .permissionsIn(message.channel)
+                        .has(Permissions.FLAGS.MANAGE_MESSAGES)
+                    ) {
                         //Only proceed to the deletion of the messages if the user is an admin
                         //args[2] is the number of messages the user wants to delete
                         if (parseInt(args[2], 10) > 99) {
@@ -127,7 +132,7 @@ module.exports = {
                         }
                     } else {
                         message.reply({
-                            content: "Only admins can delete messages!",
+                            content: "Only users with the manage messages permission can delete messages!",
                         });
                     }
                 }

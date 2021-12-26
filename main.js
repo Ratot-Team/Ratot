@@ -2,7 +2,7 @@ require("dotenv").config(); //Import the .env library
 
 var commands = require("./commands"); //Import the file were all the logic for each command is
 const Discord = require("discord.js"); //Import the Discord.js library
-const { Client, Intents } = Discord;
+const { Client, Intents, Permissions } = Discord;
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
 }); //Create a new Discord client
@@ -164,7 +164,7 @@ if (cluster.isWorker) {
                         break;
                     case "delete":
                     case "del":
-                        commands.delete(args, message, prefix);
+                        commands.delete(args, message, prefix, Permissions);
                         break;
                     case "help":
                     case "h":
