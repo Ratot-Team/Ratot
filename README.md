@@ -8,11 +8,24 @@ Ace is a Discord bot made to help you administrate your server and have some fun
 
 ## Installation and Execution
 
-Use the package manager [npm](https://www.npmjs.com/get-npm) to install all the dependencies needed.
+Use the package manager [npm](https://www.npmjs.com/get-npm) to install [yarn](https://classic.yarnpkg.com/en/docs/getting-started) globally.
 
 ```bash
-npm install
+npm install --global yarn
 ```
+
+Verify if [yarn](https://classic.yarnpkg.com/en/docs/getting-started) is installed.
+
+```bash
+yarn --version
+```
+
+Use [yarn](https://classic.yarnpkg.com/en/docs/getting-started) to install all the dependencies needed.
+
+```bash
+yarn install
+```
+
 ### With nodemon
 
 Now install the nodemon package globally.
@@ -21,7 +34,7 @@ Now install the nodemon package globally.
 npm install nodemon -g
 ```
 
-Now use the next command to execute the Ace Bot.
+Now use the next command to execute the Ace Bot (sometimes you need to close and reopen the terminal if the nodemon command was not recognized).
 
 ```bash
 nodemon main.js
@@ -40,28 +53,51 @@ To stop the bot press Ctrl+C or just close the window.
 ## Usage (List of Commands)
 
 ### $help (or $h)
+
 The bot sens a menu with some information about the bot and some commands to help.
 
 ### $help commands (or $hc)
+
 The bot sends the list of all commands and the description of what they do.
 
 ### $ping
+
 The bot responds with "pong", but to know your ping you really have to insist a little bit
 
 ### $delete messages \<number\> (or $del \<number\>)
+
 The bot deletes a certain number of messages. Only admins can use this command.
 
 ### $hug \<@someone\>
+
 The bot gives a hug to someone you mention. You can mention yourself don't be shy!
 
 ### $bot ping (or $bp)
+
 Says the ping value of the bot
 
 ### $my ping (or $mp)
+
 Say the value of your ping (kind of... is a little bit complicated xD)
 
 ### $prefix \<prefix\> (or $p \<prefix\>)
+
 Change the prefix for the bot commands.
 
+## Admin Usage (list of commands only for bot admins)
+
+### $change status (or $cs)
+
+Change the bot status to whatever the admin wants
+
+### $add admin \<@someone\>
+
+Adds the user as admin to the bot database
+
+### $remove admin \<@someone\>
+
+Removes the user as admin from the bot database
+
 ## License
+
 [GPLv3](https://github.com/IIIRataxIII/Ace-Bot/blob/master/LICENSE)

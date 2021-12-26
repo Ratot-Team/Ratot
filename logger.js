@@ -11,7 +11,7 @@ function buildTransportWithLevel(level) {
         dirname: "logs",
         filename: level + "s-%DATE%.log",
         json: false,
-        prepend: true
+        prepend: true,
     });
     return transport;
 }
@@ -28,20 +28,29 @@ const logFormat = printf(({ level, message, timestamp, stack }) => {
     } else {
         return `${timestamp} ${level}: ${message}\n${stack}`;
     }
-
 });
 
 function loggerCreator(level) {
     let tempLogger = createLogger({
         format: combine(
             format.colorize(),
-            timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-            format.errors({ stack: true }),
+            timestamp({
+                format: "YYYY-MM-DD HH:mm:ss",
+            }),
+            format.errors({
+                stack: true,
+            }),
             logFormat
         ),
         transports: [
-            new transports.Console({ level }),
-            level === "error" ? errorsTransport : level === "warn" ? warnsTransport : infosTransport
+            new transports.Console({
+                level,
+            }),
+            level === "error" ?
+            errorsTransport :
+            level === "warn" ?
+            warnsTransport :
+            infosTransport,
         ],
     });
     return tempLogger;
@@ -60,7 +69,10 @@ function isFileEmpty(fileName, ignoreWhitespace = true) {
                 reject(err);
                 return;
             }
-            resolve((!ignoreWhitespace && data.length === 0) || (ignoreWhitespace && !!String(data).match(/^\s*$/)));
+            resolve(
+                (!ignoreWhitespace && data.length === 0) ||
+                (ignoreWhitespace && !!String(data).match(/^\s*$/))
+            );
         });
     });
 }
@@ -74,14 +86,20 @@ function doOnRotate(level, oldFileName) {
             .then((isEmpty) => {
                 if (isEmpty) {
                     fs.unlinkSync(file);
-                    infoLogger.info("Previous " + level + " log file deleted successfully.");
+                    infoLogger.info(
+                        "Previous " + level + " log file deleted successfully."
+                    );
                 }
             })
             .catch((err) => {
-                errorLogger.error("The rotation of the " + level + " logger has errors: " + err);
+                errorLogger.error(
+                    "The rotation of the " + level + " logger has errors: " + err
+                );
             });
     } catch (error) {
-        errorLogger.error("The rotation of the " + level + " logger has errors: " + error);
+        errorLogger.error(
+            "The rotation of the " + level + " logger has errors: " + error
+        );
     }
 }
 
@@ -100,5 +118,5 @@ infosTransport.on("rotate", (oldFileName) => {
 module.exports = {
     errorLogger,
     warnLogger,
-    infoLogger
+    infoLogger,
 };

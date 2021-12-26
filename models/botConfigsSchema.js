@@ -5,12 +5,12 @@ const botConfigsSchema = new mongoose.Schema({
     value: "string",
     value2: "string",
     value3: "string",
-    lastModifiedBy: "string"
+    lastModifiedBy: "string",
 }, { timestamps: true });
 
 const BotConfigs = mongoose.model("BotConfigs", botConfigsSchema, "botConfigs");
 
 module.exports = {
-    BotConfigs: BotConfigs,
-    botConfigsSchema: botConfigsSchema
+    BotConfigs,
+    botConfigsSchema,
 };
