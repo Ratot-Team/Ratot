@@ -770,22 +770,22 @@ module.exports = {
                         'list channels"?',
                 }); //Send a warning message to the user
             }
+            var i = 0;
+            var j = 0;
+            var tempEmbed = new Discord.MessageEmbed()
+                .setColor("#000000")
+                .setTitle("Channels List")
+                .setTimestamp()
+                .setAuthor(
+                    "Ace",
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                )
+                .setFooter(
+                    "Copyright © 2020-2021 by Captain Ratax",
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                );
+            var embeds = [];
             if (args[1] === "servers" || args[0] === "ls") {
-                var i = 0;
-                var j = 0;
-                var tempEmbed = new Discord.MessageEmbed()
-                    .setColor("#000000")
-                    .setTitle("Servers List")
-                    .setTimestamp()
-                    .setAuthor(
-                        "Ace",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    )
-                    .setFooter(
-                        "Copyright © 2020-2021 by Captain Ratax",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    );
-                var embeds = [];
                 await client.guilds.cache.forEach((guild) => {
                     i++;
                     if (i % 5 === 0 || i === client.guilds.cache.size) {
@@ -830,21 +830,6 @@ module.exports = {
                 }
             }
             if (args[1] === "channels" || args[0] === "lc") {
-                var i = 0;
-                var j = 0;
-                var tempEmbed = new Discord.MessageEmbed()
-                    .setColor("#000000")
-                    .setTitle("Channels List")
-                    .setTimestamp()
-                    .setAuthor(
-                        "Ace",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    )
-                    .setFooter(
-                        "Copyright © 2020-2021 by Captain Ratax",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    );
-                var embeds = [];
                 await message.guild.channels.cache.forEach((channel) => {
                     i++;
                     if (i % 5 === 0 || i === message.guild.channels.cache.size) {
