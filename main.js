@@ -226,6 +226,7 @@ if (cluster.isWorker) {
                         break;
                     case "list":
                     case "ls":
+                    case "lc":
                         commands.list(args, message, client, prefix, Discord);
                         break;
                     default:
