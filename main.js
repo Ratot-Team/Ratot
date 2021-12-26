@@ -224,6 +224,10 @@ if (cluster.isWorker) {
                             currentBotDiscordId
                         );
                         break;
+                    case "list":
+                    case "ls":
+                        commands.list(args, message, client, prefix, Discord);
+                        break;
                     default:
                         //If is none of the previous commands
                         if (isCommand) {
