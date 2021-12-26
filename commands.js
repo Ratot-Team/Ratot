@@ -761,7 +761,7 @@ module.exports = {
                     'help commands" to see what I can do.',
             });
         } else {
-            if (!args[1] && args[0] !== "ls") {
+            if (!args[1] && args[0] !== "ls" && args[0] !== "lc") {
                 return message.reply({
                     content: 'Did you mean "' +
                         prefix +
@@ -770,22 +770,22 @@ module.exports = {
                         'list channels"?',
                 }); //Send a warning message to the user
             }
+            var i = 0;
+            var j = 0;
+            var tempEmbed = new Discord.MessageEmbed()
+                .setColor("#000000")
+                .setTitle("Channels List")
+                .setTimestamp()
+                .setAuthor(
+                    "Ace",
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                )
+                .setFooter(
+                    "Copyright © 2020-2021 by Captain Ratax",
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                );
+            var embeds = [];
             if (args[1] === "servers" || args[0] === "ls") {
-                var i = 0;
-                var j = 0;
-                var tempEmbed = new Discord.MessageEmbed()
-                    .setColor("#000000")
-                    .setTitle("Servers List")
-                    .setTimestamp()
-                    .setAuthor(
-                        "Ace",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    )
-                    .setFooter(
-                        "Copyright © 2020-2021 by Captain Ratax",
-                        "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                    );
-                var embeds = [];
                 await client.guilds.cache.forEach((guild) => {
                     i++;
                     if (i % 5 === 0 || i === client.guilds.cache.size) {
@@ -810,6 +810,50 @@ module.exports = {
                 });
 
                 if (client.guilds.cache.size <= 5) {
+                    return message.channel.send({ embeds });
+                } else {
+                    const button1 = new Discord.MessageButton()
+                        .setCustomId("previousbtn")
+                        .setLabel("Previous")
+                        .setStyle("PRIMARY");
+
+                    const button2 = new Discord.MessageButton()
+                        .setCustomId("nextbtn")
+                        .setLabel("Next")
+                        .setStyle("PRIMARY");
+
+                    const buttonList = [button1, button2];
+
+                    const timeout = 60000;
+
+                    return paginationEmbed(message, embeds, buttonList, timeout);
+                }
+            }
+            if (args[1] === "channels" || args[0] === "lc") {
+                await message.guild.channels.cache.forEach((channel) => {
+                    i++;
+                    if (i % 5 === 0 || i === message.guild.channels.cache.size) {
+                        tempEmbed.addField(channel.name, channel.id);
+                        embeds[j] = tempEmbed;
+                        tempEmbed = new Discord.MessageEmbed()
+                            .setColor("#000000")
+                            .setTitle("Channels List")
+                            .setTimestamp()
+                            .setAuthor(
+                                "Ace",
+                                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                            )
+                            .setFooter(
+                                "Copyright © 2020-2021 by Captain Ratax",
+                                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                            );
+                        j++;
+                    } else {
+                        tempEmbed.addField(channel.name, channel.id);
+                    }
+                });
+
+                if (message.guild.channels.cache.size <= 5) {
                     return message.channel.send({ embeds });
                 } else {
                     const button1 = new Discord.MessageButton()
