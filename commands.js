@@ -761,7 +761,7 @@ module.exports = {
                     'help commands" to see what I can do.',
             });
         } else {
-            if (!args[1] && args[0] != "ls") {
+            if (!args[1] && args[0] !== "ls") {
                 return message.reply({
                     content: 'Did you mean "' +
                         prefix +
@@ -770,7 +770,7 @@ module.exports = {
                         'list channels"?',
                 }); //Send a warning message to the user
             }
-            if (args[1] == "servers" || args[0] == "ls") {
+            if (args[1] === "servers" || args[0] === "ls") {
                 var i = 0;
                 var j = 0;
                 var tempEmbed = new Discord.MessageEmbed()
@@ -788,7 +788,7 @@ module.exports = {
                 var embeds = [];
                 await client.guilds.cache.forEach((guild) => {
                     i++;
-                    if (i % 5 == 0 || i == client.guilds.cache.size) {
+                    if (i % 5 === 0 || i === client.guilds.cache.size) {
                         tempEmbed.addField(guild.name, guild.id);
                         embeds[j] = tempEmbed;
                         tempEmbed = new Discord.MessageEmbed()
