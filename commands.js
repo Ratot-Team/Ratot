@@ -767,8 +767,11 @@ module.exports = {
                         prefix +
                         'list servers" or "' +
                         prefix +
-                        'list channels"?',
+                        'list channels <optionalServerId>"?',
                 }); //Send a warning message to the user
+            }
+            if (args[0] === "lc") {
+                args.splice(1, 0, "channels");
             }
             var i = 0;
             var j = 0;
@@ -830,47 +833,119 @@ module.exports = {
                 }
             }
             if (args[1] === "channels" || args[0] === "lc") {
-                await message.guild.channels.cache.forEach((channel) => {
-                    i++;
-                    if (i % 5 === 0 || i === message.guild.channels.cache.size) {
-                        tempEmbed.addField(channel.name, channel.id);
-                        embeds[j] = tempEmbed;
-                        tempEmbed = new Discord.MessageEmbed()
-                            .setColor("#000000")
-                            .setTitle("Channels List")
-                            .setTimestamp()
-                            .setAuthor(
-                                "Ace",
-                                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                            )
-                            .setFooter(
-                                "Copyright © 2020-2021 by Captain Ratax",
-                                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                if (!args[2]) {
+                    await message.guild.channels.cache.forEach((channel) => {
+                        i++;
+                        if (i % 5 === 0 || i === message.guild.channels.cache.size) {
+                            tempEmbed.addField(
+                                channel.name + " (" + channel.type + ")",
+                                channel.id
                             );
-                        j++;
+                            embeds[j] = tempEmbed;
+                            tempEmbed = new Discord.MessageEmbed()
+                                .setColor("#000000")
+                                .setTitle("Channels List")
+                                .setTimestamp()
+                                .setAuthor(
+                                    "Ace",
+                                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                                )
+                                .setFooter(
+                                    "Copyright © 2020-2021 by Captain Ratax",
+                                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                                );
+                            j++;
+                        } else {
+                            tempEmbed.addField(
+                                channel.name + " (" + channel.type + ")",
+                                channel.id
+                            );
+                        }
+                    });
+
+                    if (message.guild.channels.cache.size <= 5) {
+                        return message.channel.send({ embeds });
                     } else {
-                        tempEmbed.addField(channel.name, channel.id);
+                        const button1 = new Discord.MessageButton()
+                            .setCustomId("previousbtn")
+                            .setLabel("Previous")
+                            .setStyle("PRIMARY");
+
+                        const button2 = new Discord.MessageButton()
+                            .setCustomId("nextbtn")
+                            .setLabel("Next")
+                            .setStyle("PRIMARY");
+
+                        const buttonList = [button1, button2];
+
+                        const timeout = 60000;
+
+                        return paginationEmbed(message, embeds, buttonList, timeout);
                     }
-                });
-
-                if (message.guild.channels.cache.size <= 5) {
-                    return message.channel.send({ embeds });
                 } else {
-                    const button1 = new Discord.MessageButton()
-                        .setCustomId("previousbtn")
-                        .setLabel("Previous")
-                        .setStyle("PRIMARY");
+                    let isIdValid;
+                    await client.guilds.cache.forEach((guild) => {
+                        if (!isIdValid) {
+                            isIdValid = args[2] === guild.id;
+                        }
+                    });
+                    if (isIdValid) {
+                        await client.guilds.cache
+                            .get(args[2])
+                            .channels.cache.forEach((channel) => {
+                                i++;
+                                if (
+                                    i % 5 === 0 ||
+                                    i === client.guilds.cache.get(args[2]).channels.cache.size
+                                ) {
+                                    tempEmbed.addField(
+                                        channel.name + " (" + channel.type + ")",
+                                        channel.id
+                                    );
+                                    embeds[j] = tempEmbed;
+                                    tempEmbed = new Discord.MessageEmbed()
+                                        .setColor("#000000")
+                                        .setTitle("Channels List")
+                                        .setTimestamp()
+                                        .setAuthor(
+                                            "Ace",
+                                            "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                                        )
+                                        .setFooter(
+                                            "Copyright © 2020-2021 by Captain Ratax",
+                                            "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                                        );
+                                    j++;
+                                } else {
+                                    tempEmbed.addField(
+                                        channel.name + " (" + channel.type + ")",
+                                        channel.id
+                                    );
+                                }
+                            });
 
-                    const button2 = new Discord.MessageButton()
-                        .setCustomId("nextbtn")
-                        .setLabel("Next")
-                        .setStyle("PRIMARY");
+                        if (client.guilds.cache.get(args[2]).channels.cache.size <= 5) {
+                            return message.channel.send({ embeds });
+                        } else {
+                            const button1 = new Discord.MessageButton()
+                                .setCustomId("previousbtn")
+                                .setLabel("Previous")
+                                .setStyle("PRIMARY");
 
-                    const buttonList = [button1, button2];
+                            const button2 = new Discord.MessageButton()
+                                .setCustomId("nextbtn")
+                                .setLabel("Next")
+                                .setStyle("PRIMARY");
 
-                    const timeout = 60000;
+                            const buttonList = [button1, button2];
 
-                    return paginationEmbed(message, embeds, buttonList, timeout);
+                            const timeout = 60000;
+
+                            return paginationEmbed(message, embeds, buttonList, timeout);
+                        }
+                    } else {
+                        return message.reply("The id provided is not from a valid server.");
+                    }
                 }
             }
         }
