@@ -621,14 +621,20 @@ module.exports = {
                                 .setTitle(" Now you are an administrator of the Ace Bot!")
                                 .setDescription("Here is some commands you can do now:")
                                 .addFields({
-                                    name: "$change status <number of status> <status>",
+                                    name: "$change status <number of status> <status> (or $cs <number of status> <status>)",
                                     value: "Change the status message of the bot",
                                 }, {
                                     name: "$add admin <@someone>",
-                                    value: "Add a new administrator to the bot **(don't do it without the creator permission!)**",
+                                    value: "Add a new administrator to the bot __**(don't do it without the creator permission!)**__",
                                 }, {
                                     name: "$remove admin <@someone>",
-                                    value: "Remove an administrator of the bot **(don't do it without the creator permission!)**",
+                                    value: "Remove an administrator of the bot __**(don't do it without the creator permission!)**__",
+                                }, {
+                                    name: "$list servers (or $ls)",
+                                    value: "Lists all the servers the bot is on",
+                                }, {
+                                    name: "$list channels <optionalServerId> (or $lc <optionalServerId>)",
+                                    value: "Lists all the channels from the server where the message is sent, or if given an id from a server lists all the channels from that server",
                                 })
                                 .setTimestamp()
                                 .setThumbnail(

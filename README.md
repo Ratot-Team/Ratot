@@ -26,7 +26,7 @@ Use [yarn](https://classic.yarnpkg.com/en/docs/getting-started) to install all t
 yarn install
 ```
 
-### With nodemon
+### Execution with nodemon
 
 Now install the nodemon package globally.
 
@@ -40,7 +40,7 @@ Now use the next command to execute the Ace Bot (sometimes you need to close and
 nodemon main.js
 ```
 
-### Without nodemon
+### Execution without nodemon
 
 If you didn't want to install nodemon now use the next command to execute the Ace Bot.
 
@@ -86,7 +86,7 @@ Change the prefix for the bot commands.
 
 ## Admin Usage (list of commands only for bot admins)
 
-### $change status (or $cs)
+### $change status \<number of status\> \<status\> (or $cs \<number of status\> \<status\>)
 
 Change the bot status to whatever the admin wants
 
@@ -97,6 +97,14 @@ Adds the user as admin to the bot database
 ### $remove admin \<@someone\>
 
 Removes the user as admin from the bot database
+
+### $list servers (or $ls)
+
+Lists all the servers the bot is on
+
+### $list channels \<optionalServerId\> (or $lc \<optionalServerId\>)
+
+Lists all the channels from the server where the message is sent, or if given an id from a server lists all the channels from that server
 
 ## License
 
