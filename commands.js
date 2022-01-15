@@ -1,5 +1,6 @@
 var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD
-var specialIntervalId = 0;
+var specialIntervalId = 0,
+    lastDeleteMessageId = 0;
 const { errorLogger, infoLogger, warnLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
 const { BotConfigsLog } = require("./models/botConfigsLogSchema");
@@ -108,6 +109,22 @@ module.exports = {
                                 content: "Nothing deleted! Because you know... 0 is nothing human...",
                             });
                         }
+
+                        let auxArray = await message.channel.messages.fetch({ limit: 2 });
+                        let isReadyForNewDelete = true;
+
+                        await auxArray.forEach((currMessage) => {
+                            if (isReadyForNewDelete) {
+                                isReadyForNewDelete = currMessage.id !== lastDeleteMessageId;
+                            }
+                        });
+
+                        if (!isReadyForNewDelete) {
+                            return message.reply({
+                                content: "Chill out! Wait a little bit before sending another delete command...",
+                            });
+                        }
+
                         let n = args[2];
                         n++;
                         let msgsDeletedObj = await message.channel.bulkDelete(n, true); //Delete the number of messages requested by the user
@@ -119,6 +136,7 @@ module.exports = {
                                         content: msgsDeleted + " message has been deleted!",
                                     })
                                     .then((message) => {
+                                        lastDeleteMessageId = message.id;
                                         setTimeout(() => message.delete(), 5000); //Delete the success message after 5 seconds
                                     });
                             } else {
@@ -128,6 +146,7 @@ module.exports = {
                                             content: "No messages have been deleted, probably because the messages are older than 14 days.",
                                         })
                                         .then((message) => {
+                                            lastDeleteMessageId = message.id;
                                             setTimeout(() => message.delete(), 5000); //Delete the success message after 5 seconds
                                         });
                                 } else {
@@ -136,6 +155,7 @@ module.exports = {
                                             content: msgsDeleted + " messages have been deleted!",
                                         })
                                         .then((message) => {
+                                            lastDeleteMessageId = message.id;
                                             setTimeout(() => message.delete(), 3000);
                                         });
                                 }
