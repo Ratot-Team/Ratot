@@ -180,7 +180,7 @@ module.exports = {
             );
         }
     },
-    help(args, Discord, message, prefix, botName) {
+    help(args, Discord, message, prefix, botName, currentYear) {
         try {
             if (!args[1] && args[0] !== "hc") {
                 const helpEmbed = new Discord.MessageEmbed()
@@ -205,7 +205,7 @@ module.exports = {
                         "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                     )
                     .setFooter(
-                        "Copyright © 2020-2021 by Captain Ratax",
+                        "Copyright © 2020-" + currentYear + " by Captain Ratax",
                         "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                     ); //Create a personalized embed message
                 message.reply({
@@ -251,7 +251,7 @@ module.exports = {
                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                         )
                         .setFooter(
-                            "Copyright © 2020-2021 by Captain Ratax",
+                            "Copyright © 2020-" + currentYear + " by Captain Ratax",
                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                         );
                     message.reply({
@@ -399,7 +399,7 @@ module.exports = {
             );
         }
     },
-    async changeBotSettings(args, message, client, prefix, Discord) {
+    async changeBotSettings(args, message, client, prefix, Discord, currentYear) {
         try {
             let checkAdmin = await BotAdmin.find({
                 userId: message.author.id,
@@ -456,7 +456,7 @@ module.exports = {
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             )
                             .setFooter(
-                                "Copyright © 2020-2021 by Captain Ratax",
+                                "Copyright © 2020-" + currentYear + " by Captain Ratax",
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             );
                         return message.reply({
@@ -574,7 +574,8 @@ module.exports = {
         client,
         prefix,
         Discord,
-        currentBotDiscordId
+        currentBotDiscordId,
+        currentYear
     ) {
         try {
             let checkAdmin = await BotAdmin.find({
@@ -665,7 +666,7 @@ module.exports = {
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 )
                                 .setFooter(
-                                    "Copyright © 2020-2021 by Captain Ratax",
+                                    "Copyright © 2020-" + currentYear + " by Captain Ratax",
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 );
                             user.send({
@@ -770,7 +771,7 @@ module.exports = {
                 'help commands" to see what I can do.',
         });
     },
-    async list(args, message, client, prefix, Discord) {
+    async list(args, message, client, prefix, Discord, currentYear) {
         let checkAdmin = await BotAdmin.find({
             userId: message.author.id,
         });
@@ -810,7 +811,7 @@ module.exports = {
                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                 )
                 .setFooter(
-                    "Copyright © 2020-2021 by Captain Ratax",
+                    "Copyright © 2020-" + currentYear + " by Captain Ratax",
                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                 );
             var embeds = [];
@@ -829,7 +830,7 @@ module.exports = {
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             )
                             .setFooter(
-                                "Copyright © 2020-2021 by Captain Ratax",
+                                "Copyright © 2020-" + currentYear + " by Captain Ratax",
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             );
                         j++;
@@ -877,7 +878,7 @@ module.exports = {
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 )
                                 .setFooter(
-                                    "Copyright © 2020-2021 by Captain Ratax",
+                                    "Copyright © 2020-" + currentYear + " by Captain Ratax",
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 );
                             j++;
@@ -938,7 +939,7 @@ module.exports = {
                                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                         )
                                         .setFooter(
-                                            "Copyright © 2020-2021 by Captain Ratax",
+                                            "Copyright © 2020-" + currentYear + " by Captain Ratax",
                                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                         );
                                     j++;

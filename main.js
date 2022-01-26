@@ -25,7 +25,7 @@ var mongoose = require("mongoose");
 const token = process.env.ACE_BOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
 
-var isDevMode, currentBotDiscordId, playlistLink, botName, prefix, serverOn; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode, currentBotDiscordId, playlistLink, botName, prefix, serverOn, currentYear = 0; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
 
 //Code to rerun the bot when an exception occurs
@@ -156,6 +156,7 @@ if (cluster.isWorker) {
             args = args.substring(prefix.length).split(" "); //Split the command by words and takes out the prefix
             if (isCommand) {
                 //I think this is quite obvious too
+                currentYear = new Date().getFullYear(); //Get the current year
                 switch (
                     args[0] //args[0] is the first word of the command and then depending on that word it seeks waht command to execute from the commands.js file
                 ) {
@@ -175,7 +176,7 @@ if (cluster.isWorker) {
                             message,
                             prefix,
                             botName,
-                            currentBotDiscordId
+                            currentYear
                         );
                         break;
                     case "hug":
@@ -201,7 +202,7 @@ if (cluster.isWorker) {
                         break;
                     case "change":
                     case "cs":
-                        commands.changeBotSettings(args, message, client, prefix, Discord);
+                        commands.changeBotSettings(args, message, client, prefix, Discord, currentYear);
                         break;
                     case "add":
                     case "a":
@@ -211,7 +212,8 @@ if (cluster.isWorker) {
                             client,
                             prefix,
                             Discord,
-                            currentBotDiscordId
+                            currentBotDiscordId,
+                            currentYear
                         );
                         break;
                     case "remove":
@@ -227,7 +229,7 @@ if (cluster.isWorker) {
                     case "list":
                     case "ls":
                     case "lc":
-                        commands.list(args, message, client, prefix, Discord);
+                        commands.list(args, message, client, prefix, Discord, currentYear);
                         break;
                     default:
                         //If is none of the previous commands
