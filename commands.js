@@ -56,7 +56,7 @@ module.exports = {
             );
         }
     },
-    async delete(args, message, prefix, Permissions) {
+    async delete(args, message, prefix, Permissions, del_command_timeouts) {
         try {
             if (args[0] === "del") {
                 args[2] = args[1];
@@ -66,111 +66,132 @@ module.exports = {
                 return message.reply({
                     content: 'Did you mean "' + prefix + 'delete messages"?',
                 }); //Send a warning message to the user
-            } else {
-                if (!args[2] || !Number.isInteger(parseInt(args[2], 10))) {
-                    //Verify if the third "word" from the command is a number
-                    message.reply({
-                        content: 'Type the number of messages you want to delete, for example "' +
-                            prefix +
-                            'delete messages 2"',
-                    }); //Send a warning message to the user
-                } else {
-                    if (
-                        message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) ||
-                        message.member
-                        .permissionsIn(message.channel)
-                        .has(Permissions.FLAGS.MANAGE_MESSAGES)
-                    ) {
-                        //Only proceed to the deletion of the messages if the user is an admin
-                        if (!message.guild.me.permissions.has(
-                                Permissions.FLAGS.ADMINISTRATOR
-                            ) &&
-                            !message.guild.me
-                            .permissionsIn(message.channel)
-                            .has(Permissions.FLAGS.MANAGE_MESSAGES)
-                        ) {
-                            return message.reply({
-                                content: "I don't have permission to delete messages!",
-                            });
-                        }
-                        //args[2] is the number of messages the user wants to delete
-                        if (parseInt(args[2], 10) > 99) {
-                            return message.reply({
-                                content: "You can only delete 99 messages!",
-                            });
-                        }
-                        if (parseInt(args[2], 10) < 0) {
-                            return message.reply({
-                                content: "Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...",
-                            });
-                        }
-                        if (parseInt(args[2], 10) === 0) {
-                            return message.reply({
-                                content: "Nothing deleted! Because you know... 0 is nothing human...",
-                            });
-                        }
+            }
+            if (!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+                !message.member
+                .permissionsIn(message.channel)
+                .has(Permissions.FLAGS.MANAGE_MESSAGES)
+            ) {
+                return message.reply({
+                    content: "Only users with the manage messages permission can delete messages!",
+                });
+            }
+            //Only proceed to the deletion of the messages if the user is an admin
+            if (!message.guild.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+                !message.guild.me
+                .permissionsIn(message.channel)
+                .has(Permissions.FLAGS.MANAGE_MESSAGES)
+            ) {
+                return message.reply({
+                    content: "I don't have permission to delete messages!",
+                });
+            }
+            if (!args[2] || !Number.isInteger(parseInt(args[2], 10))) {
+                //Verify if the third "word" from the command is a number
+                return message.reply({
+                    content: 'Type the number of messages you want to delete, for example "' +
+                        prefix +
+                        'delete messages 2"',
+                }); //Send a warning message to the user
+            }
+            args[2] = parseInt(args[2], 10);
+            //args[2] is the number of messages the user wants to delete
+            if (parseInt(args[2], 10) > 99) {
+                return message.reply({
+                    content: "You can only delete 99 messages!",
+                });
+            }
+            if (parseInt(args[2], 10) < 0) {
+                return message.reply({
+                    content: "Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...",
+                });
+            }
+            if (parseInt(args[2], 10) === 0) {
+                return message.reply({
+                    content: "Nothing deleted! Because you know... 0 is nothing human...",
+                });
+            }
+            let currentDate = new Date();
 
-                        let auxArray = await message.channel.messages.fetch({ limit: 2 });
-                        let isReadyForNewDelete = true;
+            async function executeDelete() {
+                let auxArray = await message.channel.messages.fetch({ limit: 2 });
+                let isReadyForNewDelete = true;
 
-                        await auxArray.forEach((currMessage) => {
-                            if (isReadyForNewDelete) {
-                                isReadyForNewDelete = currMessage.id !== lastDeleteMessageId;
-                            }
-                        });
-
-                        if (!isReadyForNewDelete) {
-                            return message.reply({
-                                content: "Chill out! Wait a little bit before sending another delete command...",
-                            });
-                        }
-
-                        let n = args[2];
-                        n++;
-                        let msgsDeletedObj = await message.channel.bulkDelete(n, true); //Delete the number of messages requested by the user
-                        let msgsDeleted = msgsDeletedObj.size - 1;
-                        try {
-                            if (msgsDeleted === 1) {
-                                message.channel
-                                    .send({
-                                        content: msgsDeleted + " message has been deleted!",
-                                    })
-                                    .then((message) => {
-                                        lastDeleteMessageId = message.id;
-                                        setTimeout(() => message.delete(), 5000); //Delete the success message after 5 seconds
-                                    });
-                            } else {
-                                if (msgsDeleted <= 0) {
-                                    message.channel
-                                        .send({
-                                            content: "No messages have been deleted, probably because the messages are older than 14 days.",
-                                        })
-                                        .then((message) => {
-                                            lastDeleteMessageId = message.id;
-                                            setTimeout(() => message.delete(), 5000); //Delete the success message after 5 seconds
-                                        });
-                                } else {
-                                    message.channel
-                                        .send({
-                                            content: msgsDeleted + " messages have been deleted!",
-                                        })
-                                        .then((message) => {
-                                            lastDeleteMessageId = message.id;
-                                            setTimeout(() => message.delete(), 3000);
-                                        });
-                                }
-                            }
-                        } catch (err) {
-                            errorLogger.error("Error on delete command. Errors:", err);
-                            message.channel.send(
-                                "Aconteceu algo de errado ao tentar executar esse comando..."
-                            );
-                        }
-                    } else {
-                        message.reply({
-                            content: "Only users with the manage messages permission can delete messages!",
-                        });
+                await auxArray.forEach((currMessage) => {
+                    if (isReadyForNewDelete) {
+                        isReadyForNewDelete = currMessage.id !== lastDeleteMessageId;
                     }
+                });
+
+                if (!isReadyForNewDelete) {
+                    return message.reply({
+                        content: "Chill out! Wait a little bit before sending another delete command...",
+                    });
+                }
+
+                let n = args[2];
+                n++;
+                let msgsDeletedObj = await message.channel.bulkDelete(n, true); //Delete the number of messages requested by the user
+                let msgsDeleted = msgsDeletedObj.size - 1;
+                try {
+                    if (msgsDeleted === 1) {
+                        return message.channel
+                            .send({
+                                content: msgsDeleted + " message has been deleted!",
+                            })
+                            .then((message) => {
+                                lastDeleteMessageId = message.id;
+                                setTimeout(() => message.delete(), 3000); //Delete the success message after 5 seconds
+                            });
+                    } else {
+                        if (msgsDeleted <= 0) {
+                            return message.channel
+                                .send({
+                                    content: "No messages have been deleted, probably because the messages are older than 14 days.",
+                                })
+                                .then((message) => {
+                                    lastDeleteMessageId = message.id;
+                                    setTimeout(() => message.delete(), 3000); //Delete the success message after 5 seconds
+                                });
+                        } else {
+                            return message.channel
+                                .send({
+                                    content: msgsDeleted + " messages have been deleted!",
+                                })
+                                .then((message) => {
+                                    lastDeleteMessageId = message.id;
+                                    setTimeout(() => message.delete(), 3000);
+                                });
+                        }
+                    }
+                } catch (err) {
+                    errorLogger.error("Error on delete command. Errors:", err);
+                    message.channel.send(
+                        "Aconteceu algo de errado ao tentar executar esse comando..."
+                    );
+                }
+            }
+
+            if (!del_command_timeouts[message.channel.id]) {
+                del_command_timeouts[message.channel.id] = {
+                    date: currentDate,
+                    AlreadyMessaged: false,
+                };
+                executeDelete();
+            } else {
+                let timeSpent =
+                    currentDate.getTime() - del_command_timeouts[message.channel.id].date;
+                if (timeSpent > 5000) {
+                    del_command_timeouts[message.channel.id].date = currentDate;
+                    executeDelete();
+                } else {
+                    del_command_timeouts[message.channel.id].date = currentDate;
+                    let auxTimeLeft = Math.floor((5000 - timeSpent) / 1000);
+                    return message.reply({
+                        content: "You need to wait 5 seconds before using the delete command on this channel again. " +
+                            auxTimeLeft +
+                            " seconds left",
+                    });
                 }
             }
         } catch (error) {
