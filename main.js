@@ -69,12 +69,12 @@ if (cluster.isWorker) {
             isDevMode = token === process.env.ACE_BOT_DEV_TOKEN; // If token is from the dev bot then it isDevMode is true
             if (isDevMode) {
                 //If we are using the dev bot
-                botName = "Ace (Dev)";
+                botName = process.env.BOT_NAME_DEV;
                 infoLogger.info(botName + " is online!");
                 currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
                 infoLogger.info("Bot in dev mode.");
             } else {
-                botName = "Ace";
+                botName = process.env.BOT_NAME_PROD;
                 infoLogger.info(botName + " is online!");
                 currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
                 infoLogger.info("Bot in production mode.");
@@ -214,7 +214,8 @@ if (cluster.isWorker) {
                             client,
                             prefix,
                             Discord,
-                            currentYear
+                            currentYear,
+                            botName
                         );
                         break;
                     case "add":
@@ -226,7 +227,8 @@ if (cluster.isWorker) {
                             prefix,
                             Discord,
                             currentBotDiscordId,
-                            currentYear
+                            currentYear,
+                            botName
                         );
                         break;
                     case "remove":
@@ -242,7 +244,15 @@ if (cluster.isWorker) {
                     case "list":
                     case "ls":
                     case "lc":
-                        commands.list(args, message, client, prefix, Discord, currentYear);
+                        commands.list(
+                            args,
+                            message,
+                            client,
+                            prefix,
+                            Discord,
+                            currentYear,
+                            botName
+                        );
                         break;
                 }
             }
