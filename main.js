@@ -25,8 +25,15 @@ var mongoose = require("mongoose");
 const token = process.env.ACE_BOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
 
-var isDevMode, currentBotDiscordId, playlistLink, botName, prefix, serverOn, currentYear = 0; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
+var isDevMode,
+    currentBotDiscordId,
+    botName,
+    prefix,
+    serverOn,
+    currentYear = 0; //isDevMode - Boolean that is used on the code to know if we are using the dev bot or the real one
 //currentBotDiscordId - Keeps the discord id from the bot
+
+var del_command_timeouts = Object.create(null);
 
 //Code to rerun the bot when an exception occurs
 var cluster = require("cluster");
@@ -62,7 +69,7 @@ if (cluster.isWorker) {
             isDevMode = token === process.env.ACE_BOT_DEV_TOKEN; // If token is from the dev bot then it isDevMode is true
             if (isDevMode) {
                 //If we are using the dev bot
-                botName = "Ace (Beta)";
+                botName = "Ace (Dev)";
                 infoLogger.info(botName + " is online!");
                 currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
                 infoLogger.info("Bot in dev mode.");
@@ -165,19 +172,18 @@ if (cluster.isWorker) {
                         break;
                     case "delete":
                     case "del":
-                        commands.delete(args, message, prefix, Permissions);
+                        commands.delete(
+                            args,
+                            message,
+                            prefix,
+                            Permissions,
+                            del_command_timeouts
+                        );
                         break;
                     case "help":
                     case "h":
                     case "hc":
-                        commands.help(
-                            args,
-                            Discord,
-                            message,
-                            prefix,
-                            botName,
-                            currentYear
-                        );
+                        commands.help(args, Discord, message, prefix, botName, currentYear);
                         break;
                     case "hug":
                         commands.hug(args, message, prefix, currentBotDiscordId);
@@ -202,7 +208,14 @@ if (cluster.isWorker) {
                         break;
                     case "change":
                     case "cs":
-                        commands.changeBotSettings(args, message, client, prefix, Discord, currentYear);
+                        commands.changeBotSettings(
+                            args,
+                            message,
+                            client,
+                            prefix,
+                            Discord,
+                            currentYear
+                        );
                         break;
                     case "add":
                     case "a":
@@ -230,16 +243,6 @@ if (cluster.isWorker) {
                     case "ls":
                     case "lc":
                         commands.list(args, message, client, prefix, Discord, currentYear);
-                        break;
-                    default:
-                        //If is none of the previous commands
-                        if (isCommand) {
-                            message.reply(
-                                "Sorry I don't recognize that command, but if you want type \"" +
-                                prefix +
-                                'help commands" to see what I can do.'
-                            );
-                        }
                         break;
                 }
             }
