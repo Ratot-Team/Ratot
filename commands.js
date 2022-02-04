@@ -379,8 +379,13 @@ module.exports = {
             );
         }
     },
-    async changePrefix(args, message, prefix) {
+    async changePrefix(args, message, prefix, Permissions) {
         try {
+            if (!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+                return message.reply({
+                    content: "Only users with admin permissions can change the bot prefix!",
+                });
+            }
             if (!args[1]) {
                 return message.reply({
                     content: 'You need to specify the new prefix you want. Example: "' +

@@ -204,7 +204,7 @@ if (cluster.isWorker) {
                         break;
                     case "prefix":
                     case "p":
-                        commands.changePrefix(args, message, prefix);
+                        commands.changePrefix(args, message, prefix, Permissions);
                         break;
                     case "change":
                     case "cs":
