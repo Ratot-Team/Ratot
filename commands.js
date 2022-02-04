@@ -222,7 +222,7 @@ module.exports = {
                         "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                     )
                     .setAuthor(
-                        "Ace",
+                        botName,
                         "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                     )
                     .setFooter(
@@ -268,7 +268,7 @@ module.exports = {
                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                         )
                         .setAuthor(
-                            "Ace",
+                            botName,
                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                         )
                         .setFooter(
@@ -425,7 +425,15 @@ module.exports = {
             );
         }
     },
-    async changeBotSettings(args, message, client, prefix, Discord, currentYear) {
+    async changeBotSettings(
+        args,
+        message,
+        client,
+        prefix,
+        Discord,
+        currentYear,
+        botName
+    ) {
         try {
             let checkAdmin = await BotAdmin.find({
                 userId: message.author.id,
@@ -478,7 +486,7 @@ module.exports = {
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             )
                             .setAuthor(
-                                "Ace",
+                                botName,
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             )
                             .setFooter(
@@ -601,7 +609,8 @@ module.exports = {
         prefix,
         Discord,
         currentBotDiscordId,
-        currentYear
+        currentYear,
+        botName
     ) {
         try {
             let checkAdmin = await BotAdmin.find({
@@ -665,7 +674,9 @@ module.exports = {
                         client.users.fetch(adminToAddId, false).then((user) => {
                             const adminEmbed = new Discord.MessageEmbed()
                                 .setColor("#000000")
-                                .setTitle(" Now you are an administrator of the Ace Bot!")
+                                .setTitle(
+                                    " Now you are an administrator of the " + botName + " Bot!"
+                                )
                                 .setDescription("Here is some commands you can do now:")
                                 .addFields({
                                     name: "$change status <number of status> <status> (or $cs <number of status> <status>)",
@@ -688,7 +699,7 @@ module.exports = {
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 )
                                 .setAuthor(
-                                    "Ace",
+                                    botName,
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 )
                                 .setFooter(
@@ -797,7 +808,7 @@ module.exports = {
                 'help commands" to see what I can do.',
         });
     },
-    async list(args, message, client, prefix, Discord, currentYear) {
+    async list(args, message, client, prefix, Discord, currentYear, botName) {
         let checkAdmin = await BotAdmin.find({
             userId: message.author.id,
         });
@@ -833,7 +844,7 @@ module.exports = {
                 .setTitle("Channels List")
                 .setTimestamp()
                 .setAuthor(
-                    "Ace",
+                    botName,
                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                 )
                 .setFooter(
@@ -852,7 +863,7 @@ module.exports = {
                             .setTitle("Servers List")
                             .setTimestamp()
                             .setAuthor(
-                                "Ace",
+                                botName,
                                 "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                             )
                             .setFooter(
@@ -900,7 +911,7 @@ module.exports = {
                                 .setTitle("Channels List")
                                 .setTimestamp()
                                 .setAuthor(
-                                    "Ace",
+                                    botName,
                                     "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                 )
                                 .setFooter(
@@ -961,7 +972,7 @@ module.exports = {
                                         .setTitle("Channels List")
                                         .setTimestamp()
                                         .setAuthor(
-                                            "Ace",
+                                            botName,
                                             "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
                                         )
                                         .setFooter(
