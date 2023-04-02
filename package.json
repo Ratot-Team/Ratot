@@ -1,34 +1,34 @@
 {
-    "name": "acebot",
-    "version": "0.4.0",
-    "description": "",
-    "main": "main.js",
-    "scripts": {
-        "start": "node main.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/Ace-Bot-Team/Ace-Bot.git"
-    },
-    "author": "Ace-Bot-Team",
-    "license": "GPLv3",
-    "bugs": {
-        "url": "https://github.com/Ace-Bot-Team/Ace-Bot/issues"
-    },
-    "homepage": "https://github.com/Ace-Bot-Team/Ace-Bot#readme",
-    "dependencies": {
-        "discord.js": "^13.3.1",
-        "discordjs-button-pagination": "^1.0.7",
-        "dotenv": "^10.0.0",
-        "express": "^4.17.2",
-        "mongoose": "^6.1.3",
-        "node": "^16.13.1",
-        "winston": "^3.3.3",
-        "winston-daily-rotate-file": "^4.5.5",
-        "yarn": "^1.22.17"
-    },
-    "optionalDependencies": {
-        "nodemon": "^2.0.15"
-    }
+  "name": "acebot",
+  "version": "0.4.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ace-Bot-Team/Ace-Bot.git"
+  },
+  "author": "Ace-Bot-Team",
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/Ace-Bot-Team/Ace-Bot/issues"
+  },
+  "homepage": "https://github.com/Ace-Bot-Team/Ace-Bot#readme",
+  "dependencies": {
+    "discord.js": "^13.3.1",
+    "discordjs-button-pagination": "^1.0.7",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.2",
+    "mongoose": "^6.1.3",
+    "node": "^16.13.1",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5",
+    "yarn": "^1.22.17"
+  },
+  "optionalDependencies": {
+    "nodemon": "^2.0.15"
+  }
 }
