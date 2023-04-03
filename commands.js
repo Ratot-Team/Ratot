@@ -226,7 +226,7 @@ module.exports = {
             },
             {
               name: "See my code on GitHub!",
-              value: "https://github.com/Ace-Bot-Team/Ace-Bot",
+              value: "https://github.com/Ratot-Team/Ratot",
             }
           )
           .setTimestamp()
@@ -471,8 +471,7 @@ module.exports = {
       });
       let isBotAdmin;
       if (!checkAdmin.length || checkAdmin.length === 0) {
-        isBotAdmin =
-          message.author.id === process.env.ACE_BOT_CREATOR_DISCORD_ID;
+        isBotAdmin = message.author.id === process.env.RATOT_CREATOR_DISCORD_ID;
       } else {
         isBotAdmin = true;
       }
@@ -662,8 +661,7 @@ module.exports = {
       });
       let isBotAdmin;
       if (!checkAdmin.length || checkAdmin.length === 0) {
-        isBotAdmin =
-          message.author.id === process.env.ACE_BOT_CREATOR_DISCORD_ID;
+        isBotAdmin = message.author.id === process.env.RATOT_CREATOR_DISCORD_ID;
       } else {
         isBotAdmin = true;
       }
@@ -827,7 +825,7 @@ module.exports = {
     });
     let isBotAdmin;
     if (!checkAdmin.length || checkAdmin.length === 0) {
-      isBotAdmin = message.author.id === process.env.ACE_BOT_CREATOR_DISCORD_ID;
+      isBotAdmin = message.author.id === process.env.RATOT_CREATOR_DISCORD_ID;
     } else {
       isBotAdmin = true;
     }
@@ -909,7 +907,7 @@ module.exports = {
     });
     let isBotAdmin;
     if (!checkAdmin.length || checkAdmin.length === 0) {
-      isBotAdmin = message.author.id === process.env.ACE_BOT_CREATOR_DISCORD_ID;
+      isBotAdmin = message.author.id === process.env.RATOT_CREATOR_DISCORD_ID;
     } else {
       isBotAdmin = true;
     }
