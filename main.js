@@ -22,7 +22,7 @@ app.use(
 );
 var mongoose = require("mongoose");
 
-const token = process.env.ACE_BOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
+const token = process.env.RATOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
 const dbUrl = process.env.DBURL;
 
 var isDevMode,
@@ -67,17 +67,17 @@ if (cluster.isWorker) {
   client.once("ready", async () => {
     //When the bot is ready and online execute this block of code
     try {
-      isDevMode = token === process.env.ACE_BOT_DEV_TOKEN; // If token is from the dev bot then it isDevMode is true
+      isDevMode = token === process.env.RATOT_DEV_TOKEN; // If token is from the dev bot then it isDevMode is true
       if (isDevMode) {
         //If we are using the dev bot
         botName = process.env.BOT_NAME_DEV;
         infoLogger.info(botName + " is online!");
-        currentBotDiscordId = process.env.ACE_BOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
+        currentBotDiscordId = process.env.RATOT_DEV_DISCORD_ID; //The currentBotDiscordId is the dev bot ID
         infoLogger.info("Bot in dev mode.");
       } else {
         botName = process.env.BOT_NAME_PROD;
         infoLogger.info(botName + " is online!");
-        currentBotDiscordId = process.env.ACE_BOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
+        currentBotDiscordId = process.env.RATOT_DISCORD_ID; //The currentBotDiscordId is the real bot ID
         infoLogger.info("Bot in production mode.");
       }
       let checkConfigs = await BotConfigs.find({
@@ -111,14 +111,14 @@ if (cluster.isWorker) {
 
       //Verify if the creator is already on the database as an admin
       let checkAdmin = await BotAdmin.find({
-        userId: process.env.ACE_BOT_CREATOR_DISCORD_ID,
+        userId: process.env.RATOT_CREATOR_DISCORD_ID,
       });
       if (!checkAdmin.length || checkAdmin.length === 0) {
         let creator = new BotAdmin({
-          userId: process.env.ACE_BOT_CREATOR_DISCORD_ID,
-          userName: process.env.ACE_BOT_CREATOR_DISCORD_USERNAME,
-          createdBy: process.env.ACE_BOT_CREATOR_DISCORD_USERNAME,
-          createdById: process.env.ACE_BOT_CREATOR_DISCORD_ID,
+          userId: process.env.RATOT_CREATOR_DISCORD_ID,
+          userName: process.env.RATOT_CREATOR_DISCORD_USERNAME,
+          createdBy: process.env.RATOT_CREATOR_DISCORD_USERNAME,
+          createdById: process.env.RATOT_CREATOR_DISCORD_ID,
         });
         creator.save();
       }
