@@ -52,7 +52,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on ping command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -174,7 +174,7 @@ module.exports = {
         } catch (err) {
           errorLogger.error("Error on delete command. Errors:", err);
           message.channel.send(
-            "Something wrong hapopened when trying to execute that command..."
+            "Something wrong happened when trying to execute that command..."
           );
         }
       }
@@ -205,7 +205,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on delete command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -308,14 +308,14 @@ module.exports = {
             error
           );
           message.channel.send(
-            "Something wrong hapopened when trying to execute that command..."
+            "Something wrong happened when trying to execute that command..."
           );
         }
       }
     } catch (error) {
       errorLogger.error("Error on help command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -356,7 +356,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on hug command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -379,7 +379,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on bot ping command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -402,7 +402,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on my ping command. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -452,7 +452,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on  command change prefix. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -577,7 +577,7 @@ module.exports = {
               err
             );
             message.channel.send(
-              "Something wrong hapopened when trying to execute that command..."
+              "Something wrong happened when trying to execute that command..."
             );
           }
           warnLogger.warn(
@@ -642,7 +642,7 @@ module.exports = {
         error
       );
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -817,7 +817,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on  command add admin. Errors:", error);
       message.channel.send(
-        "Something wrong hapopened when trying to execute that command..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
