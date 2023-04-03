@@ -52,7 +52,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on ping command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -174,7 +174,7 @@ module.exports = {
         } catch (err) {
           errorLogger.error("Error on delete command. Errors:", err);
           message.channel.send(
-            "Aconteceu algo de errado ao tentar executar esse comando..."
+            "Something wrong happened when trying to execute that command..."
           );
         }
       }
@@ -205,7 +205,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on delete command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -308,14 +308,14 @@ module.exports = {
             error
           );
           message.channel.send(
-            "Aconteceu algo de errado ao tentar executar esse comando..."
+            "Something wrong happened when trying to execute that command..."
           );
         }
       }
     } catch (error) {
       errorLogger.error("Error on help command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -356,7 +356,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on hug command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -379,7 +379,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on bot ping command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -402,7 +402,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on my ping command. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -452,7 +452,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on  command change prefix. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -577,7 +577,7 @@ module.exports = {
               err
             );
             message.channel.send(
-              "Aconteceu algo de errado ao tentar executar esse comando..."
+              "Something wrong happened when trying to execute that command..."
             );
           }
           warnLogger.warn(
@@ -642,7 +642,7 @@ module.exports = {
         error
       );
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -681,34 +681,34 @@ module.exports = {
           }); //Send a warning message to the user
         }
         if (args[1] === "admin") {
-          let adminToAddId = args[2].match(/(\d+)/);
+          var adminToAddId = args[2].match(/\d/g);
+          adminToAddId = adminToAddId.join("");
           if (adminToAddId === currentBotDiscordId) {
             return message.reply({
               content: "I cannot be my own administrator",
             }); //Send a warning message to the user
           }
+          var adminToAddName = "";
+          try {
+            adminToAddName = client.users.cache.find(
+              (user) => user.id === adminToAddId
+            ).username;
+          } catch (err) {
+            return message.reply({
+              content:
+                'You need to mention who you want to add as admin, or write is ID. For example: "' +
+                prefix +
+                "add admin <@" +
+                currentBotDiscordId +
+                '>" or "$add admin ' +
+                currentBotDiscordId +
+                '"',
+            }); //Send a warning message to the user
+          }
           let verifyUser = await BotAdmin.find({
             userId: adminToAddId,
           });
-
           if (!verifyUser.length || verifyUser.length === 0) {
-            let adminToAddName = "";
-            try {
-              adminToAddName = client.users.cache.find(
-                (user) => user.id === adminToAddId
-              ).username;
-            } catch (err) {
-              return message.reply({
-                content:
-                  'You need to mention who you want to add as admin, or write is ID. For example: "' +
-                  prefix +
-                  "add admin <@" +
-                  currentBotDiscordId +
-                  '>" or "$add admin ' +
-                  currentBotDiscordId +
-                  '"',
-              }); //Send a warning message to the user
-            }
             let newAdmin = new BotAdmin({
               userId: adminToAddId,
               userName: adminToAddName,
@@ -719,54 +719,6 @@ module.exports = {
             message.reply({
               content: "<@!" + adminToAddId + "> is now an administrator!",
             });
-            client.users.fetch(adminToAddId, false).then((user) => {
-              const adminEmbed = new Discord.MessageEmbed()
-                .setColor("#000000")
-                .setTitle(
-                  " Now you are an administrator of the " + botName + " Bot!"
-                )
-                .setDescription("Here is some commands you can do now:")
-                .addFields(
-                  {
-                    name: "$change status <number of status> <status> (or $cs <number of status> <status>)",
-                    value: "Change the status message of the bot",
-                  },
-                  {
-                    name: "$add admin <@someone>",
-                    value:
-                      "Add a new administrator to the bot __**(don't do it without the creator permission!)**__",
-                  },
-                  {
-                    name: "$remove admin <@someone>",
-                    value:
-                      "Remove an administrator of the bot __**(don't do it without the creator permission!)**__",
-                  },
-                  {
-                    name: "$list servers (or $ls)",
-                    value: "Lists all the servers the bot is on",
-                  },
-                  {
-                    name: "$list channels <optionalServerId> (or $lc <optionalServerId>)",
-                    value:
-                      "Lists all the channels from the server where the message is sent, or if given an id from a server lists all the channels from that server",
-                  }
-                )
-                .setTimestamp()
-                .setThumbnail(
-                  "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                )
-                .setAuthor(
-                  botName,
-                  "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                )
-                .setFooter(
-                  "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                  "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
-                );
-              user.send({
-                embeds: [adminEmbed],
-              });
-            });
             warnLogger.warn(
               message.author.username +
                 " added the user " +
@@ -775,6 +727,79 @@ module.exports = {
                 adminToAddId +
                 " as admin!"
             );
+            try {
+              client.users.fetch(adminToAddId, false).then((user) => {
+                const adminEmbed = new Discord.MessageEmbed()
+                  .setColor("#000000")
+                  .setTitle(
+                    " Now you are an administrator of the " + botName + " Bot!"
+                  )
+                  .setDescription("Here is some commands you can do now:")
+                  .addFields(
+                    {
+                      name: "$change status <number of status> <status> (or $cs <number of status> <status>)",
+                      value: "Change the status message of the bot",
+                    },
+                    {
+                      name: "$add admin <@someone>",
+                      value:
+                        "Add a new administrator to the bot __**(don't do it without the creator permission!)**__",
+                    },
+                    {
+                      name: "$remove admin <@someone>",
+                      value:
+                        "Remove an administrator of the bot __**(don't do it without the creator permission!)**__",
+                    },
+                    {
+                      name: "$list servers (or $ls)",
+                      value: "Lists all the servers the bot is on",
+                    },
+                    {
+                      name: "$list channels <optionalServerId> (or $lc <optionalServerId>)",
+                      value:
+                        "Lists all the channels from the server where the message is sent, or if given an id from a server lists all the channels from that server",
+                    }
+                  )
+                  .setTimestamp()
+                  .setThumbnail(
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                  )
+                  .setAuthor(
+                    botName,
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                  )
+                  .setFooter(
+                    "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                  );
+                try {
+                  user
+                    .send({
+                      embeds: [adminEmbed],
+                    })
+                    .catch(() =>
+                      message.reply({
+                        content:
+                          "It wasn't possible to send private message to the user with the admin informations.",
+                      })
+                    );
+                } catch (err) {
+                  errorLogger.error(
+                    "An error as occurred when trying to send private message to user. Error:",
+                    error
+                  );
+                }
+              });
+            } catch (error) {
+              errorLogger.error(
+                "An error as occurred when trying to send private message to user. Error:",
+                error
+              );
+              return message.reply({
+                content:
+                  "It wasn't possible to send private message to the user with the admin informations.",
+              });
+            }
             return;
           } else {
             return message.reply({
@@ -792,7 +817,7 @@ module.exports = {
     } catch (error) {
       errorLogger.error("Error on  command add admin. Errors:", error);
       message.channel.send(
-        "Aconteceu algo de errado ao tentar executar esse comando..."
+        "Something wrong happened when trying to execute that command..."
       );
     }
   },
@@ -820,39 +845,46 @@ module.exports = {
         }); //Send a warning message to the user
       }
       if (args[1] === "admin") {
-        if (
-          !args[2] ||
-          args[2].substr(0, 2) !== "<@" ||
-          args[2].charAt(args[2].length - 1) !== ">"
-        ) {
+        var adminToRemoveId = args[2].match(/\d/g);
+        adminToRemoveId = adminToRemoveId.join("");
+        if (adminToRemoveId === currentBotDiscordId) {
+          return message.reply({
+            content: "I cannot be my own administrator",
+          }); //Send a warning message to the user
+        }
+        var adminToRemoveName = "";
+        try {
+          adminToRemoveName = client.users.cache.find(
+            (user) => user.id === adminToRemoveId
+          ).username;
+        } catch (err) {
+          errorLogger.error("Error: ", err);
           return message.reply({
             content:
-              'You need to mention who you want to remove as administrator. For example: "' +
+              'You need to mention who you want to remove as admin, or write is ID. For example: "' +
               prefix +
               "remove admin <@" +
               currentBotDiscordId +
-              '>"',
+              '>" or "$remove admin ' +
+              currentBotDiscordId +
+              '"',
           }); //Send a warning message to the user
         }
-        let adminToRemoveId = args[2].substr(3, args[2].length - 4);
         let verifyUser = await BotAdmin.find({
           userId: adminToRemoveId,
         });
         if (!verifyUser.length || verifyUser.length === 0) {
           return message.channel.send({
-            content: "<@!" + adminToRemoveId + "> isn't my administrator",
+            content: "<@" + adminToRemoveId + "> isn't my administrator",
           });
         } else {
           await BotAdmin.deleteMany({
             userId: adminToRemoveId,
           });
-          let userToRemoveName = client.users.cache.find(
-            (user) => user.id === adminToRemoveId
-          ).username;
           warnLogger.warn(
             message.author.username +
               " removed the user " +
-              userToRemoveName +
+              adminToRemoveName +
               " with the Id " +
               adminToRemoveId +
               " from admin!"
