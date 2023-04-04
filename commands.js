@@ -213,7 +213,7 @@ module.exports = {
     try {
       if (!args[1] && args[0] !== "hc") {
         const helpEmbed = new Discord.MessageEmbed()
-          .setColor("#000000")
+          .setColor("#66ccff")
           .setTitle(botName + " Help Menu")
           .addFields(
             {
@@ -231,15 +231,15 @@ module.exports = {
           )
           .setTimestamp()
           .setThumbnail(
-            "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
           )
           .setAuthor(
             botName,
-            "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
           )
           .setFooter(
             "Copyright © 2020-" + currentYear + " by Captain Ratax",
-            "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
           ); //Create a personalized embed message
         message.reply({
           embeds: [helpEmbed],
@@ -255,7 +255,7 @@ module.exports = {
             });
           }
           const helpCommandsEmbed = new Discord.MessageEmbed()
-            .setColor("#000000")
+            .setColor("#66ccff")
             .setTitle("Commands List")
             .addFields(
               {
@@ -289,15 +289,15 @@ module.exports = {
             )
             .setTimestamp()
             .setThumbnail(
-              "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
             )
             .setAuthor(
               botName,
-              "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
             )
             .setFooter(
               "Copyright © 2020-" + currentYear + " by Captain Ratax",
-              "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
             );
           message.reply({
             embeds: [helpCommandsEmbed],
@@ -494,7 +494,7 @@ module.exports = {
         if (args[1] === "status") {
           if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
             const statusEmbed = new Discord.MessageEmbed()
-              .setColor("#000000")
+              .setColor("#66ccff")
               .setTitle("You need to specify the type of status you want!")
               .addFields(
                 {
@@ -521,15 +521,15 @@ module.exports = {
               )
               .setTimestamp()
               .setThumbnail(
-                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               )
               .setAuthor(
                 botName,
-                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               )
               .setFooter(
                 "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               );
             return message.reply({
               embeds: [statusEmbed],
@@ -728,7 +728,7 @@ module.exports = {
             try {
               client.users.fetch(adminToAddId, false).then((user) => {
                 const adminEmbed = new Discord.MessageEmbed()
-                  .setColor("#000000")
+                  .setColor("#66ccff")
                   .setTitle(
                     " Now you are an administrator of the " + botName + " Bot!"
                   )
@@ -760,15 +760,15 @@ module.exports = {
                   )
                   .setTimestamp()
                   .setThumbnail(
-                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                   )
                   .setAuthor(
                     botName,
-                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                   )
                   .setFooter(
                     "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                    "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                   );
                 try {
                   user
@@ -935,16 +935,16 @@ module.exports = {
       var i = 0;
       var j = 0;
       var tempEmbed = new Discord.MessageEmbed()
-        .setColor("#000000")
+        .setColor("#66ccff")
         .setTitle("Channels List")
         .setTimestamp()
         .setAuthor(
           botName,
-          "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+          "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
         )
         .setFooter(
           "Copyright © 2020-" + currentYear + " by Captain Ratax",
-          "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+          "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
         );
       var embeds = [];
       if (args[1] === "servers" || args[0] === "ls") {
@@ -954,16 +954,16 @@ module.exports = {
             tempEmbed.addField(guild.name, guild.id);
             embeds[j] = tempEmbed;
             tempEmbed = new Discord.MessageEmbed()
-              .setColor("#000000")
+              .setColor("#66ccff")
               .setTitle("Servers List")
               .setTimestamp()
               .setAuthor(
                 botName,
-                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               )
               .setFooter(
                 "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               );
             j++;
           } else {
@@ -1002,16 +1002,16 @@ module.exports = {
               );
               embeds[j] = tempEmbed;
               tempEmbed = new Discord.MessageEmbed()
-                .setColor("#000000")
+                .setColor("#66ccff")
                 .setTitle("Channels List")
                 .setTimestamp()
                 .setAuthor(
                   botName,
-                  "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                 )
                 .setFooter(
                   "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                  "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                 );
               j++;
             } else {
@@ -1063,16 +1063,16 @@ module.exports = {
                   );
                   embeds[j] = tempEmbed;
                   tempEmbed = new Discord.MessageEmbed()
-                    .setColor("#000000")
+                    .setColor("#66ccff")
                     .setTitle("Channels List")
                     .setTimestamp()
                     .setAuthor(
                       botName,
-                      "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                     )
                     .setFooter(
                       "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                      "https://cdn.discordapp.com/avatars/759404636888498186/f681536480ac91f285501bfe3e260c7b.png"
+                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                     );
                   j++;
                 } else {
