@@ -1,15 +1,18 @@
 var mongoose = require("mongoose");
 
-const botAdminsSchema = new mongoose.Schema({
+const botAdminsSchema = new mongoose.Schema(
+  {
     userId: "string",
     userName: "string",
     createdBy: "string",
     createdById: "string",
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
 const BotAdmin = mongoose.model("BotAdmin", botAdminsSchema, "botAdmins");
 
 module.exports = {
-    BotAdmin,
-    botAdminsSchema,
+  BotAdmin,
+  botAdminsSchema,
 };

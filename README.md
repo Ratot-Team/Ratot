@@ -1,10 +1,10 @@
-![GPLv3 Licensed](https://img.shields.io/github/license/Ace-Bot-Team/Ace-Bot?style=for-the-badge)
+![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge)
 ![Code quality grade on Codacy](https://img.shields.io/codacy/grade/578c60d284004b97a26652e0f81abf1a?style=for-the-badge)
-![GitHub repository size](https://img.shields.io/github/repo-size/Ace-Bot-Team/Ace-Bot?style=for-the-badge)
+![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge)
 
-# Λce
+# Ratot
 
-Λce is a Discord bot made to help you administrate your server and have some fun.
+Ratot is a Discord bot made to help you administrate your server and have some fun.
 
 ## Installation and Execution
 
@@ -34,7 +34,7 @@ Now install the nodemon package globally.
 npm install nodemon -g
 ```
 
-Now use the next command to execute the Λce Bot (sometimes you need to close and reopen the terminal if the nodemon command was not recognized).
+Now use the next command to execute the Ratot Bot (sometimes you need to close and reopen the terminal if the nodemon command was not recognized).
 
 ```bash
 nodemon main.js
@@ -42,7 +42,7 @@ nodemon main.js
 
 ### Execution without nodemon
 
-If you didn't want to install nodemon now use the next command to execute the Λce Bot.
+If you didn't want to install nodemon now use the next command to execute the Ratot Bot.
 
 ```bash
 npm start
@@ -108,4 +108,4 @@ Lists all the channels from the server where the message is sent, or if given an
 
 ## License
 
-[GPLv3](https://github.com/Ace-Bot-Team/Ace-Bot/blob/master/LICENSE)
+[GPLv3](https://github.com/Ratot-Team/Ratot/blob/master/LICENSE)
