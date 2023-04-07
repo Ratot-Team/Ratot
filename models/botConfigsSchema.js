@@ -6,6 +6,9 @@ const botConfigsSchema = new mongoose.Schema(
     value: "string",
     value2: "string",
     value3: "string",
+    valueInt: "number",
+    valueInt2: "number",
+    valueInt3: "number",
     lastModifiedBy: "string",
   },
   { timestamps: true }

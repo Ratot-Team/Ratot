@@ -2,9 +2,15 @@ require("dotenv").config(); //Import the .env library
 
 var commands = require("./commands"); //Import the file were all the logic for each command is
 const Discord = require("discord.js"); //Import the Discord.js library
-const { Client, Intents, Permissions } = Discord;
+const { Client, GatewayIntentBits, PermissionsBitField, ActivityType } =
+  Discord;
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+  ],
 }); //Create a new Discord client
 const { errorLogger, warnLogger, infoLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
@@ -21,9 +27,6 @@ app.use(
   })
 );
 var mongoose = require("mongoose");
-
-const token = process.env.RATOT_CURRENT_TOKEN; //Create a variable to keep the token of the bot that is saved on the .env file
-const dbUrl = process.env.DBURL;
 
 var isDevMode,
   currentBotDiscordId,
@@ -49,25 +52,18 @@ if (cluster.isMaster) {
 }
 
 if (cluster.isWorker) {
-  mongoose.connect(
-    dbUrl,
-    {
-      useUnifiedTopology: true,
-      useNewUrlParser: true,
-    },
-    (err) => {
-      if (!err) {
-        infoLogger.info("Connected to MongoDB");
-      } else {
-        errorLogger.error("Connected to MongoDB. Errors:", err);
-      }
-    }
-  );
+  try {
+    mongoose.connect(process.env.DBURL);
+    infoLogger.info("Connected to MongoDB");
+  } catch (error) {
+    errorLogger.error("Connected to MongoDB. Errors:", err);
+  }
 
   client.once("ready", async () => {
     //When the bot is ready and online execute this block of code
     try {
-      isDevMode = token === process.env.RATOT_DEV_TOKEN; // If token is from the dev bot then it isDevMode is true
+      isDevMode =
+        process.env.RATOT_CURRENT_TOKEN === process.env.RATOT_DEV_TOKEN; // If current token is from the dev bot then it isDevMode is true
       if (isDevMode) {
         //If we are using the dev bot
         botName = process.env.BOT_NAME_DEV;
@@ -86,7 +82,7 @@ if (cluster.isWorker) {
       if (!checkConfigs.length || checkConfigs.length === 0) {
         try {
           client.user.setActivity("$help", {
-            type: "LISTENING",
+            type: ActivityType.Listening,
           }); //Set an activity to the bot saying that he is listening to $help
           infoLogger.info('Bot status set to "LISTENING $help"');
         } catch (err) {
@@ -95,7 +91,7 @@ if (cluster.isWorker) {
       } else {
         try {
           client.user.setActivity(checkConfigs[0].value, {
-            type: checkConfigs[0].value2,
+            type: checkConfigs[0].valueInt,
           });
           infoLogger.info(
             'Bot status set to "' +
@@ -177,7 +173,7 @@ if (cluster.isWorker) {
               args,
               message,
               prefix,
-              Permissions,
+              PermissionsBitField,
               del_command_timeouts
             );
             break;
@@ -187,7 +183,7 @@ if (cluster.isWorker) {
             commands.help(args, Discord, message, prefix, botName, currentYear);
             break;
           case "hug":
-            commands.hug(args, message, prefix, currentBotDiscordId);
+            commands.hug(args, message, prefix, currentBotDiscordId, client);
             break;
           case "bot":
           case "bp":
@@ -205,7 +201,7 @@ if (cluster.isWorker) {
             break;
           case "prefix":
           case "p":
-            commands.changePrefix(args, message, prefix, Permissions);
+            commands.changePrefix(args, message, prefix, PermissionsBitField);
             break;
           case "change":
           case "cs":
@@ -216,7 +212,8 @@ if (cluster.isWorker) {
               prefix,
               Discord,
               currentYear,
-              botName
+              botName,
+              ActivityType
             );
             break;
           case "add":
@@ -296,5 +293,5 @@ if (cluster.isWorker) {
     });
   }
 
-  client.login(token); //Starts the bot
+  client.login(process.env.RATOT_CURRENT_TOKEN); //Starts the bot
 }
