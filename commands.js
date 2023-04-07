@@ -371,7 +371,7 @@ module.exports = {
             "I hugged " +
             args[1] +
             " as requested by <@" +
-            message.author.tag +
+            message.author.id +
             ">",
         });
       }
