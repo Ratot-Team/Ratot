@@ -56,7 +56,13 @@ module.exports = {
       );
     }
   },
-  async delete(args, message, prefix, Permissions, del_command_timeouts) {
+  async delete(
+    args,
+    message,
+    prefix,
+    PermissionsBitField,
+    del_command_timeouts
+  ) {
     try {
       if (args[0] === "del") {
         args[2] = args[1];
@@ -68,10 +74,12 @@ module.exports = {
         }); //Send a warning message to the user
       }
       if (
-        !message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+        !message.member.permissions.has(
+          PermissionsBitField.Flags.Administrator
+        ) &&
         !message.member
           .permissionsIn(message.channel)
-          .has(Permissions.FLAGS.MANAGE_MESSAGES)
+          .has(PermissionsBitField.Flags.ManageMessages)
       ) {
         return message.reply({
           content:
@@ -80,10 +88,12 @@ module.exports = {
       }
       //Only proceed to the deletion of the messages if the user is an admin
       if (
-        !message.guild.me.permissions.has(Permissions.FLAGS.ADMINISTRATOR) &&
+        !message.guild.me.permissions.has(
+          PermissionsBitField.Flags.Administrator
+        ) &&
         !message.guild.me
           .permissionsIn(message.channel)
-          .has(Permissions.FLAGS.MANAGE_MESSAGES)
+          .has(PermissionsBitField.Flags.ManageMessages)
       ) {
         return message.reply({
           content: "I don't have permission to delete messages!",
@@ -212,7 +222,7 @@ module.exports = {
   help(args, Discord, message, prefix, botName, currentYear) {
     try {
       if (!args[1] && args[0] !== "hc") {
-        const helpEmbed = new Discord.MessageEmbed()
+        const helpEmbed = new Discord.EmbedBuilder()
           .setColor("#66ccff")
           .setTitle(botName + " Help Menu")
           .addFields(
@@ -233,14 +243,17 @@ module.exports = {
           .setThumbnail(
             "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
           )
-          .setAuthor(
-            botName,
-            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-          )
-          .setFooter(
-            "Copyright © 2020-" + currentYear + " by Captain Ratax",
-            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-          ); //Create a personalized embed message
+          .setAuthor({
+            name: botName,
+            iconURL:
+              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+            url: "https://github.com/Ratot-Team/Ratot",
+          })
+          .setFooter({
+            text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+            iconURL:
+              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+          }); //Create a personalized embed message
         message.reply({
           embeds: [helpEmbed],
         }); //Send that embed message
@@ -254,7 +267,7 @@ module.exports = {
                 'help commands" to see what I can do.',
             });
           }
-          const helpCommandsEmbed = new Discord.MessageEmbed()
+          const helpCommandsEmbed = new Discord.EmbedBuilder()
             .setColor("#66ccff")
             .setTitle("Commands List")
             .addFields(
@@ -291,14 +304,17 @@ module.exports = {
             .setThumbnail(
               "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
             )
-            .setAuthor(
-              botName,
-              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-            )
-            .setFooter(
-              "Copyright © 2020-" + currentYear + " by Captain Ratax",
-              "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-            );
+            .setAuthor({
+              name: botName,
+              iconURL:
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+              url: "https://github.com/Ratot-Team/Ratot",
+            })
+            .setFooter({
+              text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+              iconURL:
+                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+            });
           message.reply({
             embeds: [helpCommandsEmbed],
           });
@@ -319,26 +335,32 @@ module.exports = {
       );
     }
   },
-  hug(args, message, prefix, currentBotDiscordId) {
+  hug(args, message, prefix, currentBotDiscordId, client) {
     try {
-      if (!args[1] || args[1].charAt(1) !== "@") {
-        //If the second word of the command isn't a mention
+      var userToHugId = "";
+      try {
+        userToHugId = args[1].match(/\d/g);
+        userToHugId = userToHugId.join("");
+        let tempUserName = client.users.cache.find(
+          (user) => user.id === userToHugId
+        ).username;
+      } catch (err) {
         return message.reply({
           content:
             'Mention who you want me to hug, for example "' +
             prefix +
-            "hug <@!" +
+            "hug <@" +
             currentBotDiscordId +
             '>"',
         });
       }
-      if (args[1] === "<@!" + currentBotDiscordId + ">") {
+      if (userToHugId === currentBotDiscordId) {
         //If the user mentioned the bot
         message.channel.send({
           content:
-            "I hugged myself as requested by <@!" + message.author.id + ">",
+            "I hugged myself as requested by <@" + message.author.id + ">",
         });
-      } else if (args[1] === "<@!" + message.author.id + ">") {
+      } else if (userToHugId === message.author.id) {
         //If the user mentioned himself
         message.reply({
           content: "I hugged you!",
@@ -348,8 +370,8 @@ module.exports = {
           content:
             "I hugged " +
             args[1] +
-            " as requested by <@!" +
-            message.author.id +
+            " as requested by <@" +
+            message.author.tag +
             ">",
         });
       }
@@ -406,9 +428,11 @@ module.exports = {
       );
     }
   },
-  async changePrefix(args, message, prefix, Permissions) {
+  async changePrefix(args, message, prefix, PermissionsBitField) {
     try {
-      if (!message.member.permissions.has(Permissions.FLAGS.ADMINISTRATOR)) {
+      if (
+        !message.member.permissions.has(PermissionsBitField.Flags.Administrator)
+      ) {
         return message.reply({
           content:
             "Only users with admin permissions can change the bot prefix!",
@@ -463,7 +487,8 @@ module.exports = {
     prefix,
     Discord,
     currentYear,
-    botName
+    botName,
+    ActivityType
   ) {
     try {
       let checkAdmin = await BotAdmin.find({
@@ -493,7 +518,7 @@ module.exports = {
         }
         if (args[1] === "status") {
           if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
-            const statusEmbed = new Discord.MessageEmbed()
+            const statusEmbed = new Discord.EmbedBuilder()
               .setColor("#66ccff")
               .setTitle("You need to specify the type of status you want!")
               .addFields(
@@ -523,14 +548,17 @@ module.exports = {
               .setThumbnail(
                 "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
               )
-              .setAuthor(
-                botName,
-                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-              )
-              .setFooter(
-                "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-              );
+              .setAuthor({
+                name: botName,
+                iconURL:
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                url: "https://github.com/Ratot-Team/Ratot",
+              })
+              .setFooter({
+                text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                iconURL:
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+              });
             return message.reply({
               embeds: [statusEmbed],
             }); //Send a warning message to the user
@@ -564,7 +592,13 @@ module.exports = {
             auxString.length,
             message.content.length
           );
-          let auxTypes = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
+          let auxTypesNames = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
+          let auxTypes = [
+            ActivityType.Playing,
+            ActivityType.Listening,
+            ActivityType.Watching,
+            ActivityType.Competing,
+          ];
           let auxTypeNumber = parseInt(args[2], 10) - 1;
           try {
             await client.user.setActivity(auxStatus, {
@@ -583,26 +617,36 @@ module.exports = {
             "Bot status changed by " +
               message.author.username +
               " to " +
-              auxTypes[auxTypeNumber] +
+              auxTypesNames[auxTypeNumber] +
               " " +
               auxStatus
           );
           let checkConfigs = await BotConfigs.find({
             config: "Status",
           });
+          let previousStatus,
+            previousType = "";
           if (!checkConfigs.length || checkConfigs.length === 0) {
             let changedBotConfigs = await new BotConfigs({
               config: "Status",
               value: auxStatus,
-              value2: auxTypes[auxTypeNumber],
+              value2: auxTypesNames[auxTypeNumber],
               value3: null,
+              valueInt: auxTypes[auxTypeNumber],
+              valueInt2: null,
+              valueInt3: null,
               lastModifiedBy: message.author.id,
             });
             await changedBotConfigs.save();
           } else {
+            previousStatus = checkConfigs[0].value;
+            previousType = checkConfigs[0].value2;
             checkConfigs[0].value = auxStatus;
-            checkConfigs[0].value2 = auxTypes[auxTypeNumber];
+            checkConfigs[0].value2 = auxTypesNames[auxTypeNumber];
             checkConfigs[0].value3 = null;
+            checkConfigs[0].valueInt = auxTypes[auxTypeNumber];
+            checkConfigs[0].valueInt2 = null;
+            checkConfigs[0].valueInt3 = null;
             checkConfigs[0].lastModifiedBy = message.author.id;
             await BotConfigs.findOneAndUpdate(
               {
@@ -617,8 +661,11 @@ module.exports = {
           }
           let changedBotConfigsLog = new BotConfigsLog({
             changed: "Status",
+            changedFrom: previousStatus,
+            changedFrom2: previousType,
+            changedFrom3: null,
             changedTo: auxStatus,
-            changedTo2: auxTypes[auxTypeNumber],
+            changedTo2: auxTypesNames[auxTypeNumber],
             changedTo3: null,
             changedBy: message.author.username,
             changedById: message.author.id,
@@ -679,15 +726,11 @@ module.exports = {
           }); //Send a warning message to the user
         }
         if (args[1] === "admin") {
-          var adminToAddId = args[2].match(/\d/g);
-          adminToAddId = adminToAddId.join("");
-          if (adminToAddId === currentBotDiscordId) {
-            return message.reply({
-              content: "I cannot be my own administrator",
-            }); //Send a warning message to the user
-          }
+          var adminToAddId = "";
           var adminToAddName = "";
           try {
+            adminToAddId = args[2].match(/\d/g);
+            adminToAddId = adminToAddId.join("");
             adminToAddName = client.users.cache.find(
               (user) => user.id === adminToAddId
             ).username;
@@ -703,6 +746,11 @@ module.exports = {
                 '"',
             }); //Send a warning message to the user
           }
+          if (adminToAddId === currentBotDiscordId) {
+            return message.reply({
+              content: "I cannot be my own administrator",
+            }); //Send a warning message to the user
+          }
           let verifyUser = await BotAdmin.find({
             userId: adminToAddId,
           });
@@ -715,7 +763,7 @@ module.exports = {
             });
             newAdmin.save();
             message.reply({
-              content: "<@!" + adminToAddId + "> is now an administrator!",
+              content: "<@" + adminToAddId + "> is now an administrator!",
             });
             warnLogger.warn(
               message.author.username +
@@ -727,7 +775,7 @@ module.exports = {
             );
             try {
               client.users.fetch(adminToAddId, false).then((user) => {
-                const adminEmbed = new Discord.MessageEmbed()
+                const adminEmbed = new Discord.EmbedBuilder()
                   .setColor("#66ccff")
                   .setTitle(
                     " Now you are an administrator of the " + botName + " Bot!"
@@ -762,14 +810,18 @@ module.exports = {
                   .setThumbnail(
                     "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
                   )
-                  .setAuthor(
-                    botName,
-                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                  )
-                  .setFooter(
-                    "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                  );
+                  .setAuthor({
+                    name: botName,
+                    iconURL:
+                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                    url: "https://github.com/Ratot-Team/Ratot",
+                  })
+                  .setFooter({
+                    text:
+                      "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                    iconURL:
+                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                  });
                 try {
                   user
                     .send({
@@ -843,20 +895,15 @@ module.exports = {
         }); //Send a warning message to the user
       }
       if (args[1] === "admin") {
-        var adminToRemoveId = args[2].match(/\d/g);
-        adminToRemoveId = adminToRemoveId.join("");
-        if (adminToRemoveId === currentBotDiscordId) {
-          return message.reply({
-            content: "I cannot be my own administrator",
-          }); //Send a warning message to the user
-        }
+        var adminToRemoveId = "";
         var adminToRemoveName = "";
         try {
+          adminToRemoveId = args[2].match(/\d/g);
+          adminToRemoveId = adminToRemoveId.join("");
           adminToRemoveName = client.users.cache.find(
             (user) => user.id === adminToRemoveId
           ).username;
         } catch (err) {
-          errorLogger.error("Error: ", err);
           return message.reply({
             content:
               'You need to mention who you want to remove as admin, or write is ID. For example: "' +
@@ -866,6 +913,11 @@ module.exports = {
               '>" or "$remove admin ' +
               currentBotDiscordId +
               '"',
+          }); //Send a warning message to the user
+        }
+        if (adminToRemoveId === currentBotDiscordId) {
+          return message.reply({
+            content: "I cannot be my own administrator",
           }); //Send a warning message to the user
         }
         let verifyUser = await BotAdmin.find({
@@ -889,7 +941,7 @@ module.exports = {
           );
           return message.reply({
             content:
-              "<@!" + adminToRemoveId + "> is no longer my administrator now",
+              "<@" + adminToRemoveId + "> is no longer my administrator now",
           });
         }
       }
@@ -911,15 +963,15 @@ module.exports = {
     } else {
       isBotAdmin = true;
     }
-    if (!isBotAdmin) {
+    if (isBotAdmin) {
       return message.reply({
         content:
-          "Sorry I don't recognize that command, but if you want type \"" +
-          prefix +
-          'help commands" to see what I can do.',
+          "Sorry, this command is deactivated for now, we will fix it as soon as possible, sorry :(",
       });
-    } else {
-      if (!args[1] && args[0] !== "ls" && args[0] !== "lc") {
+
+      // embed pagination library used is deprecated and still uses Discord.js api v13, so it's not working
+
+      /* if (!args[1] && args[0] !== "ls" && args[0] !== "lc") {
         return message.reply({
           content:
             'Did you mean "' +
@@ -934,55 +986,61 @@ module.exports = {
       }
       var i = 0;
       var j = 0;
-      var tempEmbed = new Discord.MessageEmbed()
+      var tempEmbed = new Discord.EmbedBuilder()
         .setColor("#66ccff")
         .setTitle("Channels List")
         .setTimestamp()
-        .setAuthor(
-          botName,
-          "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-        )
-        .setFooter(
-          "Copyright © 2020-" + currentYear + " by Captain Ratax",
-          "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-        );
+        .setAuthor({
+          name: botName,
+          iconURL:
+            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+          url: "https://github.com/Ratot-Team/Ratot",
+        })
+        .setFooter({
+          text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+          iconURL:
+            "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+        });
       var embeds = [];
       if (args[1] === "servers" || args[0] === "ls") {
         await client.guilds.cache.forEach((guild) => {
           i++;
           if (i % 5 === 0 || i === client.guilds.cache.size) {
-            tempEmbed.addField(guild.name, guild.id);
+            tempEmbed.addFields({ name: guild.name, value: guild.id });
             embeds[j] = tempEmbed;
-            tempEmbed = new Discord.MessageEmbed()
+            tempEmbed = new Discord.EmbedBuilder()
               .setColor("#66ccff")
               .setTitle("Servers List")
               .setTimestamp()
-              .setAuthor(
-                botName,
-                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-              )
-              .setFooter(
-                "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-              );
+              .setAuthor({
+                name: botName,
+                iconURL:
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                url: "https://github.com/Ratot-Team/Ratot",
+              })
+              .setFooter({
+                text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                iconURL:
+                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+              });
             j++;
           } else {
-            tempEmbed.addField(guild.name, guild.id);
+            tempEmbed.addFields({ name: guild.name, value: guild.id });
           }
         });
 
         if (client.guilds.cache.size <= 5) {
           return message.channel.send({ embeds });
         } else {
-          const button1 = new Discord.MessageButton()
+          const button1 = new Discord.ButtonBuilder()
             .setCustomId("previousbtn")
             .setLabel("Previous")
-            .setStyle("PRIMARY");
+            .setStyle("Primary");
 
-          const button2 = new Discord.MessageButton()
+          const button2 = new Discord.ButtonBuilder()
             .setCustomId("nextbtn")
             .setLabel("Next")
-            .setStyle("PRIMARY");
+            .setStyle("Primary");
 
           const buttonList = [button1, button2];
 
@@ -996,44 +1054,47 @@ module.exports = {
           await message.guild.channels.cache.forEach((channel) => {
             i++;
             if (i % 5 === 0 || i === message.guild.channels.cache.size) {
-              tempEmbed.addField(
-                channel.name + " (" + channel.type + ")",
-                channel.id
-              );
+              tempEmbed.addFields({
+                name: channel.name + " (" + channel.type + ")",
+                value: channel.id,
+              });
               embeds[j] = tempEmbed;
-              tempEmbed = new Discord.MessageEmbed()
+              tempEmbed = new Discord.EmbedBuilder()
                 .setColor("#66ccff")
                 .setTitle("Channels List")
                 .setTimestamp()
-                .setAuthor(
-                  botName,
-                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                )
-                .setFooter(
-                  "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                  "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                );
+                .setAuthor({
+                  name: botName,
+                  iconURL:
+                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                  url: "https://github.com/Ratot-Team/Ratot",
+                })
+                .setFooter({
+                  text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                  iconURL:
+                    "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                });
               j++;
             } else {
-              tempEmbed.addField(
-                channel.name + " (" + channel.type + ")",
-                channel.id
-              );
+              tempEmbed.addFields({
+                name: channel.name + " (" + channel.type + ")",
+                value: channel.id,
+              });
             }
           });
 
           if (message.guild.channels.cache.size <= 5) {
             return message.channel.send({ embeds });
           } else {
-            const button1 = new Discord.MessageButton()
+            const button1 = new Discord.ButtonBuilder()
               .setCustomId("previousbtn")
               .setLabel("Previous")
-              .setStyle("PRIMARY");
+              .setStyle("Primary");
 
-            const button2 = new Discord.MessageButton()
+            const button2 = new Discord.ButtonBuilder()
               .setCustomId("nextbtn")
               .setLabel("Next")
-              .setStyle("PRIMARY");
+              .setStyle("Primary");
 
             const buttonList = [button1, button2];
 
@@ -1049,52 +1110,55 @@ module.exports = {
             }
           });
           if (isIdValid) {
+            var channelsCount = await client.guilds.cache.get(args[2]).channels
+              .cache.size;
             await client.guilds.cache
               .get(args[2])
               .channels.cache.forEach((channel) => {
                 i++;
-                if (
-                  i % 5 === 0 ||
-                  i === client.guilds.cache.get(args[2]).channels.cache.size
-                ) {
-                  tempEmbed.addField(
-                    channel.name + " (" + channel.type + ")",
-                    channel.id
-                  );
+                if (i % 5 === 0 || i === channelsCount) {
+                  tempEmbed.addFields({
+                    name: channel.name + " (" + channel.type + ")",
+                    value: channel.id,
+                  });
                   embeds[j] = tempEmbed;
-                  tempEmbed = new Discord.MessageEmbed()
+                  tempEmbed = new Discord.EmbedBuilder()
                     .setColor("#66ccff")
                     .setTitle("Channels List")
                     .setTimestamp()
-                    .setAuthor(
-                      botName,
-                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                    )
-                    .setFooter(
-                      "Copyright © 2020-" + currentYear + " by Captain Ratax",
-                      "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
-                    );
+                    .setAuthor({
+                      name: botName,
+                      iconURL:
+                        "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                      url: "https://github.com/Ratot-Team/Ratot",
+                    })
+                    .setFooter({
+                      text:
+                        "Copyright © 2020-" + currentYear + " by Captain Ratax",
+                      iconURL:
+                        "https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+                    });
                   j++;
                 } else {
-                  tempEmbed.addField(
-                    channel.name + " (" + channel.type + ")",
-                    channel.id
-                  );
+                  tempEmbed.addFields({
+                    name: channel.name + " (" + channel.type + ")",
+                    value: channel.id,
+                  });
                 }
               });
 
-            if (client.guilds.cache.get(args[2]).channels.cache.size <= 5) {
+            if (channelsCount <= 5) {
               return message.channel.send({ embeds });
             } else {
-              const button1 = new Discord.MessageButton()
+              const button1 = new Discord.ButtonBuilder()
                 .setCustomId("previousbtn")
                 .setLabel("Previous")
-                .setStyle("PRIMARY");
+                .setStyle("Primary");
 
-              const button2 = new Discord.MessageButton()
+              const button2 = new Discord.ButtonBuilder()
                 .setCustomId("nextbtn")
                 .setLabel("Next")
-                .setStyle("PRIMARY");
+                .setStyle("Primary");
 
               const buttonList = [button1, button2];
 
@@ -1106,13 +1170,7 @@ module.exports = {
             return message.reply("The id provided is not from a valid server.");
           }
         }
-      }
+      } */
     }
-    return message.reply({
-      content:
-        "Sorry I don't recognize that command, but if you want type \"" +
-        prefix +
-        'help commands" to see what I can do.',
-    });
   },
 };
