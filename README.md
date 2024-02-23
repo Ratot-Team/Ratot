@@ -1,6 +1,5 @@
-![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge)
-![Code quality grade on Codacy](https://img.shields.io/codacy/grade/578c60d284004b97a26652e0f81abf1a?style=for-the-badge)
-![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge)
+
+# ![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge) ![Code quality grade on Codacy](https://img.shields.io/codacy/grade/578c60d284004b97a26652e0f81abf1a?style=for-the-badge) ![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge)
 
 # Ratot
 
@@ -8,22 +7,10 @@ Ratot is a Discord bot made to help you administrate your server and have some f
 
 ## Installation and Execution
 
-Use the package manager [npm](https://www.npmjs.com/get-npm) to install [yarn](https://classic.yarnpkg.com/en/docs/getting-started) globally.
+Use [npm](https://www.npmjs.com/get-npm) to install all the dependencies needed.
 
 ```bash
-npm install --global yarn
-```
-
-Verify if [yarn](https://classic.yarnpkg.com/en/docs/getting-started) is installed.
-
-```bash
-yarn --version
-```
-
-Use [yarn](https://classic.yarnpkg.com/en/docs/getting-started) to install all the dependencies needed.
-
-```bash
-yarn install
+npm install
 ```
 
 ### Execution with nodemon
