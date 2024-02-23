@@ -25,7 +25,7 @@ app.use(
 	})
 );
 var mongoose = require("mongoose");
-//Test
+
 var isDevMode,
 	currentBotDiscordId,
 	botName,
