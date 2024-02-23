@@ -1,6 +1,5 @@
-![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge)
-![Code quality grade on Codacy](https://img.shields.io/codacy/grade/578c60d284004b97a26652e0f81abf1a?style=for-the-badge)
-![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge)
+
+# ![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge) ![Code quality grade on Codacy](https://img.shields.io/codacy/grade/578c60d284004b97a26652e0f81abf1a?style=for-the-badge) ![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge)
 
 # Ratot
 

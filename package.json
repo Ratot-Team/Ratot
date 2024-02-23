@@ -1,30 +1,30 @@
 {
-  "name": "ratot",
-  "version": "0.5.1",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "start": "node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ratot-Team/Ratot.git"
-  },
-  "author": "Captain Ratax",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/Ratot-Team/Ratot/issues"
-  },
-  "homepage": "https://github.com/Ratot-Team/Ratot#readme",
-  "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "mongoose": "^7.6.6",
-    "node": "^19.8.1",
-    "nodemon": "^3.0.2",
-    "winston": "^3.11.0",
-    "winston-daily-rotate-file": "^4.7.1"
-  }
+	"name": "ratot",
+	"version": "0.5.1",
+	"description": "",
+	"main": "main.js",
+	"scripts": {
+		"start": "node main.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Ratot-Team/Ratot.git"
+	},
+	"author": "Captain Ratax",
+	"license": "GPL-3.0",
+	"bugs": {
+		"url": "https://github.com/Ratot-Team/Ratot/issues"
+	},
+	"homepage": "https://github.com/Ratot-Team/Ratot#readme",
+	"dependencies": {
+		"discord.js": "^14.14.1",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"mongoose": "^7.6.6",
+		"node": "^19.8.1",
+		"nodemon": "^3.0.2",
+		"winston": "^3.11.0",
+		"winston-daily-rotate-file": "^4.7.1"
+	}
 }
