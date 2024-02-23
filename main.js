@@ -1,9 +1,7 @@
 require("dotenv").config(); //Import the .env library
 
 var commands = require("./commands"); //Import the file were all the logic for each command is
-const Discord = require("discord.js"); //Import the Discord.js library
-const { Client, GatewayIntentBits, PermissionsBitField, ActivityType } =
-  Discord;
+const { Client, GatewayIntentBits, ActivityType } = require("discord.js"); //Import the Discord.js library
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -173,14 +171,14 @@ if (cluster.isWorker) {
               args,
               message,
               prefix,
-              PermissionsBitField,
-              del_command_timeouts
+              del_command_timeouts,
+              client
             );
             break;
           case "help":
           case "h":
           case "hc":
-            commands.help(args, Discord, message, prefix, botName, currentYear);
+            commands.help(args, message, prefix, botName, currentYear);
             break;
           case "hug":
             commands.hug(args, message, prefix, currentBotDiscordId, client);
@@ -201,7 +199,7 @@ if (cluster.isWorker) {
             break;
           case "prefix":
           case "p":
-            commands.changePrefix(args, message, prefix, PermissionsBitField);
+            commands.changePrefix(args, message, prefix);
             break;
           case "change":
           case "cs":
@@ -210,10 +208,8 @@ if (cluster.isWorker) {
               message,
               client,
               prefix,
-              Discord,
               currentYear,
-              botName,
-              ActivityType
+              botName
             );
             break;
           case "add":
@@ -223,7 +219,6 @@ if (cluster.isWorker) {
               message,
               client,
               prefix,
-              Discord,
               currentBotDiscordId,
               currentYear,
               botName
@@ -247,7 +242,6 @@ if (cluster.isWorker) {
               message,
               client,
               prefix,
-              Discord,
               currentYear,
               botName
             );

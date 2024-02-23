@@ -1,12 +1,12 @@
-var lastPing, pingCounter, timeInMiliseconds, playlistLink; //For ping and pong reasons xD
-var specialIntervalId = 0,
-  lastDeleteMessageId = 0;
+var lastPing, pingCounter; //For ping and pong reasons xD
+var lastDeleteMessageId = 0;
 const { errorLogger, infoLogger, warnLogger } = require("./logger"); //Import all the custom loggers
 const { Prefix } = require("./models/prefixSchema");
 const { BotConfigsLog } = require("./models/botConfigsLogSchema");
 const { BotConfigs } = require("./models/botConfigsSchema");
 const { BotAdmin } = require("./models/botAdminsSchema");
-const paginationEmbed = require("discordjs-button-pagination");
+const sendPaginatedEmbed = require("./custom_discordjs-button-pagination");
+const { ChannelType, PermissionsBitField, EmbedBuilder, ActivityType } = require("discord.js");
 
 //lastPing- saves the Id of the person that called the last ping command
 //pingCounter - Saves how many times the same person called the ping command
@@ -60,8 +60,8 @@ module.exports = {
     args,
     message,
     prefix,
-    PermissionsBitField,
-    del_command_timeouts
+    del_command_timeouts,
+    client
   ) {
     try {
       if (args[0] === "del") {
@@ -88,10 +88,10 @@ module.exports = {
       }
       //Only proceed to the deletion of the messages if the user is an admin
       if (
-        !message.guild.me.permissions.has(
+        !message.guild.members.cache.get(client.user.id).permissions.has(
           PermissionsBitField.Flags.Administrator
         ) &&
-        !message.guild.me
+        !message.guild.members.cache.get(client.user.id)
           .permissionsIn(message.channel)
           .has(PermissionsBitField.Flags.ManageMessages)
       ) {
@@ -219,10 +219,10 @@ module.exports = {
       );
     }
   },
-  help(args, Discord, message, prefix, botName, currentYear) {
+  help(args, message, prefix, botName, currentYear) {
     try {
       if (!args[1] && args[0] !== "hc") {
-        const helpEmbed = new Discord.EmbedBuilder()
+        const helpEmbed = new EmbedBuilder()
           .setColor("#66ccff")
           .setTitle(botName + " Help Menu")
           .addFields(
@@ -267,7 +267,7 @@ module.exports = {
                 'help commands" to see what I can do.',
             });
           }
-          const helpCommandsEmbed = new Discord.EmbedBuilder()
+          const helpCommandsEmbed = new EmbedBuilder()
             .setColor("#66ccff")
             .setTitle("Commands List")
             .addFields(
@@ -428,7 +428,7 @@ module.exports = {
       );
     }
   },
-  async changePrefix(args, message, prefix, PermissionsBitField) {
+  async changePrefix(args, message, prefix) {
     try {
       if (
         !message.member.permissions.has(PermissionsBitField.Flags.Administrator)
@@ -485,10 +485,8 @@ module.exports = {
     message,
     client,
     prefix,
-    Discord,
     currentYear,
-    botName,
-    ActivityType
+    botName
   ) {
     try {
       let checkAdmin = await BotAdmin.find({
@@ -501,12 +499,7 @@ module.exports = {
         isBotAdmin = true;
       }
       if (!isBotAdmin) {
-        return message.reply({
-          content:
-            "Sorry I don't recognize that command, but if you want type \"" +
-            prefix +
-            'help commands" to see what I can do.',
-        });
+        return;
       } else {
         if (args[0] === "cs") {
           args.splice(1, 0, "status");
@@ -518,7 +511,7 @@ module.exports = {
         }
         if (args[1] === "status") {
           if (!args[2] || isNaN(args[2]) || args[2] < 1 || args[2] > 4) {
-            const statusEmbed = new Discord.EmbedBuilder()
+            const statusEmbed = new EmbedBuilder()
               .setColor("#66ccff")
               .setTitle("You need to specify the type of status you want!")
               .addFields(
@@ -676,12 +669,7 @@ module.exports = {
           });
         }
       }
-      return message.reply({
-        content:
-          "Sorry I don't recognize that command, but if you want type \"" +
-          prefix +
-          'help commands" to see what I can do.',
-      });
+      return;
     } catch (error) {
       errorLogger.error(
         "Error on  command change bot settings. Errors:",
@@ -697,7 +685,6 @@ module.exports = {
     message,
     client,
     prefix,
-    Discord,
     currentBotDiscordId,
     currentYear,
     botName
@@ -713,12 +700,7 @@ module.exports = {
         isBotAdmin = true;
       }
       if (!isBotAdmin) {
-        return message.reply({
-          content:
-            "Sorry I don't recognize that command, but if you want type \"" +
-            prefix +
-            'help commands" to see what I can do.',
-        });
+        return;
       } else {
         if (!args[1]) {
           return message.reply({
@@ -775,7 +757,7 @@ module.exports = {
             );
             try {
               client.users.fetch(adminToAddId, false).then((user) => {
-                const adminEmbed = new Discord.EmbedBuilder()
+                const adminEmbed = new EmbedBuilder()
                   .setColor("#66ccff")
                   .setTitle(
                     " Now you are an administrator of the " + botName + " Bot!"
@@ -858,12 +840,7 @@ module.exports = {
           }
         }
       }
-      return message.reply({
-        content:
-          "Sorry I don't recognize that command, but if you want type \"" +
-          prefix +
-          'help commands" to see what I can do.',
-      });
+      return;
     } catch (error) {
       errorLogger.error("Error on  command add admin. Errors:", error);
       message.channel.send(
@@ -882,12 +859,7 @@ module.exports = {
       isBotAdmin = true;
     }
     if (!isBotAdmin) {
-      return message.reply({
-        content:
-          "Sorry I don't recognize that command, but if you want type \"" +
-          prefix +
-          'help commands" to see what I can do.',
-      });
+      return;
     } else {
       if (!args[1]) {
         return message.reply({
@@ -946,14 +918,9 @@ module.exports = {
         }
       }
     }
-    return message.reply({
-      content:
-        "Sorry I don't recognize that command, but if you want type \"" +
-        prefix +
-        'help commands" to see what I can do.',
-    });
+    return;
   },
-  async list(args, message, client, prefix, Discord, currentYear, botName) {
+  async list(args, message, client, prefix, currentYear, botName) {
     let checkAdmin = await BotAdmin.find({
       userId: message.author.id,
     });
@@ -964,14 +931,7 @@ module.exports = {
       isBotAdmin = true;
     }
     if (isBotAdmin) {
-      return message.reply({
-        content:
-          "Sorry, this command is deactivated for now, we will fix it as soon as possible, sorry :(",
-      });
-
-      // embed pagination library used is deprecated and still uses Discord.js api v13, so it's not working
-
-      /* if (!args[1] && args[0] !== "ls" && args[0] !== "lc") {
+      if (!args[1] && args[0] !== "ls" && args[0] !== "lc") {
         return message.reply({
           content:
             'Did you mean "' +
@@ -986,7 +946,7 @@ module.exports = {
       }
       var i = 0;
       var j = 0;
-      var tempEmbed = new Discord.EmbedBuilder()
+      var tempEmbed = new EmbedBuilder()
         .setColor("#66ccff")
         .setTitle("Channels List")
         .setTimestamp()
@@ -1008,7 +968,7 @@ module.exports = {
           if (i % 5 === 0 || i === client.guilds.cache.size) {
             tempEmbed.addFields({ name: guild.name, value: guild.id });
             embeds[j] = tempEmbed;
-            tempEmbed = new Discord.EmbedBuilder()
+            tempEmbed = new EmbedBuilder()
               .setColor("#66ccff")
               .setTitle("Servers List")
               .setTimestamp()
@@ -1032,21 +992,10 @@ module.exports = {
         if (client.guilds.cache.size <= 5) {
           return message.channel.send({ embeds });
         } else {
-          const button1 = new Discord.ButtonBuilder()
-            .setCustomId("previousbtn")
-            .setLabel("Previous")
-            .setStyle("Primary");
-
-          const button2 = new Discord.ButtonBuilder()
-            .setCustomId("nextbtn")
-            .setLabel("Next")
-            .setStyle("Primary");
-
-          const buttonList = [button1, button2];
 
           const timeout = 60000;
 
-          return paginationEmbed(message, embeds, buttonList, timeout);
+          return sendPaginatedEmbed(message.channel, embeds, message.author.id, timeout, currentYear);
         }
       }
       if (args[1] === "channels" || args[0] === "lc") {
@@ -1055,11 +1004,11 @@ module.exports = {
             i++;
             if (i % 5 === 0 || i === message.guild.channels.cache.size) {
               tempEmbed.addFields({
-                name: channel.name + " (" + channel.type + ")",
+                name: channel.name + " (" + ChannelType[channel.type] + ")",
                 value: channel.id,
               });
               embeds[j] = tempEmbed;
-              tempEmbed = new Discord.EmbedBuilder()
+              tempEmbed = new EmbedBuilder()
                 .setColor("#66ccff")
                 .setTitle("Channels List")
                 .setTimestamp()
@@ -1077,7 +1026,7 @@ module.exports = {
               j++;
             } else {
               tempEmbed.addFields({
-                name: channel.name + " (" + channel.type + ")",
+                name: channel.name + " (" + ChannelType[channel.type] + ")",
                 value: channel.id,
               });
             }
@@ -1086,21 +1035,10 @@ module.exports = {
           if (message.guild.channels.cache.size <= 5) {
             return message.channel.send({ embeds });
           } else {
-            const button1 = new Discord.ButtonBuilder()
-              .setCustomId("previousbtn")
-              .setLabel("Previous")
-              .setStyle("Primary");
-
-            const button2 = new Discord.ButtonBuilder()
-              .setCustomId("nextbtn")
-              .setLabel("Next")
-              .setStyle("Primary");
-
-            const buttonList = [button1, button2];
 
             const timeout = 60000;
 
-            return paginationEmbed(message, embeds, buttonList, timeout);
+            return sendPaginatedEmbed(message.channel, embeds, message.author.id, timeout, currentYear);
           }
         } else {
           let isIdValid;
@@ -1118,11 +1056,11 @@ module.exports = {
                 i++;
                 if (i % 5 === 0 || i === channelsCount) {
                   tempEmbed.addFields({
-                    name: channel.name + " (" + channel.type + ")",
+                    name: channel.name + " (" + ChannelType[channel.type] + ")",
                     value: channel.id,
                   });
                   embeds[j] = tempEmbed;
-                  tempEmbed = new Discord.EmbedBuilder()
+                  tempEmbed = new EmbedBuilder()
                     .setColor("#66ccff")
                     .setTitle("Channels List")
                     .setTimestamp()
@@ -1141,7 +1079,7 @@ module.exports = {
                   j++;
                 } else {
                   tempEmbed.addFields({
-                    name: channel.name + " (" + channel.type + ")",
+                    name: channel.name + " (" + ChannelType[channel.type] + ")",
                     value: channel.id,
                   });
                 }
@@ -1150,27 +1088,18 @@ module.exports = {
             if (channelsCount <= 5) {
               return message.channel.send({ embeds });
             } else {
-              const button1 = new Discord.ButtonBuilder()
-                .setCustomId("previousbtn")
-                .setLabel("Previous")
-                .setStyle("Primary");
-
-              const button2 = new Discord.ButtonBuilder()
-                .setCustomId("nextbtn")
-                .setLabel("Next")
-                .setStyle("Primary");
-
-              const buttonList = [button1, button2];
 
               const timeout = 60000;
 
-              return paginationEmbed(message, embeds, buttonList, timeout);
+              return sendPaginatedEmbed(message.channel, embeds, message.author.id, timeout, currentYear);
             }
           } else {
             return message.reply("The id provided is not from a valid server.");
           }
         }
-      } */
+      }
+    }else{
+      return;
     }
   },
 };

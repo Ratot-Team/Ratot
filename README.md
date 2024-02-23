@@ -8,22 +8,10 @@ Ratot is a Discord bot made to help you administrate your server and have some f
 
 ## Installation and Execution
 
-Use the package manager [npm](https://www.npmjs.com/get-npm) to install [yarn](https://classic.yarnpkg.com/en/docs/getting-started) globally.
+Use [npm](https://www.npmjs.com/get-npm) to install all the dependencies needed.
 
 ```bash
-npm install --global yarn
-```
-
-Verify if [yarn](https://classic.yarnpkg.com/en/docs/getting-started) is installed.
-
-```bash
-yarn --version
-```
-
-Use [yarn](https://classic.yarnpkg.com/en/docs/getting-started) to install all the dependencies needed.
-
-```bash
-yarn install
+npm install
 ```
 
 ### Execution with nodemon
