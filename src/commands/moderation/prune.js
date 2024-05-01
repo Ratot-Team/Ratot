@@ -19,6 +19,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.Integer,
 			required: true,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	// botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -27,6 +33,7 @@ module.exports = {
 	callback: async (client, interaction) => {
 		try {
 			const messagesToDelete = interaction.options.getInteger("number");
+			const anonym = interaction.options.getBoolean("anonym");
 
 			if (
 				!interaction.member.permissions.has(
@@ -61,44 +68,46 @@ module.exports = {
 				return interaction.reply({
 					content:
 						"Unfortunately you can only delete a maximum of 99 messages at a time",
+					ephemeral: anonym,
 				});
 			}
 			if (messagesToDelete < 0) {
 				return interaction.reply({
 					content:
 						"Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...",
+					ephemeral: anonym,
 				});
 			}
 			if (messagesToDelete === 0) {
 				return interaction.reply({
 					content:
 						"Nothing deleted! Because you know... 0 is nothing... human...",
+					ephemeral: anonym,
 				});
 			}
 
 			let currentDate = new Date();
 
-            let channelId = interaction.channel.id;
+			let channelId = interaction.channel.id;
 
 			if (!del_command_timeouts[channelId]) {
 				del_command_timeouts[channelId] = {
 					date: currentDate,
 					AlreadyMessaged: false,
 				};
-				await bulkDeleteMessages(interaction, messagesToDelete);
+				await bulkDeleteMessages(interaction, messagesToDelete, anonym);
 			} else {
 				let timeSpent =
-					currentDate.getTime() -
-					del_command_timeouts[channelId].date;
-				if (timeSpent > 10000) {
+					currentDate.getTime() - del_command_timeouts[channelId].date;
+				if (timeSpent > 5000) {
 					del_command_timeouts[channelId].date = currentDate;
-					await bulkDeleteMessages(interaction, messagesToDelete);
+					await bulkDeleteMessages(interaction, messagesToDelete, anonym);
 				} else {
 					del_command_timeouts[channelId].date = currentDate;
-					let auxTimeLeft = Math.floor((10000 - timeSpent) / 1000);
+					let auxTimeLeft = Math.floor((5000 - timeSpent) / 1000);
 					return interaction.reply({
 						content:
-							"You need to wait 10 seconds before using the delete command on this channel again. " +
+							"You need to wait 5 seconds before using the delete command on this channel again. " +
 							auxTimeLeft +
 							" seconds left",
 						ephemeral: true,
@@ -106,11 +115,12 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-            errorLogger.error("Error on delete.js file. Errors:", error);
-            return interaction.reply({
-                content: "Something wrong happened when trying to execute that command...",
-                ephemeral: true,
-            });
-        }
+			errorLogger.error("Error on delete.js file. Errors:", error);
+			return interaction.reply({
+				content:
+					"Something wrong happened when trying to execute that command...",
+				ephemeral: true,
+			});
+		}
 	},
 };

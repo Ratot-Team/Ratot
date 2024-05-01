@@ -16,6 +16,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.User,
 			required: true,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -23,6 +29,7 @@ module.exports = {
 	// deleted: true,
 	callback: async (client, interaction) => {
 		const userToRemove = interaction.options.getUser("user");
+		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
 			let checkAdmin = await BotAdmin.find({
@@ -70,6 +77,7 @@ module.exports = {
 					return interaction.reply({
 						content:
 							"<@" + userToRemove.id + "> is no longer my administrator now",
+						ephemeral: anonym,
 					});
 				}
 			}

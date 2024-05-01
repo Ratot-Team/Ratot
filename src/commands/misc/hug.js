@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { ApplicationCommandOptionType } = require("discord.js");
 const { errorLogger } = require("../../utils/logger");
+const e = require("express");
 
 module.exports = {
 	name: "hug",
@@ -13,6 +14,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.User,
 			required: true,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	// botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -20,6 +27,7 @@ module.exports = {
 	// deleted: true,
 	callback: (client, interaction) => {
 		const userToHug = interaction.options.getUser("user");
+		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
 			if (userToHug.id === process.env.RATOT_CURRENT_DISCORD_ID) {
@@ -29,11 +37,13 @@ module.exports = {
 						"I hugged myself as requested by <@" +
 						interaction.member.user.id +
 						">",
+					ephemeral: anonym,
 				});
 			} else if (userToHug.id === interaction.member.user.id) {
 				//If the user mentioned himself
 				interaction.reply({
 					content: "I hugged you!",
+					ephemeral: anonym,
 				});
 			} else {
 				interaction.reply({
@@ -43,13 +53,16 @@ module.exports = {
 						"> as requested by <@" +
 						interaction.member.user.id +
 						">",
+					ephemeral: anonym,
 				});
 			}
 		} catch (error) {
 			errorLogger.error("Error on hug command. Errors:", error);
-			interaction.reply(
-				"Something wrong happened when trying to execute that command..."
-			);
+			interaction.reply({
+				content:
+					"Something wrong happened when trying to execute that command...",
+				ephemeral: true,
+			});
 		}
 	},
 };

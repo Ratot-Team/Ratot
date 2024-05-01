@@ -27,6 +27,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.String,
 			required: true,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -36,6 +42,7 @@ module.exports = {
 		const numberOfStatus = interaction.options.getInteger("number-of-status");
 		const positionOfStatus = numberOfStatus - 1;
 		const statusMessage = interaction.options.getString("status-message");
+		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
 			let checkAdmin = await BotAdmin.find({
@@ -194,6 +201,7 @@ module.exports = {
 				await changedBotConfigsLog.save();
 				return interaction.reply({
 					content: "Status successfully changed!",
+					ephemeral: anonym,
 				});
 			}
 		} catch (error) {
