@@ -31,6 +31,12 @@ module.exports = {
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
 	// deleted: true,
 	callback: async (client, interaction) => {
+		if (!interaction.guild) {
+			return interaction.reply({
+				content: "This command can only be used in a server!",
+				ephemeral: true,
+			});
+		}
 		try {
 			const messagesToDelete = interaction.options.getInteger("number");
 			const anonym = interaction.options.getBoolean("anonym");

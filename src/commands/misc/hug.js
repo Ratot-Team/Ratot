@@ -26,6 +26,12 @@ module.exports = {
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
 	// deleted: true,
 	callback: (client, interaction) => {
+		if (!interaction.guild) {
+			return interaction.reply({
+				content: "This command can only be used in a server!",
+				ephemeral: true,
+			});
+		}
 		const userToHug = interaction.options.getUser("user");
 		const anonym = interaction.options.getBoolean("anonym");
 
