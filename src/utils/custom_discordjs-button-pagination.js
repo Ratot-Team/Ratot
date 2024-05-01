@@ -3,10 +3,9 @@ const {
 	ButtonBuilder,
 	ComponentType,
 } = require("discord.js");
-const { errorLogger, infoLogger, warnLogger } = require("./logger");
 
 const sendPaginatedEmbed = async (
-	channel,
+	originalInteraction,
 	embeds,
 	userId,
 	timeout,
@@ -33,7 +32,7 @@ const sendPaginatedEmbed = async (
 			"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 	});
 
-	const message = await channel.send({
+	const message = await originalInteraction.reply({
 		embeds: [embeds[page]],
 		components: [row],
 	});
