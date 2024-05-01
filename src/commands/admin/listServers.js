@@ -1,5 +1,5 @@
 require("dotenv").config();
-var { EmbedBuilder } = require("discord.js");
+var { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
 
 const { errorLogger } = require("../../utils/logger");
 const { BotAdmin } = require("../../../models/botAdminsSchema");
@@ -8,13 +8,21 @@ const sendPaginatedEmbed = require("../../utils/custom_discordjs-button-paginati
 module.exports = {
 	name: "list-servers",
 	description: "Lists all the servers the bot is on",
-	// options: Object[],
+	options: [
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
+	],
 	botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
 	// deleted: true,
 	callback: async (client, interaction) => {
 		try {
+			const anonym = interaction.options.getBoolean("anonym");
 			let checkAdmin = await BotAdmin.find({
 				userId: interaction.member.user.id,
 			});
@@ -72,7 +80,7 @@ module.exports = {
 				});
 
 				if (client.guilds.cache.size <= 5) {
-					return interaction.reply({ embeds });
+					return interaction.reply({ embeds, ephemeral: anonym });
 				} else {
 					const timeout = 60000;
 
@@ -81,7 +89,8 @@ module.exports = {
 						embeds,
 						interaction.member.user.id,
 						timeout,
-						currentYear
+						currentYear,
+						anonym
 					);
 				}
 			} else {

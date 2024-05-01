@@ -1,17 +1,25 @@
 require("dotenv").config();
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
 
 module.exports = {
 	name: "help",
 	description:
 		"The bot sens a menu with some information about the bot and some commands to help.",
-	// options: Object[],
+	options: [
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
+	],
 	// botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
 	// deleted: true,
 	callback: (client, interaction) => {
 		//get the current year
+		const anonym = interaction.options.getBoolean("anonym");
 		const currentYear = new Date().getFullYear();
 		const helpEmbed = new EmbedBuilder()
 			.setColor("#66ccff")
@@ -47,6 +55,7 @@ module.exports = {
 			}); //Create a personalized embed message
 		interaction.reply({
 			embeds: [helpEmbed],
+			ephemeral: anonym,
 		}); //Send that embed message
 	},
 };

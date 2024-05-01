@@ -1,7 +1,7 @@
 const { errorLogger } = require("../utils/logger");
 var lastDeleteMessageId = 0;
 
-module.exports = async (interaction, messagesToDelete) => {
+module.exports = async (interaction, messagesToDelete, anonym) => {
 	let auxArray = await interaction.channel.messages.fetch({ limit: 2 });
 	let isReadyForNewDelete = true;
 
@@ -28,10 +28,11 @@ module.exports = async (interaction, messagesToDelete) => {
 			return interaction
 				.reply({
 					content: msgsDeleted + " message has been deleted!",
+					ephemeral: anonym,
 				})
 				.then((interaction) => {
 					lastDeleteMessageId = interaction.id;
-					setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
+					if (!anonym) setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
 				});
 		} else {
 			if (msgsDeleted <= 0) {
@@ -39,19 +40,21 @@ module.exports = async (interaction, messagesToDelete) => {
 					.reply({
 						content:
 							"No messages have been deleted, probably because the messages are older than 14 days.",
+						ephemeral: anonym,
 					})
 					.then((interaction) => {
 						lastDeleteMessageId = interaction.id;
-						setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
+						if (!anonym) setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
 					});
 			} else {
 				return interaction
 					.reply({
 						content: msgsDeleted + " messages have been deleted!",
+						ephemeral: anonym,
 					})
 					.then((interaction) => {
 						lastDeleteMessageId = interaction.id;
-						setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
+						if (!anonym) setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
 					});
 			}
 		}

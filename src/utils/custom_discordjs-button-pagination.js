@@ -9,7 +9,8 @@ const sendPaginatedEmbed = async (
 	embeds,
 	userId,
 	timeout,
-	currentYear
+	currentYear,
+	anonym
 ) => {
 	let page = 0;
 
@@ -35,6 +36,7 @@ const sendPaginatedEmbed = async (
 	const message = await originalInteraction.reply({
 		embeds: [embeds[page]],
 		components: [row],
+		ephemeral: anonym,
 	});
 
 	const collector = message.createMessageComponentCollector({
@@ -70,7 +72,10 @@ const sendPaginatedEmbed = async (
 				"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 		});
 
-		await interaction.editReply({ embeds: [embeds[page]], components: [row] });
+		await interaction.editReply({
+			embeds: [embeds[page]],
+			components: [row],
+		});
 	});
 
 	collector.on("end", () => {

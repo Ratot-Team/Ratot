@@ -20,6 +20,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.String,
 			required: false,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -27,6 +33,7 @@ module.exports = {
 	// deleted: true,
 	callback: async (client, interaction) => {
 		try {
+			const anonym = interaction.options.getBoolean("anonym");
 			const serverId = interaction.options.getString("server-id");
 
 			let checkAdmin = await BotAdmin.find({
@@ -96,7 +103,7 @@ module.exports = {
 					});
 
 					if (interaction.member.guild.channels.cache.size <= 5) {
-						return interaction.reply({ embeds });
+						return interaction.reply({ embeds, ephemeral: anonym });
 					} else {
 						const timeout = 60000;
 
@@ -105,7 +112,8 @@ module.exports = {
 							embeds,
 							interaction.member.user.id,
 							timeout,
-							currentYear
+							currentYear,
+							anonym
 						);
 					}
 				} else {
@@ -154,7 +162,7 @@ module.exports = {
 							});
 
 						if (channelsCount <= 5) {
-							return interaction.reply({ embeds });
+							return interaction.reply({ embeds, ephemeral: anonym });
 						} else {
 							const timeout = 60000;
 
@@ -163,7 +171,8 @@ module.exports = {
 								embeds,
 								interaction.member.user.id,
 								timeout,
-								currentYear
+								currentYear,
+								anonym
 							);
 						}
 					} else {

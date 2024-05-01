@@ -1,11 +1,18 @@
 require("dotenv").config();
-const { EmbedBuilder } = require("discord.js");
+const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
 
 module.exports = {
 	name: "help-commands",
 	description:
 		"The bot sends the list of all commands and the description of what they do.",
-	// options: Object[],
+	options: [
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
+	],
 	// botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
@@ -13,6 +20,7 @@ module.exports = {
 	callback: (client, interaction) => {
 		//get the current year
 		const currentYear = new Date().getFullYear();
+		const anonym = interaction.options.getBoolean("anonym");
 
 		const helpCommandsEmbed = new EmbedBuilder()
 			.setColor("#66ccff")
@@ -55,6 +63,7 @@ module.exports = {
 			});
 		interaction.reply({
 			embeds: [helpCommandsEmbed],
+			ephemeral: anonym,
 		});
 	},
 };

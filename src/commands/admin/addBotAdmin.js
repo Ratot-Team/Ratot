@@ -16,6 +16,12 @@ module.exports = {
 			type: ApplicationCommandOptionType.User,
 			required: true,
 		},
+		{
+			name: "anonym",
+			description: "Only you can see the response",
+			type: ApplicationCommandOptionType.Boolean,
+			required: false,
+		},
 	],
 	botAdminOnly: true,
 	// permissionsRequired: [PermissionFlagsBits.ManageMessages],
@@ -23,6 +29,7 @@ module.exports = {
 	// deleted: true,
 	callback: async (client, interaction) => {
 		const userToAdd = interaction.options.getUser("user");
+		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
 			let checkAdmin = await BotAdmin.find({
@@ -60,6 +67,7 @@ module.exports = {
 					newAdmin.save();
 					interaction.reply({
 						content: "<@" + userToAdd.id + "> is now an administrator!",
+						ephemeral: anonym,
 					});
 					warnLogger.warn(
 						interaction.member.user.username +
@@ -152,6 +160,7 @@ module.exports = {
 				} else {
 					return interaction.reply({
 						content: "That user is already my administrator",
+						ephemeral: anonym,
 					});
 				}
 			}
