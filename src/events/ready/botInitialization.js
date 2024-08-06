@@ -1,6 +1,7 @@
 const { infoLogger, errorLogger } = require("../../utils/logger");
 const { BotConfigs } = require("../../../models/botConfigsSchema");
 const { BotAdmin } = require("../../../models/botAdminsSchema");
+const { ActivityType } = require("discord.js");
 
 module.exports = async (client) => {
     try {
