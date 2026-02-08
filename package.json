@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "main.js",
 	"scripts": {
-		"start": "npm install -g nodemon && nodemon ratot.js",
+		"start": "node ratot.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"repository": {
@@ -23,8 +23,8 @@
 		"express": "^4.18.2",
 		"mongoose": "^7.6.6",
 		"node": "^19.8.1",
-		"nodemon": "^3.0.2",
 		"winston": "^3.11.0",
 		"winston-daily-rotate-file": "^4.7.1"
 	}
 }
+
