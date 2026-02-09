@@ -9,7 +9,11 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 	],
 }); //Create a new Discord client
-const { errorLogger, warnLogger, infoLogger } = require("./src/utils/logger.js"); //Import all the custom loggers
+const {
+	errorLogger,
+	warnLogger,
+	infoLogger,
+} = require("./src/utils/logger.js"); //Import all the custom loggers
 const eventHandler = require("./src/handlers/eventHandler.js");
 var express = require("express");
 var bodyParser = require("body-parser");
@@ -19,7 +23,7 @@ app.use(bodyParser.json());
 app.use(
 	bodyParser.urlencoded({
 		extended: false,
-	})
+	}),
 );
 var mongoose = require("mongoose");
 
@@ -32,7 +36,7 @@ if (cluster.isMaster) {
 
 	cluster.on("exit", function (worker, code, signal) {
 		errorLogger.error(
-			"FATAL ERROR! The bot stopped working and rerunned again!"
+			"FATAL ERROR! The bot stopped working and rerunned again!",
 		);
 		cluster.fork();
 	});
@@ -46,31 +50,31 @@ if (cluster.isWorker) {
 		errorLogger.error("Connected to MongoDB. Errors:", err);
 	}
 
+	app.use("/", api);
+	infoLogger.info("API routes are set up and ready to use!");
+
+	app.get("*", function (req, res) {
+		infoLogger.info("Req: " + req + ", Res: " + res);
+		//To Do Later
+	});
+
 	var server = app
 		.listen(process.env.PORT, () => {
 			serverOn = true;
 			infoLogger.info(
-				"API Server is connected and listening on port " + server.address().port
+				"API Server is connected and listening on port " +
+					server.address().port,
 			);
 		})
 		.on("error", (error) => {
 			serverOn = false;
 			errorLogger.error(
 				"Error when trying to start express server! Error: ",
-				error
+				error,
 			);
 		});
 
 	eventHandler(client);
-
-	if (serverOn) {
-		app.use("/", api);
-
-		app.get("*", function (req, res) {
-			infoLogger.info("Req: " + req + ", Res: " + res);
-			//To Do Later
-		});
-	}
 
 	client.login(process.env.RATOT_CURRENT_TOKEN); //Starts the bot
 }
