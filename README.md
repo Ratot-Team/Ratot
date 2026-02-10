@@ -12,6 +12,7 @@ You can check the current status of Ratot, its database, and view incident histo
 🔗 [status.ratotbot.com](https://status.ratotbot.com)
 
 The status page provides:
+
 - Real-time uptime information
 - Database status
 - Historical incidents and outages
@@ -91,5 +92,3 @@ Lists all the channels from a given server ID or from the server where the messa
 ## License
 
 [GPLv3](https://github.com/Ratot-Team/Ratot/blob/master/LICENSE)
-
-
