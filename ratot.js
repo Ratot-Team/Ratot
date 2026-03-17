@@ -59,8 +59,11 @@ if (cluster.isWorker) {
 	infoLogger.info("API routes are set up and ready to use!");
 
 	app.get("/{*splat}", function (req, res) {
-		infoLogger.info("Req: " + req + ", Res: " + res);
-		// To Do Later
+		infoLogger.info(
+			"Unhandled route hit: " + req.method + " " + req.originalUrl,
+		);
+		// Placeholder handler: return 404 so the request completes
+		return res.status(404).end();
 	});
 
 	var server = app
