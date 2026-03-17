@@ -1,4 +1,9 @@
-const { ApplicationCommandOptionType } = require("discord.js");
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
+const { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 const { errorLogger } = require("../../utils/logger");
 var lastPing, pingCounter; //For ping and pong reasons xD
 //lastPing- saves the Id of the person that called the last ping command
@@ -30,15 +35,18 @@ module.exports = {
 				if (pingCounter >= 5) {
 					//If the same person has called the ping command 5 or more times in a row
 					interaction.reply({
-						content: "Oh... Sorry... Right! My ping is " + botPing + "ms",
-						ephemeral: anonym,
+						content:
+							"Oh... Sorry... Right! My ping is " +
+							botPing +
+							"ms",
+						flags: anonym ? MessageFlags.Ephemeral : undefined,
 					});
 					lastPing = interaction.user.id; //Saves who called the ping command
 					pingCounter = 1; //Reset the ping counter
 				} else {
 					interaction.reply({
 						content: "Pong",
-						ephemeral: anonym,
+						flags: anonym ? MessageFlags.Ephemeral : undefined,
 					});
 				}
 			} else {
@@ -46,7 +54,7 @@ module.exports = {
 				pingCounter = 1;
 				interaction.reply({
 					content: "Pong",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 		} catch (error) {
@@ -54,7 +62,7 @@ module.exports = {
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

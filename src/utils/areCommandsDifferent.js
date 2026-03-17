@@ -1,3 +1,8 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 module.exports = (existingCommand, localCommand) => {
 	const areChoicesDifferent = (existingChoices, localChoices) => {
 		for (const localChoice of localChoices) {

@@ -1,5 +1,11 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 var {
 	ApplicationCommandOptionType,
+	MessageFlags,
 	PermissionFlagsBits,
 } = require("discord.js");
 
@@ -34,7 +40,7 @@ module.exports = {
 		if (!interaction.guild) {
 			return interaction.reply({
 				content: "This command can only be used in a server!",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 		try {
@@ -43,7 +49,7 @@ module.exports = {
 
 			if (
 				!interaction.member.permissions.has(
-					PermissionFlagsBits.Administrator
+					PermissionFlagsBits.Administrator,
 				) &&
 				!interaction.member
 					.permissionsIn(interaction.channel)
@@ -52,7 +58,7 @@ module.exports = {
 				return interaction.reply({
 					content:
 						"Only users with the manage messages permission can delete messages!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 			//Only proceed to the deletion of the messages if the user is an admin
@@ -66,7 +72,7 @@ module.exports = {
 			) {
 				return interaction.reply({
 					content: "I don't have permission to delete messages!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 
@@ -74,21 +80,21 @@ module.exports = {
 				return interaction.reply({
 					content:
 						"Unfortunately you can only delete a maximum of 99 messages at a time",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 			if (messagesToDelete < 0) {
 				return interaction.reply({
 					content:
 						"Think a little bit of what you asked me to do... Did you really thought you could delete negative messages? Pff humans...",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 			if (messagesToDelete === 0) {
 				return interaction.reply({
 					content:
 						"Nothing deleted! Because you know... 0 is nothing... human...",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 
@@ -104,10 +110,15 @@ module.exports = {
 				await bulkDeleteMessages(interaction, messagesToDelete, anonym);
 			} else {
 				let timeSpent =
-					currentDate.getTime() - del_command_timeouts[channelId].date;
+					currentDate.getTime() -
+					del_command_timeouts[channelId].date;
 				if (timeSpent > 5000) {
 					del_command_timeouts[channelId].date = currentDate;
-					await bulkDeleteMessages(interaction, messagesToDelete, anonym);
+					await bulkDeleteMessages(
+						interaction,
+						messagesToDelete,
+						anonym,
+					);
 				} else {
 					del_command_timeouts[channelId].date = currentDate;
 					let auxTimeLeft = Math.floor((5000 - timeSpent) / 1000);
@@ -116,7 +127,7 @@ module.exports = {
 							"You need to wait 5 seconds before using the delete command on this channel again. " +
 							auxTimeLeft +
 							" seconds left",
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					});
 				}
 			}
@@ -125,7 +136,7 @@ module.exports = {
 			return interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},
