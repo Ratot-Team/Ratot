@@ -6,6 +6,7 @@
 const {
 	ActionRowBuilder,
 	ButtonBuilder,
+	ButtonStyle,
 	ComponentType,
 	MessageFlags,
 } = require("discord.js");
@@ -24,11 +25,11 @@ const sendPaginatedEmbed = async (
 		new ButtonBuilder()
 			.setCustomId("previous")
 			.setLabel("Previous")
-			.setStyle("Primary"),
+			.setStyle(ButtonStyle.Primary),
 		new ButtonBuilder()
 			.setCustomId("next")
 			.setLabel("Next")
-			.setStyle("Primary"),
+			.setStyle(ButtonStyle.Primary),
 	);
 
 	embeds[page].setFooter({
@@ -42,11 +43,13 @@ const sendPaginatedEmbed = async (
 			"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 	});
 
-	const message = await originalInteraction.reply({
+	await originalInteraction.reply({
 		embeds: [embeds[page]],
 		components: [row],
 		flags: anonym ? MessageFlags.Ephemeral : undefined,
 	});
+
+	const message = await originalInteraction.fetchReply();
 
 	const collector = message.createMessageComponentCollector({
 		componentType: ComponentType.Button,
@@ -68,6 +71,7 @@ const sendPaginatedEmbed = async (
 		} else if (interaction.customId === "next") {
 			page = page + 1 < embeds.length ? ++page : 0;
 		}
+
 		embeds[page].setFooter({
 			text:
 				"Copyright © " +
@@ -87,8 +91,14 @@ const sendPaginatedEmbed = async (
 		});
 	});
 
-	collector.on("end", () => {
-		message.edit({ components: [] });
+	collector.on("end", async () => {
+		try {
+			await originalInteraction.editReply({
+				components: [],
+			});
+		} catch (error) {
+			// Ignore errors if the message no longer exists or cannot be edited
+		}
 	});
 };
 

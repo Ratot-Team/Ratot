@@ -151,7 +151,7 @@ module.exports = {
 						} catch (err) {
 							errorLogger.error(
 								"An error as occurred when trying to send private message to user. Error:",
-								error,
+								err,
 							);
 						}
 					} catch (error) {

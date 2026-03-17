@@ -5,6 +5,7 @@
 
 const { errorLogger } = require("../../utils/logger");
 const getLocalCommands = require("../../utils/getLocalCommands");
+const { MessageFlags } = require("discord.js");
 
 require("dotenv").config();
 
