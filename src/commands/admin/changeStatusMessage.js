@@ -1,8 +1,14 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
 var {
 	ApplicationCommandOptionType,
 	EmbedBuilder,
 	ActivityType,
+	MessageFlags,
 } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
@@ -39,7 +45,8 @@ module.exports = {
 	// botPermissions: [PermissionFlagsBits.ManageMessages],
 	// deleted: true,
 	callback: async (client, interaction) => {
-		const numberOfStatus = interaction.options.getInteger("number-of-status");
+		const numberOfStatus =
+			interaction.options.getInteger("number-of-status");
 		const positionOfStatus = numberOfStatus - 1;
 		const statusMessage = interaction.options.getString("status-message");
 		const anonym = interaction.options.getBoolean("anonym");
@@ -51,21 +58,24 @@ module.exports = {
 			let isBotAdmin;
 			if (!checkAdmin.length || checkAdmin.length === 0) {
 				isBotAdmin =
-					interaction.member.user.id === process.env.RATOT_CREATOR_DISCORD_ID;
+					interaction.member.user.id ===
+					process.env.RATOT_CREATOR_DISCORD_ID;
 			} else {
 				isBotAdmin = true;
 			}
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				if (numberOfStatus < 1 || numberOfStatus > 4) {
 					let currentYear = new Date().getFullYear();
 					const statusEmbed = new EmbedBuilder()
 						.setColor("#66ccff")
-						.setTitle("You need to specify the type of status you want!")
+						.setTitle(
+							"You need to specify the type of status you want!",
+						)
 						.addFields(
 							{
 								name: "**The list of possible status is:**",
@@ -86,11 +96,11 @@ module.exports = {
 							{
 								name: "4",
 								value: "Competing in",
-							}
+							},
 						)
 						.setTimestamp()
 						.setThumbnail(
-							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
+							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 						)
 						.setAuthor({
 							name: process.env.RATOT_CURRENT_NAME,
@@ -99,13 +109,16 @@ module.exports = {
 							url: "https://github.com/Ratot-Team/Ratot",
 						})
 						.setFooter({
-							text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+							text:
+								"Copyright © " +
+								currentYear +
+								" by Captain Ratax",
 							iconURL:
 								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 						});
 					return interaction.reply({
 						embeds: [statusEmbed],
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					}); //Send a warning message to the user
 				}
 				if (statusMessage.length > 128) {
@@ -114,11 +127,16 @@ module.exports = {
 							"Status can't have more than 128 characters. You wrote a status with " +
 							statusMessage.length +
 							" characters.",
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					});
 				}
 
-				let auxTypesNames = ["PLAYING", "LISTENING", "WATCHING", "COMPETING"];
+				let auxTypesNames = [
+					"PLAYING",
+					"LISTENING",
+					"WATCHING",
+					"COMPETING",
+				];
 				let auxTypes = [
 					ActivityType.Playing,
 					ActivityType.Listening,
@@ -133,12 +151,12 @@ module.exports = {
 				} catch (err) {
 					errorLogger.error(
 						"Error on  command change bot settings. Errors:",
-						err
+						err,
 					);
 					interaction.reply({
 						content:
 							"Something wrong happened when trying to execute that command...",
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					});
 				}
 				warnLogger.warn(
@@ -147,7 +165,7 @@ module.exports = {
 						" to " +
 						auxTypesNames[positionOfStatus] +
 						" " +
-						statusMessage
+						statusMessage,
 				);
 				let checkConfigs = await BotConfigs.find({
 					config: "Status",
@@ -184,7 +202,7 @@ module.exports = {
 						{
 							new: true,
 							useFindAndModify: false,
-						}
+						},
 					);
 				}
 				let changedBotConfigsLog = new BotConfigsLog({
@@ -201,18 +219,18 @@ module.exports = {
 				await changedBotConfigsLog.save();
 				return interaction.reply({
 					content: "Status successfully changed!",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 		} catch (error) {
 			errorLogger.error(
 				"Error on  command change bot settings. Errors:",
-				error
+				error,
 			);
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

@@ -1,3 +1,8 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config(); //Import the .env library
 
 const { Client, GatewayIntentBits } = require("discord.js"); //Import the Discord.js library
@@ -53,9 +58,9 @@ if (cluster.isWorker) {
 	app.use("/", api);
 	infoLogger.info("API routes are set up and ready to use!");
 
-	app.get("*", function (req, res) {
+	app.get("/{*splat}", function (req, res) {
 		infoLogger.info("Req: " + req + ", Res: " + res);
-		//To Do Later
+		// To Do Later
 	});
 
 	var server = app

@@ -11,9 +11,8 @@ const {
 } = require("discord.js");
 
 module.exports = {
-	name: "help-commands",
-	description:
-		"The bot sends the list of all commands and the description of what they do.",
+	name: "license",
+	description: "Shows the bot license information and source code link.",
 	options: [
 		{
 			name: "anonym",
@@ -28,28 +27,30 @@ module.exports = {
 	// deleted: true,
 	callback: (client, interaction) => {
 		//get the current year
-		const currentYear = new Date().getFullYear();
 		const anonym = interaction.options.getBoolean("anonym");
-
-		const helpCommandsEmbed = new EmbedBuilder()
+		const currentYear = new Date().getFullYear();
+		const helpEmbed = new EmbedBuilder()
 			.setColor("#66ccff")
-			.setTitle("Commands List")
+			.setTitle(process.env.RATOT_CURRENT_NAME + " License")
+			.setDescription(
+				"This bot is free software licensed under the GNU Affero General Public License v3.0 or later.",
+			)
 			.addFields(
 				{
-					name: "/ping",
-					value: 'The bot responds with "pong", but to know the bot ping you really have to insist a little bit',
+					name: "License",
+					value: "GNU AGPL v3.0-or-later",
 				},
 				{
-					name: "/prune <number>",
-					value: "The bot deletes a certain number of messages. Only admins can use this command.",
+					name: "Source Code",
+					value: "https://github.com/Ratot-Team/Ratot",
 				},
 				{
-					name: "/hug <@someone>",
-					value: "The bot gives a hug to someone you mention. You can mention yourself don't be shy!",
+					name: "License Details",
+					value: "See the LICENSE file in the GitHub repository for the full license text.",
 				},
 				{
-					name: "/bot-ping",
-					value: "Says the ping value of the bot",
+					name: "Your Rights",
+					value: "You can study, share, and modify this bot under the terms of the AGPL v3 or later.",
 				},
 			)
 			.setTimestamp()
@@ -66,10 +67,10 @@ module.exports = {
 				text: "Copyright © " + currentYear + " by Captain Ratax",
 				iconURL:
 					"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
-			});
+			}); //Create a personalized embed message
 		interaction.reply({
-			embeds: [helpCommandsEmbed],
+			embeds: [helpEmbed],
 			flags: anonym ? MessageFlags.Ephemeral : undefined,
-		});
+		}); //Send that embed message
 	},
 };

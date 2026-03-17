@@ -1,5 +1,10 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
-const { ApplicationCommandOptionType } = require("discord.js");
+const { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 const { errorLogger } = require("../../utils/logger");
 const e = require("express");
 
@@ -29,7 +34,7 @@ module.exports = {
 		if (!interaction.guild) {
 			return interaction.reply({
 				content: "This command can only be used in a server!",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 		const userToHug = interaction.options.getUser("user");
@@ -43,13 +48,13 @@ module.exports = {
 						"I hugged myself as requested by <@" +
 						interaction.member.user.id +
 						">",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			} else if (userToHug.id === interaction.member.user.id) {
 				//If the user mentioned himself
 				interaction.reply({
 					content: "I hugged you!",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			} else {
 				interaction.reply({
@@ -59,7 +64,7 @@ module.exports = {
 						"> as requested by <@" +
 						interaction.member.user.id +
 						">",
-					ephemeral: anonym,
+					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 		} catch (error) {
@@ -67,7 +72,7 @@ module.exports = {
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

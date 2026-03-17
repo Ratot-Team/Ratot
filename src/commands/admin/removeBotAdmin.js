@@ -1,5 +1,10 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
-var { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
+var { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
 const { BotAdmin } = require("../../../models/botAdminsSchema");
@@ -38,20 +43,21 @@ module.exports = {
 			let isBotAdmin;
 			if (!checkAdmin.length || checkAdmin.length === 0) {
 				isBotAdmin =
-					interaction.member.user.id === process.env.RATOT_CREATOR_DISCORD_ID;
+					interaction.member.user.id ===
+					process.env.RATOT_CREATOR_DISCORD_ID;
 			} else {
 				isBotAdmin = true;
 			}
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				if (userToRemove.id === process.env.RATOT_CURRENT_DISCORD_ID) {
 					return interaction.reply({
 						content: "I cannot be my own administrator",
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					}); //Send a warning message to the user
 				}
 				let verifyUser = await BotAdmin.find({
@@ -59,8 +65,9 @@ module.exports = {
 				});
 				if (!verifyUser.length || verifyUser.length === 0) {
 					return interaction.reply({
-						content: "<@" + userToRemove.id + "> isn't my administrator",
-						ephemeral: true,
+						content:
+							"<@" + userToRemove.id + "> isn't my administrator",
+						flags: MessageFlags.Ephemeral,
 					});
 				} else {
 					await BotAdmin.deleteMany({
@@ -72,12 +79,14 @@ module.exports = {
 							userToRemove.username +
 							" with the Id " +
 							userToRemove.id +
-							" from admin!"
+							" from admin!",
 					);
 					return interaction.reply({
 						content:
-							"<@" + userToRemove.id + "> is no longer my administrator now",
-						ephemeral: anonym,
+							"<@" +
+							userToRemove.id +
+							"> is no longer my administrator now",
+						flags: anonym ? MessageFlags.Ephemeral : undefined,
 					});
 				}
 			}
@@ -86,7 +95,7 @@ module.exports = {
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

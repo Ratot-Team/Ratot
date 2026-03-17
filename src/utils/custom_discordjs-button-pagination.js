@@ -1,7 +1,13 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 const {
 	ActionRowBuilder,
 	ButtonBuilder,
 	ComponentType,
+	MessageFlags,
 } = require("discord.js");
 
 const sendPaginatedEmbed = async (
@@ -10,7 +16,7 @@ const sendPaginatedEmbed = async (
 	userId,
 	timeout,
 	currentYear,
-	anonym
+	anonym,
 ) => {
 	let page = 0;
 
@@ -19,12 +25,15 @@ const sendPaginatedEmbed = async (
 			.setCustomId("previous")
 			.setLabel("Previous")
 			.setStyle("Primary"),
-		new ButtonBuilder().setCustomId("next").setLabel("Next").setStyle("Primary")
+		new ButtonBuilder()
+			.setCustomId("next")
+			.setLabel("Next")
+			.setStyle("Primary"),
 	);
 
 	embeds[page].setFooter({
 		text:
-			"Copyright © 2020-" +
+			"Copyright © " +
 			currentYear +
 			" by Captain Ratax" +
 			" | Page 1 of " +
@@ -36,7 +45,7 @@ const sendPaginatedEmbed = async (
 	const message = await originalInteraction.reply({
 		embeds: [embeds[page]],
 		components: [row],
-		ephemeral: anonym,
+		flags: anonym ? MessageFlags.Ephemeral : undefined,
 	});
 
 	const collector = message.createMessageComponentCollector({
@@ -48,7 +57,7 @@ const sendPaginatedEmbed = async (
 		if (interaction.user.id !== userId) {
 			return interaction.reply({
 				content: "You are not allowed to use this button!",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 
@@ -61,7 +70,7 @@ const sendPaginatedEmbed = async (
 		}
 		embeds[page].setFooter({
 			text:
-				"Copyright © 2020-" +
+				"Copyright © " +
 				currentYear +
 				" by Captain Ratax" +
 				" | Page " +

@@ -1,5 +1,14 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
-const { EmbedBuilder, ApplicationCommandOptionType } = require("discord.js");
+const {
+	EmbedBuilder,
+	ApplicationCommandOptionType,
+	MessageFlags,
+} = require("discord.js");
 
 module.exports = {
 	name: "help",
@@ -36,11 +45,11 @@ module.exports = {
 				{
 					name: "See my code on GitHub!",
 					value: "https://github.com/Ratot-Team/Ratot",
-				}
+				},
 			)
 			.setTimestamp()
 			.setThumbnail(
-				"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
+				"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 			)
 			.setAuthor({
 				name: process.env.RATOT_CURRENT_NAME,
@@ -49,13 +58,13 @@ module.exports = {
 				url: "https://github.com/Ratot-Team/Ratot",
 			})
 			.setFooter({
-				text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+				text: "Copyright © " + currentYear + " by Captain Ratax",
 				iconURL:
 					"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 			}); //Create a personalized embed message
 		interaction.reply({
 			embeds: [helpEmbed],
-			ephemeral: anonym,
+			flags: anonym ? MessageFlags.Ephemeral : undefined,
 		}); //Send that embed message
 	},
 };

@@ -1,8 +1,14 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
 var {
 	ApplicationCommandOptionType,
 	EmbedBuilder,
 	ChannelType,
+	MessageFlags,
 } = require("discord.js");
 
 const { errorLogger } = require("../../utils/logger");
@@ -42,7 +48,8 @@ module.exports = {
 			let isBotAdmin;
 			if (!checkAdmin.length || checkAdmin.length === 0) {
 				isBotAdmin =
-					interaction.member.user.id === process.env.RATOT_CREATOR_DISCORD_ID;
+					interaction.member.user.id ===
+					process.env.RATOT_CREATOR_DISCORD_ID;
 			} else {
 				isBotAdmin = true;
 			}
@@ -61,49 +68,67 @@ module.exports = {
 						url: "https://github.com/Ratot-Team/Ratot",
 					})
 					.setFooter({
-						text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+						text:
+							"Copyright © " + currentYear + " by Captain Ratax",
 						iconURL:
 							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 					});
 				var embeds = [];
 				if (!serverId) {
-					await interaction.member.guild.channels.cache.forEach((channel) => {
-						i++;
-						if (
-							i % 5 === 0 ||
-							i === interaction.member.guild.channels.cache.size
-						) {
-							tempEmbed.addFields({
-								name: channel.name + " (" + ChannelType[channel.type] + ")",
-								value: channel.id,
-							});
-							embeds[j] = tempEmbed;
-							tempEmbed = new EmbedBuilder()
-								.setColor("#66ccff")
-								.setTitle("Channels List")
-								.setTimestamp()
-								.setAuthor({
-									name: process.env.RATOT_CURRENT_NAME,
-									iconURL:
-										"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
-									url: "https://github.com/Ratot-Team/Ratot",
-								})
-								.setFooter({
-									text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
-									iconURL:
-										"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+					await interaction.member.guild.channels.cache.forEach(
+						(channel) => {
+							i++;
+							if (
+								i % 5 === 0 ||
+								i ===
+									interaction.member.guild.channels.cache.size
+							) {
+								tempEmbed.addFields({
+									name:
+										channel.name +
+										" (" +
+										ChannelType[channel.type] +
+										")",
+									value: channel.id,
 								});
-							j++;
-						} else {
-							tempEmbed.addFields({
-								name: channel.name + " (" + ChannelType[channel.type] + ")",
-								value: channel.id,
-							});
-						}
-					});
+								embeds[j] = tempEmbed;
+								tempEmbed = new EmbedBuilder()
+									.setColor("#66ccff")
+									.setTitle("Channels List")
+									.setTimestamp()
+									.setAuthor({
+										name: process.env.RATOT_CURRENT_NAME,
+										iconURL:
+											"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+										url: "https://github.com/Ratot-Team/Ratot",
+									})
+									.setFooter({
+										text:
+											"Copyright © " +
+											currentYear +
+											" by Captain Ratax",
+										iconURL:
+											"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+									});
+								j++;
+							} else {
+								tempEmbed.addFields({
+									name:
+										channel.name +
+										" (" +
+										ChannelType[channel.type] +
+										")",
+									value: channel.id,
+								});
+							}
+						},
+					);
 
 					if (interaction.member.guild.channels.cache.size <= 5) {
-						return interaction.reply({ embeds, ephemeral: anonym });
+						return interaction.reply({
+							embeds,
+							flags: anonym ? MessageFlags.Ephemeral : undefined,
+						});
 					} else {
 						const timeout = 60000;
 
@@ -113,7 +138,7 @@ module.exports = {
 							interaction.member.user.id,
 							timeout,
 							currentYear,
-							anonym
+							anonym,
 						);
 					}
 				} else {
@@ -124,15 +149,20 @@ module.exports = {
 						}
 					});
 					if (isIdValid) {
-						var channelsCount = await client.guilds.cache.get(serverId).channels
-							.cache.size;
+						var channelsCount =
+							await client.guilds.cache.get(serverId).channels
+								.cache.size;
 						await client.guilds.cache
 							.get(serverId)
 							.channels.cache.forEach((channel) => {
 								i++;
 								if (i % 5 === 0 || i === channelsCount) {
 									tempEmbed.addFields({
-										name: channel.name + " (" + ChannelType[channel.type] + ")",
+										name:
+											channel.name +
+											" (" +
+											ChannelType[channel.type] +
+											")",
 										value: channel.id,
 									});
 									embeds[j] = tempEmbed;
@@ -141,28 +171,40 @@ module.exports = {
 										.setTitle("Channels List")
 										.setTimestamp()
 										.setAuthor({
-											name: process.env.RATOT_CURRENT_NAME,
+											name: process.env
+												.RATOT_CURRENT_NAME,
 											iconURL:
 												"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 											url: "https://github.com/Ratot-Team/Ratot",
 										})
 										.setFooter({
 											text:
-												"Copyright © 2020-" + currentYear + " by Captain Ratax",
+												"Copyright © " +
+												currentYear +
+												" by Captain Ratax",
 											iconURL:
 												"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 										});
 									j++;
 								} else {
 									tempEmbed.addFields({
-										name: channel.name + " (" + ChannelType[channel.type] + ")",
+										name:
+											channel.name +
+											" (" +
+											ChannelType[channel.type] +
+											")",
 										value: channel.id,
 									});
 								}
 							});
 
 						if (channelsCount <= 5) {
-							return interaction.reply({ embeds, ephemeral: anonym });
+							return interaction.reply({
+								embeds,
+								flags: anonym
+									? MessageFlags.Ephemeral
+									: undefined,
+							});
 						} else {
 							const timeout = 60000;
 
@@ -172,20 +214,21 @@ module.exports = {
 								interaction.member.user.id,
 								timeout,
 								currentYear,
-								anonym
+								anonym,
 							);
 						}
 					} else {
 						return interaction.reply({
-							content: "The id provided is not from a valid server.",
-							ephemeral: true,
+							content:
+								"The id provided is not from a valid server.",
+							flags: MessageFlags.Ephemeral,
 						});
 					}
 				}
 			} else {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			}
 		} catch (error) {
@@ -193,7 +236,7 @@ module.exports = {
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

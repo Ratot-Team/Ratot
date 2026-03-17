@@ -91,4 +91,11 @@ Lists all the channels from a given server ID or from the server where the messa
 
 ## License
 
-[GPLv3](https://github.com/Ratot-Team/Ratot/blob/master/LICENSE)
+Copyright (C) 2026 Captain Ratax
+
+This project is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+See the [LICENSE](./LICENSE) file for the full license text.

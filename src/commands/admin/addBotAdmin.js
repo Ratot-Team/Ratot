@@ -1,5 +1,10 @@
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
 require("dotenv").config();
-var { ApplicationCommandOptionType, EmbedBuilder } = require("discord.js");
+var { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
 const { BotAdmin } = require("../../../models/botAdminsSchema");
@@ -38,20 +43,21 @@ module.exports = {
 			let isBotAdmin;
 			if (!checkAdmin.length || checkAdmin.length === 0) {
 				isBotAdmin =
-					interaction.member.user.id === process.env.RATOT_CREATOR_DISCORD_ID;
+					interaction.member.user.id ===
+					process.env.RATOT_CREATOR_DISCORD_ID;
 			} else {
 				isBotAdmin = true;
 			}
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
-					ephemeral: true,
+					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				if (userToAdd.id === process.env.RATOT_CURRENT_DISCORD_ID) {
 					return interaction.reply({
 						content: "I cannot be my own administrator",
-						ephemeral: true,
+						flags: MessageFlags.Ephemeral,
 					}); //Send a warning message to the user
 				}
 				let verifyUser = await BotAdmin.find({
@@ -66,8 +72,9 @@ module.exports = {
 					});
 					newAdmin.save();
 					interaction.reply({
-						content: "<@" + userToAdd.id + "> is now an administrator!",
-						ephemeral: anonym,
+						content:
+							"<@" + userToAdd.id + "> is now an administrator!",
+						flags: anonym ? MessageFlags.Ephemeral : undefined,
 					});
 					warnLogger.warn(
 						interaction.member.user.username +
@@ -75,7 +82,7 @@ module.exports = {
 							userToAdd.username +
 							" with the id " +
 							userToAdd.id +
-							" as admin!"
+							" as admin!",
 					);
 					try {
 						let currentYear = new Date().getFullYear();
@@ -84,9 +91,11 @@ module.exports = {
 							.setTitle(
 								" Now you are an administrator of the " +
 									process.env.RATOT_CURRENT_NAME +
-									" Bot!"
+									" Bot!",
 							)
-							.setDescription("Here is some commands you can do now:")
+							.setDescription(
+								"Here is some commands you can do now:",
+							)
 							.addFields(
 								{
 									name: "/change-status <number of status> <status>",
@@ -94,13 +103,11 @@ module.exports = {
 								},
 								{
 									name: "/add-bot-admin <@someone>",
-									value:
-										"Add a new administrator to the bot __**(don't do it without the creator permission!)**__",
+									value: "Add a new administrator to the bot __**(don't do it without the creator permission!)**__",
 								},
 								{
 									name: "/remove-bot-admin <@someone>",
-									value:
-										"Remove an administrator of the bot __**(don't do it without the creator permission!)**__",
+									value: "Remove an administrator of the bot __**(don't do it without the creator permission!)**__",
 								},
 								{
 									name: "/list-servers",
@@ -108,13 +115,12 @@ module.exports = {
 								},
 								{
 									name: "/list-channels <optionalServerId>",
-									value:
-										"Lists all the channels from a given server ID or from the server where the message is sent.",
-								}
+									value: "Lists all the channels from a given server ID or from the server where the message is sent.",
+								},
 							)
 							.setTimestamp()
 							.setThumbnail(
-								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512"
+								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 							)
 							.setAuthor({
 								name: process.env.RATOT_CURRENT_NAME,
@@ -123,7 +129,10 @@ module.exports = {
 								url: "https://github.com/Ratot-Team/Ratot",
 							})
 							.setFooter({
-								text: "Copyright © 2020-" + currentYear + " by Captain Ratax",
+								text:
+									"Copyright © " +
+									currentYear +
+									" by Captain Ratax",
 								iconURL:
 									"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
 							});
@@ -136,31 +145,31 @@ module.exports = {
 									interaction.reply({
 										content:
 											"It wasn't possible to send private message to the user with the admin informations.",
-										ephemeral: true,
-									})
+										flags: MessageFlags.Ephemeral,
+									}),
 								);
 						} catch (err) {
 							errorLogger.error(
 								"An error as occurred when trying to send private message to user. Error:",
-								error
+								error,
 							);
 						}
 					} catch (error) {
 						errorLogger.error(
 							"An error as occurred when trying to send private message to user. Error:",
-							error
+							error,
 						);
 						return interaction.reply({
 							content:
 								"It wasn't possible to send private message to the user with the admin informations.",
-							ephemeral: true,
+							flags: MessageFlags.Ephemeral,
 						});
 					}
 					return;
 				} else {
 					return interaction.reply({
 						content: "That user is already my administrator",
-						ephemeral: anonym,
+						flags: anonym ? MessageFlags.Ephemeral : undefined,
 					});
 				}
 			}
@@ -169,7 +178,7 @@ module.exports = {
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},

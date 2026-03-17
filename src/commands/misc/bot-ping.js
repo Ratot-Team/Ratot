@@ -1,4 +1,9 @@
-const { ApplicationCommandOptionType } = require("discord.js");
+// Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
+// Copyright (C) 2026 CaptainRatax
+// Licensed under the GNU Affero General Public License v3.0 or later
+// See the LICENSE file for details.
+
+const { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 const { errorLogger } = require("../../utils/logger");
 
 module.exports = {
@@ -22,14 +27,14 @@ module.exports = {
 			let botPing = client.ws.ping;
 			interaction.reply({
 				content: "My ping is:" + botPing + "ms",
-				ephemeral: anonym,
+				flags: anonym ? MessageFlags.Ephemeral : undefined,
 			});
 		} catch (error) {
 			errorLogger.error("Error on bot ping command. Errors:", error);
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
-				ephemeral: true,
+				flags: MessageFlags.Ephemeral,
 			});
 		}
 	},
