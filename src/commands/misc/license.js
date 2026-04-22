@@ -1,5 +1,5 @@
 // Ratot - Ratot is a Discord bot made to help you administrate your server and have some fun.
-// Copyright (C) 2026 CaptainRatax
+// Copyright (C) 2026 Captain Ratax
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
