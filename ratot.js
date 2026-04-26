@@ -48,13 +48,17 @@ if (cluster.isMaster) {
 }
 
 if (cluster.isWorker) {
-	try {
-		mongoose.connect(process.env.DBURL);
-		infoLogger.info("Connected to MongoDB");
-	} catch (error) {
-		errorLogger.error("Connected to MongoDB. Errors:", err);
-	}
+	mongoose
+		.connect(process.env.DBURL)
+		.then(() => {
+			infoLogger.info("Connected to MongoDB");
+		})
+		.catch((error) => {
+			errorLogger.error("Error when connecting to MongoDB. Errors:", error);
+		});
 
+	app.locals.discordClient = client;
+	app.locals.mongoose = mongoose;
 	app.use("/", api);
 	infoLogger.info("API routes are set up and ready to use!");
 
