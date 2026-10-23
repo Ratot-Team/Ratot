@@ -3,12 +3,12 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 const {
 	EmbedBuilder,
 	ApplicationCommandOptionType,
 	MessageFlags,
 } = require("discord.js");
+const { getConfig } = require("../../config");
 
 module.exports = {
 	name: "help",
@@ -30,9 +30,10 @@ module.exports = {
 		//get the current year
 		const anonym = interaction.options.getBoolean("anonym");
 		const currentYear = new Date().getFullYear();
+		const botName = getConfig().discord.name;
 		const helpEmbed = new EmbedBuilder()
 			.setColor("#66ccff")
-			.setTitle(process.env.RATOT_CURRENT_NAME + " Help Menu")
+			.setTitle(botName + " Help Menu")
 			.addFields(
 				{
 					name: "Commands List",
@@ -49,18 +50,18 @@ module.exports = {
 			)
 			.setTimestamp()
 			.setThumbnail(
-				"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+				"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 			)
 			.setAuthor({
-				name: process.env.RATOT_CURRENT_NAME,
+				name: botName,
 				iconURL:
-					"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+					"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 				url: "https://github.com/Ratot-Team/Ratot",
 			})
 			.setFooter({
 				text: "Copyright © " + currentYear + " by Captain Ratax",
 				iconURL:
-					"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+					"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 			}); //Create a personalized embed message
 		interaction.reply({
 			embeds: [helpEmbed],

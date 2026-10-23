@@ -29,8 +29,8 @@ module.exports = {
 				content: "My ping is:" + botPing + "ms",
 				flags: anonym ? MessageFlags.Ephemeral : undefined,
 			});
-		} catch (error) {
-			errorLogger.error("Error on bot ping command. Errors:", error);
+		} catch {
+			errorLogger.error("Bot ping command failed.");
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",

@@ -3,12 +3,12 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 var { ApplicationCommandOptionType, EmbedBuilder, MessageFlags } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
-const { BotAdmin } = require("../../../models/botAdminsSchema");
-const e = require("express");
+const { getConfig } = require("../../config");
+const { isAdmin, addAdminIfAbsent } = require("../../repositories/admins");
+const { safeDatabaseError } = require("../../db");
 
 module.exports = {
 	name: "add-bot-admin",
@@ -37,41 +37,30 @@ module.exports = {
 		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
-			let checkAdmin = await BotAdmin.find({
-				userId: interaction.member.user.id,
-			});
-			let isBotAdmin;
-			if (!checkAdmin.length || checkAdmin.length === 0) {
-				isBotAdmin =
-					interaction.member.user.id ===
-					process.env.RATOT_CREATOR_DISCORD_ID;
-			} else {
-				isBotAdmin = true;
-			}
+			const config = getConfig();
+			const hasAdminRecord = await isAdmin(interaction.member.user.id);
+			const isBotAdmin =
+				hasAdminRecord || interaction.member.user.id === config.creator.id;
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
 					flags: MessageFlags.Ephemeral,
 				});
 			} else {
-				if (userToAdd.id === process.env.RATOT_CURRENT_DISCORD_ID) {
+				if (userToAdd.id === config.discord.id) {
 					return interaction.reply({
 						content: "I cannot be my own administrator",
 						flags: MessageFlags.Ephemeral,
 					}); //Send a warning message to the user
 				}
-				let verifyUser = await BotAdmin.find({
+				const { created } = await addAdminIfAbsent({
 					userId: userToAdd.id,
+					userName: userToAdd.username,
+					createdBy: interaction.member.user.username,
+					createdById: interaction.member.user.id,
 				});
-				if (!verifyUser.length || verifyUser.length === 0) {
-					let newAdmin = new BotAdmin({
-						userId: userToAdd.id,
-						userName: userToAdd.username,
-						createdBy: interaction.member.user.username,
-						createdById: interaction.member.user.id,
-					});
-					newAdmin.save();
-					interaction.reply({
+				if (created) {
+					await interaction.reply({
 						content:
 							"<@" + userToAdd.id + "> is now an administrator!",
 						flags: anonym ? MessageFlags.Ephemeral : undefined,
@@ -90,7 +79,7 @@ module.exports = {
 							.setColor("#66ccff")
 							.setTitle(
 								" Now you are an administrator of the " +
-									process.env.RATOT_CURRENT_NAME +
+									config.discord.name +
 									" Bot!",
 							)
 							.setDescription(
@@ -120,12 +109,12 @@ module.exports = {
 							)
 							.setTimestamp()
 							.setThumbnail(
-								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+								"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 							)
 							.setAuthor({
-								name: process.env.RATOT_CURRENT_NAME,
+								name: config.discord.name,
 								iconURL:
-									"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+									"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 								url: "https://github.com/Ratot-Team/Ratot",
 							})
 							.setFooter({
@@ -134,36 +123,20 @@ module.exports = {
 									currentYear +
 									" by Captain Ratax",
 								iconURL:
-									"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+									"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 							});
+						await userToAdd.send({ embeds: [adminEmbed] });
+					} catch {
+						errorLogger.error("Could not send admin notification to user");
 						try {
-							userToAdd
-								.send({
-									embeds: [adminEmbed],
-								})
-								.catch(() =>
-									interaction.reply({
-										content:
-											"It wasn't possible to send private message to the user with the admin informations.",
-										flags: MessageFlags.Ephemeral,
-									}),
-								);
-						} catch (err) {
-							errorLogger.error(
-								"An error as occurred when trying to send private message to user. Error:",
-								err,
-							);
+							await interaction.followUp({
+								content:
+									"It wasn't possible to send private message to the user with the admin informations.",
+								flags: MessageFlags.Ephemeral,
+							});
+						} catch {
+							errorLogger.error("Could not report admin notification failure");
 						}
-					} catch (error) {
-						errorLogger.error(
-							"An error as occurred when trying to send private message to user. Error:",
-							error,
-						);
-						return interaction.reply({
-							content:
-								"It wasn't possible to send private message to the user with the admin informations.",
-							flags: MessageFlags.Ephemeral,
-						});
 					}
 					return;
 				} else {
@@ -174,12 +147,15 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			errorLogger.error("Error on  command add admin. Errors:", error);
-			interaction.reply({
+			errorLogger.error(`Add admin command failed: ${safeDatabaseError(error)}`);
+			const response = {
 				content:
 					"Something wrong happened when trying to execute that command...",
 				flags: MessageFlags.Ephemeral,
-			});
+			};
+			return interaction.replied || interaction.deferred
+				? interaction.followUp(response)
+				: interaction.reply(response);
 		}
 	},
 };

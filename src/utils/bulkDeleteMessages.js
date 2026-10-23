@@ -5,73 +5,48 @@
 
 const { errorLogger } = require("../utils/logger");
 const { MessageFlags } = require("discord.js");
-var lastDeleteMessageId = 0;
+const pendingConfirmationIds = new Map();
 
 module.exports = async (interaction, messagesToDelete, anonym) => {
-	let auxArray = await interaction.channel.messages.fetch({ limit: 2 });
-	let isReadyForNewDelete = true;
-
-	await auxArray.forEach((currMessage) => {
-		if (isReadyForNewDelete) {
-			isReadyForNewDelete = currMessage.id !== lastDeleteMessageId;
-		}
+	const channelId = interaction.channel.id;
+	const excludedIds = pendingConfirmationIds.get(channelId) || new Set();
+	const recentMessages = await interaction.channel.messages.fetch({
+		limit: Math.min(100, messagesToDelete + excludedIds.size),
 	});
+	const selectedMessages = recentMessages
+		.filter((message) => !excludedIds.has(message.id))
+		.first(messagesToDelete);
+	const deletedCount = (await interaction.channel.bulkDelete(selectedMessages, true)).size;
 
-	if (!isReadyForNewDelete) {
-		return interaction.reply({
-			content:
-				"Chill out! Wait a little bit before sending another delete command...",
-			flags: MessageFlags.Ephemeral,
-		});
+	let content;
+	if (deletedCount === 0) {
+		content = "No messages have been deleted, probably because the messages are older than 14 days.";
+	} else if (deletedCount === 1) {
+		content = "1 message has been deleted!";
+	} else {
+		content = `${deletedCount} messages have been deleted!`;
 	}
 
-	let n = messagesToDelete;
-	n++;
-	let msgsDeletedObj = await interaction.channel.bulkDelete(n, true); //Delete the number of messages requested by the user
-	let msgsDeleted = msgsDeletedObj.size;
-	try {
-		if (msgsDeleted === 1) {
-			return interaction
-				.reply({
-					content: msgsDeleted + " message has been deleted!",
-					flags: anonym ? MessageFlags.Ephemeral : undefined,
-				})
-				.then((interaction) => {
-					lastDeleteMessageId = interaction.id;
-					if (!anonym) setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
-				});
-		} else {
-			if (msgsDeleted <= 0) {
-				return interaction
-					.reply({
-						content:
-							"No messages have been deleted, probably because the messages are older than 14 days.",
-						flags: anonym ? MessageFlags.Ephemeral : undefined,
-					})
-					.then((interaction) => {
-						lastDeleteMessageId = interaction.id;
-						if (!anonym)
-							setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
-					});
-			} else {
-				return interaction
-					.reply({
-						content: msgsDeleted + " messages have been deleted!",
-						flags: anonym ? MessageFlags.Ephemeral : undefined,
-					})
-					.then((interaction) => {
-						lastDeleteMessageId = interaction.id;
-						if (!anonym)
-							setTimeout(() => interaction.delete(), 6000); //Delete the success message after 10 seconds
-					});
-			}
-		}
-	} catch (err) {
-		errorLogger.error("Error on bulkDeleteMessages.js. Errors:", err);
-		interaction.reply({
-			content:
-				"Something wrong happened when trying to execute that command...",
-			flags: MessageFlags.Ephemeral,
-		});
+	const response = await interaction.reply({
+		content,
+		flags: anonym ? MessageFlags.Ephemeral : undefined,
+		withResponse: !anonym,
+	});
+	if (anonym) return;
+
+	const replyId = response?.resource?.message?.id;
+	if (replyId) {
+		const ids = pendingConfirmationIds.get(channelId) || new Set();
+		ids.add(replyId);
+		pendingConfirmationIds.set(channelId, ids);
 	}
+	const timer = setTimeout(() => {
+		void interaction.deleteReply().then(() => {
+			if (!replyId) return;
+			const ids = pendingConfirmationIds.get(channelId);
+			ids?.delete(replyId);
+			if (ids?.size === 0) pendingConfirmationIds.delete(channelId);
+		}).catch(() => errorLogger.error("Could not remove prune confirmation."));
+	}, 6000);
+	timer.unref?.();
 };

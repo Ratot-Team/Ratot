@@ -3,12 +3,12 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 var { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
-const { BotAdmin } = require("../../../models/botAdminsSchema");
-const e = require("express");
+const { getConfig } = require("../../config");
+const { isAdmin, removeAdminsByUserId } = require("../../repositories/admins");
+const { safeDatabaseError } = require("../../db");
 
 module.exports = {
 	name: "remove-bot-admin",
@@ -37,42 +37,30 @@ module.exports = {
 		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
-			let checkAdmin = await BotAdmin.find({
-				userId: interaction.member.user.id,
-			});
-			let isBotAdmin;
-			if (!checkAdmin.length || checkAdmin.length === 0) {
-				isBotAdmin =
-					interaction.member.user.id ===
-					process.env.RATOT_CREATOR_DISCORD_ID;
-			} else {
-				isBotAdmin = true;
-			}
+			const config = getConfig();
+			const hasAdminRecord = await isAdmin(interaction.member.user.id);
+			const isBotAdmin =
+				hasAdminRecord || interaction.member.user.id === config.creator.id;
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
 					flags: MessageFlags.Ephemeral,
 				});
 			} else {
-				if (userToRemove.id === process.env.RATOT_CURRENT_DISCORD_ID) {
+				if (userToRemove.id === config.discord.id) {
 					return interaction.reply({
 						content: "I cannot be my own administrator",
 						flags: MessageFlags.Ephemeral,
 					}); //Send a warning message to the user
 				}
-				let verifyUser = await BotAdmin.find({
-					userId: userToRemove.id,
-				});
-				if (!verifyUser.length || verifyUser.length === 0) {
+				const removed = await removeAdminsByUserId(userToRemove.id);
+				if (removed === 0) {
 					return interaction.reply({
 						content:
 							"<@" + userToRemove.id + "> isn't my administrator",
 						flags: MessageFlags.Ephemeral,
 					});
 				} else {
-					await BotAdmin.deleteMany({
-						userId: userToRemove.id,
-					});
 					warnLogger.warn(
 						interaction.member.user.username +
 							" removed the user " +
@@ -91,8 +79,8 @@ module.exports = {
 				}
 			}
 		} catch (error) {
-			errorLogger.error("Error on  command remove admin. Errors:", error);
-			interaction.reply({
+			errorLogger.error(`Remove admin command failed: ${safeDatabaseError(error)}`);
+			return interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
 				flags: MessageFlags.Ephemeral,

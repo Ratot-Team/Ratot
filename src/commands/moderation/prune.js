@@ -131,13 +131,16 @@ module.exports = {
 					});
 				}
 			}
-		} catch (error) {
-			errorLogger.error("Error on delete.js file. Errors:", error);
-			return interaction.reply({
+		} catch {
+			errorLogger.error("Prune command failed.");
+			const response = {
 				content:
 					"Something wrong happened when trying to execute that command...",
 				flags: MessageFlags.Ephemeral,
-			});
+			};
+			return interaction.replied || interaction.deferred
+				? interaction.followUp(response)
+				: interaction.reply(response);
 		}
 	},
 };

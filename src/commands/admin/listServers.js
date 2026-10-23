@@ -3,7 +3,6 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 var {
 	EmbedBuilder,
 	ApplicationCommandOptionType,
@@ -11,7 +10,9 @@ var {
 } = require("discord.js");
 
 const { errorLogger } = require("../../utils/logger");
-const { BotAdmin } = require("../../../models/botAdminsSchema");
+const { getConfig } = require("../../config");
+const { isAdmin } = require("../../repositories/admins");
+const { safeDatabaseError } = require("../../db");
 const sendPaginatedEmbed = require("../../utils/custom_discordjs-button-pagination");
 
 module.exports = {
@@ -32,17 +33,10 @@ module.exports = {
 	callback: async (client, interaction) => {
 		try {
 			const anonym = interaction.options.getBoolean("anonym");
-			let checkAdmin = await BotAdmin.find({
-				userId: interaction.member.user.id,
-			});
-			let isBotAdmin;
-			if (!checkAdmin.length || checkAdmin.length === 0) {
-				isBotAdmin =
-					interaction.member.user.id ===
-					process.env.RATOT_CREATOR_DISCORD_ID;
-			} else {
-				isBotAdmin = true;
-			}
+			const config = getConfig();
+			const hasAdminRecord = await isAdmin(interaction.member.user.id);
+			const isBotAdmin =
+				hasAdminRecord || interaction.member.user.id === config.creator.id;
 			if (isBotAdmin) {
 				var i = 0;
 				var j = 0;
@@ -52,16 +46,16 @@ module.exports = {
 					.setTitle("Servers List")
 					.setTimestamp()
 					.setAuthor({
-						name: process.env.RATOT_CURRENT_NAME,
+						name: config.discord.name,
 						iconURL:
-							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+							"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 						url: "https://github.com/Ratot-Team/Ratot",
 					})
 					.setFooter({
 						text:
 							"Copyright © " + currentYear + " by Captain Ratax",
 						iconURL:
-							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+							"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 					});
 				var embeds = [];
 				await client.guilds.cache.forEach((guild) => {
@@ -77,9 +71,9 @@ module.exports = {
 							.setTitle("Servers List")
 							.setTimestamp()
 							.setAuthor({
-								name: process.env.RATOT_CURRENT_NAME,
+								name: config.discord.name,
 								iconURL:
-									"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+									"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 								url: "https://github.com/Ratot-Team/Ratot",
 							})
 							.setFooter({
@@ -88,7 +82,7 @@ module.exports = {
 									currentYear +
 									" by Captain Ratax",
 								iconURL:
-									"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+									"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 							});
 						j++;
 					} else {
@@ -123,8 +117,8 @@ module.exports = {
 				});
 			}
 		} catch (error) {
-			errorLogger.error("Error on  command remove admin. Errors:", error);
-			interaction.reply({
+			errorLogger.error(`List servers command failed: ${safeDatabaseError(error)}`);
+			return interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
 				flags: MessageFlags.Ephemeral,

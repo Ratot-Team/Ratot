@@ -3,10 +3,9 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 const { ApplicationCommandOptionType, MessageFlags } = require("discord.js");
 const { errorLogger } = require("../../utils/logger");
-const e = require("express");
+const { getConfig } = require("../../config");
 
 module.exports = {
 	name: "hug",
@@ -41,7 +40,7 @@ module.exports = {
 		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
-			if (userToHug.id === process.env.RATOT_CURRENT_DISCORD_ID) {
+			if (userToHug.id === getConfig().discord.id) {
 				//If the user mentioned the bot
 				interaction.reply({
 					content:
@@ -67,8 +66,8 @@ module.exports = {
 					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
-		} catch (error) {
-			errorLogger.error("Error on hug command. Errors:", error);
+		} catch {
+			errorLogger.error("Hug command failed.");
 			interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",

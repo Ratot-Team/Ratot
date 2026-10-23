@@ -3,63 +3,50 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-const { infoLogger, errorLogger } = require("../../utils/logger");
-const { BotConfigs } = require("../../../models/botConfigsSchema");
-const { BotAdmin } = require("../../../models/botAdminsSchema");
+const { infoLogger, warnLogger, errorLogger } = require("../../utils/logger");
+const { getConfig } = require("../../config");
+const { addAdminIfAbsent } = require("../../repositories/admins");
+const { getStatusConfig } = require("../../repositories/configs");
+const { safeDatabaseError } = require("../../db");
 const { ActivityType } = require("discord.js");
 
 module.exports = async (client) => {
+    const config = getConfig();
     try {
-        infoLogger.info(process.env.RATOT_CURRENT_NAME + " is online!");
-        if (process.env.RATOT_CURRENT_TOKEN === process.env.RATOT_DEV_TOKEN) {
-            //If we are using the dev bot
-            infoLogger.info("Bot in dev mode.");
-        } else {
-            infoLogger.info("Bot in production mode.");
-        }
-        let checkConfigs = await BotConfigs.find({
-            config: "Status",
-        });
-        if (!checkConfigs.length || checkConfigs.length === 0) {
-            try {
-                client.user.setActivity("/help", {
-                    type: ActivityType.Listening,
-                }); //Set an activity to the bot saying that he is listening to $help
+        infoLogger.info(config.discord.name + " is online!");
+        infoLogger.info("Bot in " + config.env + " mode.");
+        const status = await getStatusConfig();
+        const activityTypes = {
+            PLAYING: ActivityType.Playing,
+            LISTENING: ActivityType.Listening,
+            WATCHING: ActivityType.Watching,
+            COMPETING: ActivityType.Competing,
+        };
+        const activityType = status && typeof status.value2 === "string"
+            ? activityTypes[status.value2.toUpperCase()]
+            : undefined;
+
+        try {
+            if (status && status.value && activityType !== undefined) {
+                await client.user.setActivity(status.value, { type: activityType });
+                infoLogger.info('Bot status set to "' + status.value2 + " " + status.value + '"');
+            } else {
+                if (status) warnLogger.warn("Stored bot status is invalid; using /help activity.");
+                await client.user.setActivity("/help", { type: ActivityType.Listening });
                 infoLogger.info('Bot status set to "LISTENING /help"');
-            } catch (err) {
-                errorLogger.error("Error on client.once method! Errors:", err);
             }
-        } else {
-            try {
-                client.user.setActivity(checkConfigs[0].value, {
-                    type: checkConfigs[0].valueInt,
-                });
-                infoLogger.info(
-                    'Bot status set to "' +
-                        checkConfigs[0].value2 +
-                        " " +
-                        checkConfigs[0].value +
-                        '"'
-                );
-            } catch (err) {
-                errorLogger.error("Error on client.once method! Errors:", err);
-            }
+        } catch {
+            errorLogger.error("Could not apply bot status to Discord on startup");
         }
 
-        //Verify if the creator is already on the database as an admin
-        let checkAdmin = await BotAdmin.find({
-            userId: process.env.RATOT_CREATOR_DISCORD_ID,
+        await addAdminIfAbsent({
+            userId: config.creator.id,
+            userName: config.creator.username,
+            createdBy: config.creator.username,
+            createdById: config.creator.id,
         });
-        if (!checkAdmin.length || checkAdmin.length === 0) {
-            let creator = new BotAdmin({
-                userId: process.env.RATOT_CREATOR_DISCORD_ID,
-                userName: process.env.RATOT_CREATOR_DISCORD_USERNAME,
-                createdBy: process.env.RATOT_CREATOR_DISCORD_USERNAME,
-                createdById: process.env.RATOT_CREATOR_DISCORD_ID,
-            });
-            creator.save();
-        }
     } catch (error) {
-        errorLogger.error("Error on client.once method! Errors:", error);
+        errorLogger.error(`Bot initialization failed: ${safeDatabaseError(error)}`);
+        throw new Error("Bot initialization failed");
     }
 };

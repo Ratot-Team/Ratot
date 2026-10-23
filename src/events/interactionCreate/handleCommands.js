@@ -6,8 +6,7 @@
 const { errorLogger } = require("../../utils/logger");
 const getLocalCommands = require("../../utils/getLocalCommands");
 const { MessageFlags } = require("discord.js");
-
-require("dotenv").config();
+const { safeDatabaseError } = require("../../db");
 
 module.exports = async (client, interaction) => {
 	if (!interaction.isChatInputCommand()) return;
@@ -47,6 +46,12 @@ module.exports = async (client, interaction) => {
 
 		await commandObject.callback(client, interaction);
 	} catch (error) {
-		errorLogger.error("Error on handleCommands.js. Errors:", error);
+		errorLogger.error(`Command handling failed: ${safeDatabaseError(error)}`);
+		if (!interaction.replied && !interaction.deferred) {
+			return interaction.reply({
+				content: "Something wrong happened when trying to execute that command...",
+				flags: MessageFlags.Ephemeral,
+			});
+		}
 	}
 };

@@ -71,9 +71,15 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-.env.test
+# Local configuration and credentials
+.env*
+!.env.example
+.pgpass
+.npmrc
+*.key
+*.pem
+*.p12
+*.pfx
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
