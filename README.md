@@ -1,6 +1,6 @@
 # RATOT Discord
 
-RATOT is a Discord bot for server administration and a few social commands. This development branch is **version 0.7.0** and uses PostgreSQL. The currently deployed bot still uses MongoDB; version 0.7.0 has not been cut over to production.
+RATOT is a Discord bot for server administration and a few social commands. **Version 0.7.0** uses PostgreSQL 18 for persistent storage, replacing the legacy MongoDB implementation.
 
 ## Requirements
 
@@ -32,13 +32,21 @@ Before Discord login, startup verifies PostgreSQL 18, UTF8, the selected databas
 
 The application expects the existing tables `public.bot_admins`, `public.bot_configs` and `public.bot_config_logs`. Their PostgreSQL `BIGINT` identity primary keys are distinct from Discord IDs, which remain text. The nullable `mongo_id` columns retain the imported MongoDB identifiers. Config logs have no foreign key to configs, and application updates set `updated_at` explicitly.
 
-The DEV database already contains one admin, one config and eight imported config logs. Keep those records and verify that the identity sequences can generate IDs above the imported rows before allowing new writes. Provision any new database with the agreed PostgreSQL 18 schema and dedicated role before starting the bot. The bot does not manage the schema.
+The initial DEV migration imported one admin, one config and eight config logs. On October 23, 2026, the PROD migration imported the same collection counts from the final MongoDB export (10 records total). The import was committed and the table counts verified; production identity sequences were then aligned with the imported IDs (1, 1 and 8 respectively). These counts describe the migration snapshot and will change as the bot writes new data.
+
+Provision every environment with the agreed PostgreSQL 18 UTF8 schema and dedicated role before starting the bot. The application does not create or migrate tables on startup. Preserve the original MongoDB backup and export files until production behavior and rollback requirements have been reviewed.
 
 ## Run
 
 Run `npm start` only after the selected database is prepared and the configuration is complete. The bot and status API start together. Stop it with Ctrl+C; the application closes its PostgreSQL pool during graceful shutdown. Do not run the development bot against the real production database.
 
-The production PostgreSQL database currently uses `SQL_ASCII` and is not ready for RATOT 0.7.0. No production database change, data import or bot restart is part of this branch.
+### Production deployment and cutover
+
+The `ratot_discord_prod` database was recreated with **UTF8**, the required three-table schema was provisioned, and the final MongoDB export was imported and verified on October 23, 2026. The old `SQL_ASCII` database was retained separately as `ratot_discord_prod_sqlascii_backup`. MongoDB source data and its backup are retained for rollback. The database migration was performed separately; merging this PR does not execute SQL migrations.
+
+**Important:** a push or merge to `main` triggers the GitHub Actions **Deploy (production)** workflow. The workflow connects to LXC 101 over SSH and runs `/home/bot/deploy.sh`, which can reload or start the PM2-managed bot. Coordinate the merge with the announced maintenance window, verify `RATOT_ENV=prod`, `DATABASE_URL_PROD`, `POSTGRES_SSL_MODE=verify-full` and `POSTGRES_CA_CERT_PATH=/etc/postgresql-client/quartz-guardian-root-ca.crt` on the production host, and monitor deployment logs before ending maintenance. Never commit the production `.env`.
+
+After the first PostgreSQL-based production startup, verify Discord connectivity, database-backed commands, the status API and monitoring before bringing the service back to normal operation.
 
 ## Commands
 
