@@ -40,7 +40,7 @@ const sendPaginatedEmbed = async (
 			" | Page 1 of " +
 			embeds.length,
 		iconURL:
-			"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+			"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 	});
 
 	await originalInteraction.reply({
@@ -82,7 +82,7 @@ const sendPaginatedEmbed = async (
 				" of " +
 				embeds.length,
 			iconURL:
-				"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+				"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 		});
 
 		await interaction.editReply({

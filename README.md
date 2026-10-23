@@ -1,107 +1,59 @@
+# RATOT Discord
 
-# ![Ratot Status](https://status.ratot.eu/api/badge/11/status?style=for-the-badge&label=ratot+status) ![Ratot DB Status](https://status.ratot.eu/api/badge/10/status?style=for-the-badge&label=ratot+db+status) ![Ratot Uptime](https://status.ratot.eu/api/badge/11/uptime/72?style=for-the-badge&label=ratot+uptime+%2872h%29) ![Ratot DB Uptime](https://status.ratot.eu/api/badge/10/uptime/72?style=for-the-badge&label=ratot+db+uptime+%2872h%29) ![GitHub release (latest by date)](https://img.shields.io/github/v/release/Ratot-Team/Ratot?style=for-the-badge) ![GPLv3 Licensed](https://img.shields.io/github/license/Ratot-Team/Ratot?style=for-the-badge) ![Code quality grade on Codacy](https://img.shields.io/codacy/grade/0fac0afc837146f699a969a81ce97d11?style=for-the-badge) ![GitHub repository size](https://img.shields.io/github/repo-size/Ratot-Team/Ratot?style=for-the-badge) ![Discord.js Version](https://img.shields.io/badge/discord.js-v14.14.1-green?style=for-the-badge) ![Node.js Version](https://img.shields.io/badge/node.js-v16.13.0-green?style=for-the-badge) ![GitHub last commit](https://img.shields.io/github/last-commit/Ratot-Team/Ratot?style=for-the-badge) ![GitHub issues](https://img.shields.io/github/issues/Ratot-Team/Ratot?style=for-the-badge) ![GitHub pull requests](https://img.shields.io/github/issues-pr/Ratot-Team/Ratot?style=for-the-badge) ![GitHub language count](https://img.shields.io/github/languages/count/Ratot-Team/Ratot?style=for-the-badge) ![GitHub top language](https://img.shields.io/github/languages/top/Ratot-Team/Ratot?style=for-the-badge) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/Ratot-Team/Ratot?style=for-the-badge)
+RATOT is a Discord bot for server administration and a few social commands. This development branch is **version 0.7.0** and uses PostgreSQL. The currently deployed bot still uses MongoDB; version 0.7.0 has not been cut over to production.
 
-# Ratot
+## Requirements
 
-Ratot is a Discord bot made to help you administrate your server and have some fun.
+- Node.js 25.8.1 or newer within the supported 25.x or 26.x range, and npm.
+- PostgreSQL 18 with a dedicated RATOT database and role.
+- A PostgreSQL server certificate for `postgresql.home.arpa` and the Quartz Guardian root CA certificate. TLS certificate and hostname validation are mandatory.
+- A Discord application and bot token for the selected environment.
 
-## Invite Ratot
+The code uses CommonJS, `discord.js` 14, Express, Winston and `pg` (node-postgres). PostgreSQL access is shared through one connection pool. The application does not create or alter database tables on startup.
 
-You can add Ratot to your Discord server using the invite link below:
+## Install and configure
 
-🔗 [Invite Ratot to your server](https://discord.com/oauth2/authorize?client_id=756290869900083272&permissions=8&integration_type=0&scope=bot)
+Install the locked dependencies with `npm ci`. On a fresh checkout, copy [`.env.example`](./.env.example) to a local `.env` and replace every placeholder. Do not commit `.env`, tokens, passwords, certificates containing private keys, or local credential files. An existing `.env` should be preserved and edited locally as needed.
 
-## Status Page
+Set `RATOT_ENV` explicitly to `dev` or `prod`. There is no default. The configuration module selects all three Discord application values and the matching PostgreSQL URL together:
 
-You can check the current status of Ratot, its database, and view incident history on the official status page:
+| `RATOT_ENV` | PostgreSQL URL | Discord ID, name and token |
+| --- | --- | --- |
+| `dev` | `DATABASE_URL_DEV` | `RATOT_DEV_DISCORD_ID`, `RATOT_DEV_NAME`, `RATOT_DEV_TOKEN` |
+| `prod` | `DATABASE_URL_PROD` | `RATOT_PROD_DISCORD_ID`, `RATOT_PROD_NAME`, `RATOT_PROD_TOKEN` |
 
-🔗 [status.ratot.eu](https://status.ratot.eu)
+The common settings are `PORT`, `RATOT_CREATOR_DISCORD_ID`, `RATOT_CREATOR_DISCORD_USERNAME` and `RATOT_GUILD_ID`. The old `RATOT_CURRENT_*` and `DBURL` settings are no longer used. Missing or inconsistent settings stop startup; values from the opposite environment are not used as fallback.
 
-The status page provides:
+Set `POSTGRES_SSL_MODE=verify-full` and `POSTGRES_CA_CERT_PATH` to a readable copy of the public Quartz Guardian root CA certificate. The development PC uses `/home/captainratax/.postgresql/root.crt`; LXC 101 uses `/etc/postgresql-client/quartz-guardian-root-ca.crt`. Keep the hostname `postgresql.home.arpa` in the database URL so TLS hostname verification matches the server certificate. Do not use the IP address in place of the hostname. The bot uses the dedicated `ratot_discord_dev_user` or `ratot_discord_prod_user` role, never an administrative account.
 
-- Real-time uptime information
-- Database status
-- Historical incidents and outages
+Before Discord login, startup verifies PostgreSQL 18, UTF8, the selected database and role, read access to all three tables, and the write privileges used by current bot commands (admin insert/delete, config insert/update, and log insert). It fails if these checks do not pass.
 
-## Installation and Execution
+## PostgreSQL schema
 
-Use [npm](https://www.npmjs.com/get-npm) to install all the dependencies needed.
+The application expects the existing tables `public.bot_admins`, `public.bot_configs` and `public.bot_config_logs`. Their PostgreSQL `BIGINT` identity primary keys are distinct from Discord IDs, which remain text. The nullable `mongo_id` columns retain the imported MongoDB identifiers. Config logs have no foreign key to configs, and application updates set `updated_at` explicitly.
 
-```bash
-npm install
-```
+The DEV database already contains one admin, one config and eight imported config logs. Keep those records and verify that the identity sequences can generate IDs above the imported rows before allowing new writes. Provision any new database with the agreed PostgreSQL 18 schema and dedicated role before starting the bot. The bot does not manage the schema.
 
-### Execution
+## Run
 
-Now install the nodemon package globally.
+Run `npm start` only after the selected database is prepared and the configuration is complete. The bot and status API start together. Stop it with Ctrl+C; the application closes its PostgreSQL pool during graceful shutdown. Do not run the development bot against the real production database.
 
-```bash
-npm install nodemon -g
-```
+The production PostgreSQL database currently uses `SQL_ASCII` and is not ready for RATOT 0.7.0. No production database change, data import or bot restart is part of this branch.
 
-Now use the next command to execute the Ratot Bot (sometimes you need to close and reopen the terminal if the nodemon command was not recognized).
+## Commands
 
-```bash
-npm start
-```
+- `/help` and `/help-commands`: help menus.
+- `/ping` and `/bot-ping`: bot response and latency.
+- `/hug <@someone>`: send a hug.
+- `/prune <number>`: delete messages; requires server administrator permissions.
+- `/change-status <number> <status>`: change the bot status; bot administrators only.
+- `/add-bot-admin <@someone>` and `/remove-bot-admin <@someone>`: manage bot administrators.
+- `/list-servers` and `/list-channels [server ID]`: inspect servers and channels; bot administrators only.
 
-To stop the bot press Ctrl+C or just close the window.
-
-## Usage (List of Commands)
-
-### /help
-
-The bot sens a menu with some information about the bot and some commands to help.
-
-### /help-commands
-
-The bot sends the list of all commands and the description of what they do.
-
-### /ping
-
-The bot responds with "pong", but to know the bot ping you really have to insist a little bit
-
-### /prune \<number\>
-
-The bot deletes a certain number of messages. Only admins can use this command.
-
-### /hug \<@someone\>
-
-The bot gives a hug to someone you mention. You can mention yourself don't be shy!
-
-### /bot-ping
-
-Says the ping value of the bot
-
-## Admin Usage (list of commands only for bot admins)
-
-### /change-status \<number of status\> \<status\>
-
-Change the bot status to whatever the admin wants
-
-### /add-bot-admin \<@someone\>
-
-Adds the user as admin to the bot database
-
-### /remove-bot-admin \<@someone\>
-
-Removes the user as admin from the bot database
-
-### /list-servers
-
-Lists all the servers the bot is on
-
-### /list-channels \<optionalServerId\>
-
-Lists all the channels from a given server ID or from the server where the message is sent.
+[Invite RATOT](https://discord.com/oauth2/authorize?client_id=756290869900083272&permissions=8&integration_type=0&scope=bot) · [Service status](https://status.ratot.eu) · [Privacy Policy](./PRIVACY%20POLICY.txt) · [Terms of Service](./TERMS%20OF%20SERVICE.txt)
 
 ## License
 
 Copyright (C) 2026 Captain Ratax
 
-This project is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-See the [LICENSE](./LICENSE) file for the full license text.
+This project is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. See [LICENSE](./LICENSE).

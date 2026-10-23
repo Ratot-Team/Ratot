@@ -96,15 +96,11 @@ function doOnRotate(level, oldFileName) {
 					);
 				}
 			})
-			.catch((err) => {
-				errorLogger.error(
-					"The rotation of the " + level + " logger has errors: " + err
-				);
+			.catch(() => {
+				errorLogger.error("The rotation of the " + level + " logger failed.");
 			});
-	} catch (error) {
-		errorLogger.error(
-			"The rotation of the " + level + " logger has errors: " + error
-		);
+	} catch {
+		errorLogger.error("The rotation of the " + level + " logger failed.");
 	}
 }
 

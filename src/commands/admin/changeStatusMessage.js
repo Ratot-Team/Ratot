@@ -3,7 +3,6 @@
 // Licensed under the GNU Affero General Public License v3.0 or later
 // See the LICENSE file for details.
 
-require("dotenv").config();
 var {
 	ApplicationCommandOptionType,
 	EmbedBuilder,
@@ -12,9 +11,10 @@ var {
 } = require("discord.js");
 
 const { errorLogger, warnLogger } = require("../../utils/logger");
-const { BotAdmin } = require("../../../models/botAdminsSchema");
-const { BotConfigs } = require("../../../models/botConfigsSchema");
-const { BotConfigsLog } = require("../../../models/botConfigsLogSchema");
+const { getConfig } = require("../../config");
+const { isAdmin } = require("../../repositories/admins");
+const { changeStatus } = require("../../services/status");
+const { safeDatabaseError } = require("../../db");
 
 module.exports = {
 	name: "change-status",
@@ -52,17 +52,10 @@ module.exports = {
 		const anonym = interaction.options.getBoolean("anonym");
 
 		try {
-			let checkAdmin = await BotAdmin.find({
-				userId: interaction.member.user.id,
-			});
-			let isBotAdmin;
-			if (!checkAdmin.length || checkAdmin.length === 0) {
-				isBotAdmin =
-					interaction.member.user.id ===
-					process.env.RATOT_CREATOR_DISCORD_ID;
-			} else {
-				isBotAdmin = true;
-			}
+			const config = getConfig();
+			const hasAdminRecord = await isAdmin(interaction.member.user.id);
+			const isBotAdmin =
+				hasAdminRecord || interaction.member.user.id === config.creator.id;
 			if (!isBotAdmin) {
 				return interaction.reply({
 					content: "Only bot admins can use this command!",
@@ -100,12 +93,12 @@ module.exports = {
 						)
 						.setTimestamp()
 						.setThumbnail(
-							"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+							"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 						)
 						.setAuthor({
-							name: process.env.RATOT_CURRENT_NAME,
+							name: config.discord.name,
 							iconURL:
-								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+								"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 							url: "https://github.com/Ratot-Team/Ratot",
 						})
 						.setFooter({
@@ -114,7 +107,7 @@ module.exports = {
 								currentYear +
 								" by Captain Ratax",
 							iconURL:
-								"https://cdn.discordapp.com/avatars/759404636888498186/7767a8b3aae66dc5198ca89f7fc16173.png?size=512",
+								"https://raw.githubusercontent.com/Ratot-Team/Ratot/main/assets/avatar_with_background_compressed.gif",
 						});
 					return interaction.reply({
 						embeds: [statusEmbed],
@@ -144,18 +137,20 @@ module.exports = {
 					ActivityType.Competing,
 				];
 
-				try {
-					await client.user.setActivity(statusMessage, {
-						type: auxTypes[positionOfStatus],
-					});
-				} catch (err) {
-					errorLogger.error(
-						"Error on  command change bot settings. Errors:",
-						err,
-					);
-					interaction.reply({
-						content:
-							"Something wrong happened when trying to execute that command...",
+				const { applied } = await changeStatus({
+					client,
+					activityType: auxTypes[positionOfStatus],
+					value: statusMessage,
+					value2: auxTypesNames[positionOfStatus],
+					value3: null,
+					lastModifiedBy: interaction.member.user.id,
+					changedBy: interaction.member.user.username,
+					changedById: interaction.member.user.id,
+				});
+				if (!applied) {
+					errorLogger.error("Could not apply saved bot status to Discord");
+					return interaction.reply({
+						content: "Status saved, but Discord could not apply it immediately.",
 						flags: MessageFlags.Ephemeral,
 					});
 				}
@@ -167,67 +162,14 @@ module.exports = {
 						" " +
 						statusMessage,
 				);
-				let checkConfigs = await BotConfigs.find({
-					config: "Status",
-				});
-				let previousStatus,
-					previousType = "";
-				if (!checkConfigs.length || checkConfigs.length === 0) {
-					let changedBotConfigs = await new BotConfigs({
-						config: "Status",
-						value: statusMessage,
-						value2: auxTypesNames[positionOfStatus],
-						value3: null,
-						valueInt: auxTypes[positionOfStatus],
-						valueInt2: null,
-						valueInt3: null,
-						lastModifiedBy: interaction.member.user.id,
-					});
-					await changedBotConfigs.save();
-				} else {
-					previousStatus = checkConfigs[0].value;
-					previousType = checkConfigs[0].value2;
-					checkConfigs[0].value = statusMessage;
-					checkConfigs[0].value2 = auxTypesNames[positionOfStatus];
-					checkConfigs[0].value3 = null;
-					checkConfigs[0].valueInt = auxTypes[positionOfStatus];
-					checkConfigs[0].valueInt2 = null;
-					checkConfigs[0].valueInt3 = null;
-					checkConfigs[0].lastModifiedBy = interaction.member.user.id;
-					await BotConfigs.findOneAndUpdate(
-						{
-							_id: checkConfigs[0]._id,
-						},
-						checkConfigs[0],
-						{
-							new: true,
-							useFindAndModify: false,
-						},
-					);
-				}
-				let changedBotConfigsLog = new BotConfigsLog({
-					changed: "Status",
-					changedFrom: previousStatus,
-					changedFrom2: previousType,
-					changedFrom3: null,
-					changedTo: statusMessage,
-					changedTo2: auxTypesNames[positionOfStatus],
-					changedTo3: null,
-					changedBy: interaction.member.user.username,
-					changedById: interaction.member.user.id,
-				});
-				await changedBotConfigsLog.save();
 				return interaction.reply({
 					content: "Status successfully changed!",
 					flags: anonym ? MessageFlags.Ephemeral : undefined,
 				});
 			}
 		} catch (error) {
-			errorLogger.error(
-				"Error on  command change bot settings. Errors:",
-				error,
-			);
-			interaction.reply({
+			errorLogger.error(`Change status command failed: ${safeDatabaseError(error)}`);
+			return interaction.reply({
 				content:
 					"Something wrong happened when trying to execute that command...",
 				flags: MessageFlags.Ephemeral,

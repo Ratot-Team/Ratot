@@ -7,8 +7,8 @@ const { errorLogger, warnLogger } = require("../../utils/logger");
 const areCommandsDifferent = require("../../utils/areCommandsDifferent");
 const getApplicationCommands = require("../../utils/getApplicationCommands");
 const getLocalCommands = require("../../utils/getLocalCommands");
-
-require("dotenv").config();
+const { getConfig } = require("../../config");
+const { safeDatabaseError } = require("../../db");
 
 module.exports = async (client) => {
 	try {
@@ -16,7 +16,7 @@ module.exports = async (client) => {
 		const applicationCommands = await getApplicationCommands(client);
 		const botAdminOnlyCommands = await getApplicationCommands(
 			client,
-			process.env.RATOT_GUILD_ID
+			getConfig().guildId
 		);
 
 		for (const localCommand of localCommands) {
@@ -47,7 +47,7 @@ module.exports = async (client) => {
 				}
 				if (areCommandsDifferent(existingCommand, localCommand)) {
 					if (localCommand.botAdminOnly) {
-						botAdminOnlyCommands.edit(existingCommand.id, {
+					await botAdminOnlyCommands.edit(existingCommand.id, {
 							description,
 							options,
 						});
@@ -83,6 +83,11 @@ module.exports = async (client) => {
 			}
 		}
 	} catch (error) {
-		errorLogger.error("Error on registerCommands.js. Errors:", error);
+		errorLogger.error(
+			`Error on registerCommands.js: ${safeDatabaseError(error)}`,
+		);
+		const failure = new Error("Discord command registration failed");
+		failure.code = "DISCORD_COMMAND_REGISTRATION_FAILED";
+		throw failure;
 	}
 };
